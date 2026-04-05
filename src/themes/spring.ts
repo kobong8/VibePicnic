@@ -40,15 +40,17 @@ const spring: Theme = {
 
   renderGround(groundMap: GroundMap, height: number, width: number): void {
     const color = renderer.fgRgb(200, 160, 170);
+    const dimColor = renderer.fgRgb(230, 190, 200);
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(Math.floor(h / 4), Math.floor(height / 5));
+        const displayH = Math.min(Math.floor(h / 2), Math.floor(height / 5));
         for (let dy = 0; dy < displayH; dy++) {
           const gy = height - 2 - dy;
           if (gy > 0 && gy < height - 1) {
-            const ch = dy === displayH - 1 ? GROUND_CHARS[Math.floor(Math.random() * GROUND_CHARS.length)] : ".";
-            renderer.set(x, gy, ch, color);
+            const isTop = dy === displayH - 1;
+            const ch = isTop ? GROUND_CHARS[Math.floor(Math.random() * GROUND_CHARS.length)] : ".";
+            renderer.set(x, gy, ch, isTop ? dimColor : color);
           }
         }
       }

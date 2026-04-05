@@ -46,15 +46,22 @@ const autumn: Theme = {
       renderer.fgRgb(139, 90, 43),
       renderer.fgRgb(210, 105, 30),
     ];
+    const topColors = [
+      renderer.fgRgb(218, 165, 32),
+      renderer.fgRgb(255, 140, 0),
+      renderer.fgRgb(205, 133, 63),
+    ];
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(Math.floor(h / 3), Math.floor(height / 5));
+        const displayH = Math.min(h, Math.floor(height / 5));
         for (let dy = 0; dy < displayH; dy++) {
           const gy = height - 2 - dy;
           if (gy > 0 && gy < height - 1) {
+            const isTop = dy === displayH - 1;
             const ch = GROUND_CHARS[Math.floor(Math.random() * GROUND_CHARS.length)];
-            const color = colors[Math.floor(Math.random() * colors.length)];
+            const palette = isTop ? topColors : colors;
+            const color = palette[Math.floor(Math.random() * palette.length)];
             renderer.set(x, gy, ch, color);
           }
         }

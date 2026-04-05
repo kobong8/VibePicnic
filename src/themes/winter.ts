@@ -38,17 +38,20 @@ const winter: Theme = {
   },
 
   renderGround(groundMap: GroundMap, height: number, width: number): void {
-    const color = renderer.fgRgb(220, 230, 255);
+    const color = renderer.fgRgb(200, 215, 240);
     const brightColor = renderer.fgRgb(255, 255, 255);
+    const midColor = renderer.fgRgb(230, 240, 255);
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(Math.floor(h / 3), Math.floor(height / 4));
+        const displayH = Math.min(Math.floor(h / 2), Math.floor(height / 4));
         for (let dy = 0; dy < displayH; dy++) {
           const gy = height - 2 - dy;
           if (gy > 0 && gy < height - 1) {
             const isTop = dy === displayH - 1;
-            renderer.set(x, gy, isTop ? "~" : ".", isTop ? brightColor : color);
+            const ch = isTop ? "~" : (dy < 2 ? ":" : ".");
+            const c = isTop ? brightColor : (dy === 0 ? midColor : color);
+            renderer.set(x, gy, ch, c);
           }
         }
       }

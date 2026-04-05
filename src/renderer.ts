@@ -56,21 +56,19 @@ const renderer: Renderer = {
   },
 
   flush() {
-    let out = `${ESC}H`;
+    let out = "";
     for (let y = 0; y < this.height; y++) {
-      let line = "";
+      out += `${ESC}${y + 1};1H`;
       let prevColor: string | null = null;
       for (let x = 0; x < this.width; x++) {
         const color = this.colorBuffer[y][x];
         if (color !== prevColor) {
-          line += color || `${ESC}0m`;
+          out += color || `${ESC}0m`;
           prevColor = color;
         }
-        line += this.buffer[y][x];
+        out += this.buffer[y][x];
       }
-      line += `${ESC}0m`;
-      out += line;
-      if (y < this.height - 1) out += "\n";
+      out += `${ESC}0m`;
     }
     process.stdout.write(out);
   },
