@@ -64,7 +64,7 @@ export class ParticleSystem {
       if (p.x < 0) p.x += width;
       if (p.x >= width) p.x -= width;
 
-      if (ok && p.y < height - 1 && p.y >= 0) {
+      if (ok && p.y < height - 1) {
         alive.push(p);
       } else if (p.y >= height - 1) {
         landed.push(p);

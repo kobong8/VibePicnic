@@ -24,7 +24,7 @@ const spring: Theme = {
     const chars = ascii ? PETALS_ASCII : PETALS;
     const idx = Math.floor(Math.random() * chars.length);
     return new Particle(Math.random() * width, startY, {
-      speedY: 0.15 + Math.random() * 0.4,
+      speedY: 0.06 + Math.random() * 0.12,
       speedX: Math.random() * 0.3 - 0.1,
       char: chars[idx],
       color: COLORS[Math.floor(Math.random() * COLORS.length)],

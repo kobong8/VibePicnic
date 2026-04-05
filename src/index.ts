@@ -92,6 +92,14 @@ export function run(options: RunOptions): void {
     activeTheme = themes[name];
     system.particles = [];
     for (const k in groundMap) delete groundMap[k];
+    for (let i = 0; i < currentDensity; i++) {
+      const p = activeTheme.createParticle(
+        renderer.width,
+        Math.random() * renderer.height,
+        ascii
+      );
+      system.add(p);
+    }
   }
 
   process.stdout.on("resize", () => {
