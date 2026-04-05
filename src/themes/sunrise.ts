@@ -11,8 +11,7 @@ const SEAGULL_CHARS = ["~", "ˆ", "·"];
 
 // Sun colors (from deep red to bright gold as it rises)
 function sunColor(progress: number): [number, number, number] {
-  // progress: 0 = just appearing, 1 = fully risen
-  const r = Math.floor(255);
+  const r = 255;
   const g = Math.floor(60 + progress * 160);
   const b = Math.floor(0 + progress * 60);
   return [r, g, b];
@@ -20,7 +19,6 @@ function sunColor(progress: number): [number, number, number] {
 
 // Sky gradient colors based on sun progress
 function skyColor(progress: number, yRatio: number): [number, number, number] {
-  // yRatio: 0 = top, 1 = horizon
   if (progress < 0.1) {
     // Pre-dawn: dark blue to dark purple
     const r = Math.floor(10 + yRatio * 30);
@@ -44,14 +42,13 @@ function skyColor(progress: number, yRatio: number): [number, number, number] {
   ];
 }
 
-function waterColor(progress: number, distFromCenter: number, tick: number, y: number): [number, number, number] {
-  const wave = Math.sin(tick * 0.03 + y * 0.5) * 0.3;
+function waterColor(progress: number, distFromCenter: number, _tick: number, y: number): [number, number, number] {
   const glow = Math.max(0, 1 - distFromCenter * 0.04) * progress;
 
-  // Base ocean: deep dark blue
-  const baseR = 5 + Math.floor(glow * 200);
-  const baseG = 15 + Math.floor(glow * 100 + wave * 15);
-  const baseB = 40 + Math.floor(glow * 60 + wave * 10);
+  // Base ocean: deep vivid blue
+  const baseR = 5 + Math.floor(glow * 180);
+  const baseG = 30 + Math.floor(glow * 60 + Math.sin(y * 0.3) * 10);
+  const baseB = 90 + Math.floor(glow * 30 + Math.sin(y * 0.3) * 15);
 
   return [
     Math.min(255, baseR),
@@ -59,8 +56,6 @@ function waterColor(progress: number, distFromCenter: number, tick: number, y: n
     Math.min(255, baseB),
   ];
 }
-
-let internalTick = 0;
 
 const sunrise: Theme = {
   name: "sunrise",
@@ -108,7 +103,7 @@ const sunrise: Theme = {
   },
 
   groundDisplayH(_landings: number): number {
-    return 0; // No ground accumulation for sunrise
+    return 0;
   },
 
   renderGround(_groundMap: GroundMap, _height: number, _width: number, _ascii?: boolean): void {
@@ -116,33 +111,61 @@ const sunrise: Theme = {
   },
 
   renderBackground(tick: number, width: number, height: number, ascii?: boolean): void {
-    internalTick = tick;
     const horizonY = Math.floor(height * 0.45);
     const maxSunRise = Math.floor(height * 0.25);
 
-    // Sun rises over ~600 ticks (about 30 seconds at 20fps), then stays
+    // Sun rises over ~600 ticks (~30 seconds at 20fps), then stays
     const sunProgress = Math.min(1, tick / 600);
     const sunCenterX = Math.floor(width * 0.5);
     const sunY = horizonY - Math.floor(sunProgress * maxSunRise);
     const sunRadius = Math.max(3, Math.floor(Math.min(width, height) * 0.08));
 
+    // Terminal characters are roughly 2x taller than wide, so we need
+    // an aspect ratio correction to make the sun appear circular.
+    const aspectRatio = 2.0;
+
     // === Draw sky ===
     for (let y = 0; y < horizonY; y++) {
       const yRatio = y / horizonY;
       for (let x = 0; x < width; x++) {
-        // Check if inside sun
         const dx = x - sunCenterX;
-        const dy = (y - sunY) * 2; // Stretch vertically for terminal aspect ratio
+        const dy = (y - sunY) * aspectRatio;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < sunRadius) {
-          // Sun body
+          // Sun body - concentric rings for round shape
           const [sr, sg, sb] = sunColor(sunProgress);
-          const edgeFade = dist / sunRadius;
-          const cr = Math.min(255, Math.floor(sr + (1 - edgeFade) * 30));
-          const cg = Math.min(255, Math.floor(sg + (1 - edgeFade) * 40));
-          const cb = Math.min(255, Math.floor(sb + (1 - edgeFade) * 20));
-          const ch = ascii ? "O" : (dist < sunRadius * 0.5 ? "█" : (dist < sunRadius * 0.8 ? "▓" : "▒"));
+          const normDist = dist / sunRadius;
+
+          let ch: string;
+          let cr: number, cg: number, cb: number;
+
+          if (normDist < 0.35) {
+            // Inner core: brightest
+            ch = ascii ? "@" : "█";
+            cr = Math.min(255, sr + 30);
+            cg = Math.min(255, sg + 40);
+            cb = Math.min(255, sb + 30);
+          } else if (normDist < 0.6) {
+            // Middle ring
+            ch = ascii ? "#" : "▓";
+            cr = sr;
+            cg = sg;
+            cb = sb;
+          } else if (normDist < 0.8) {
+            // Outer ring
+            ch = ascii ? "=" : "▒";
+            cr = Math.max(0, sr - 20);
+            cg = Math.max(0, sg - 10);
+            cb = sb;
+          } else {
+            // Edge - softest
+            ch = ascii ? "-" : "░";
+            cr = Math.max(0, sr - 40);
+            cg = Math.max(0, sg - 20);
+            cb = sb;
+          }
+
           renderer.set(x, y, ch, renderer.fgRgb(cr, cg, cb));
         } else if (dist < sunRadius * 2.5 && sunProgress > 0.05) {
           // Sun glow / light rays
@@ -196,8 +219,8 @@ const sunrise: Theme = {
           const ri = reflectIntensity * shimmer;
 
           const rr = Math.min(255, Math.floor(wr + ri * 200));
-          const rg = Math.min(255, Math.floor(wg + ri * 120));
-          const rb = Math.min(255, Math.floor(wb + ri * 40));
+          const rg = Math.min(255, Math.floor(wg + ri * 100));
+          const rb = Math.min(255, Math.floor(wb + ri * 30));
 
           const waveOffset = Math.sin(tick * 0.04 + x * 0.15) * 0.5;
           if (ri > 0.4 + waveOffset * 0.2) {
@@ -206,20 +229,36 @@ const sunrise: Theme = {
             renderer.set(x, y, ch, renderer.fgRgb(rr, rg, rb));
           } else {
             const chars = ascii ? WAVE_ASCII : WAVE_CHARS;
-            renderer.set(x, y, chars[(x + y + Math.floor(tick * 0.3)) % chars.length], renderer.fgRgb(wr, wg, wb));
+            renderer.set(x, y, chars[(x + y + Math.floor(tick * 0.3)) % chars.length],
+              renderer.fgRgb(wr, wg, wb));
           }
         } else {
-          // Regular ocean
+          // Regular ocean - bluer tones
           const wave = Math.sin(tick * 0.03 + x * 0.12 + y * 0.2);
+          // Deeper blue base for non-reflection areas
+          const deepR = Math.max(0, wr - 5);
+          const deepG = Math.min(255, wg + 10);
+          const deepB = Math.min(255, wb + 30);
+
           if (wave > 0.6) {
             const chars = ascii ? WAVE_ASCII : WAVE_CHARS;
-            renderer.set(x, y, chars[(x + y) % chars.length], renderer.fgRgb(wr, wg, wb));
+            renderer.set(x, y, chars[(x + y) % chars.length],
+              renderer.fgRgb(deepR, deepG, deepB));
           } else if (wave > 0.1) {
-            renderer.set(x, y, ascii ? "~" : "∽", renderer.fgRgb(
-              Math.max(0, wr - 10),
-              Math.max(0, wg - 5),
-              Math.max(0, wb - 5),
-            ));
+            renderer.set(x, y, ascii ? "~" : "∽",
+              renderer.fgRgb(
+                Math.max(0, deepR - 5),
+                Math.max(0, deepG - 5),
+                Math.min(255, deepB + 10),
+              ));
+          } else {
+            // Fill even calm areas with dim wave chars for a fuller ocean
+            renderer.set(x, y, ascii ? "-" : "~",
+              renderer.fgRgb(
+                Math.max(0, deepR - 10),
+                Math.max(0, deepG - 10),
+                Math.min(255, deepB + 5),
+              ));
           }
         }
       }
@@ -235,27 +274,6 @@ const sunrise: Theme = {
         if (ry > horizonY) {
           const ch = ascii ? "#" : (dy === rockHeight - 1 ? "▄" : "█");
           renderer.set(x, ry, ch, renderer.fgRgb(20, 15, 10));
-        }
-      }
-    }
-
-    // === New Year greeting (fades in with the sun) ===
-    if (sunProgress > 0.3) {
-      const alpha = Math.min(1, (sunProgress - 0.3) / 0.3);
-      const greeting = "🌅 새해 복 많이 받으세요!";
-      const greetingAscii = "** Happy New Year! **";
-      const text = ascii ? greetingAscii : greeting;
-      const textY = Math.floor(height * 0.15);
-      const textX = Math.max(0, Math.floor((width - text.length) / 2));
-      const r = Math.min(255, Math.floor(200 + alpha * 55));
-      const g = Math.min(255, Math.floor(180 + alpha * 55));
-      const b = Math.min(255, Math.floor(100 + alpha * 55));
-
-      // Only show if sun has risen enough
-      const blink = tick % 60 < 50; // Subtle blink
-      if (blink) {
-        for (let i = 0; i < text.length && textX + i < width; i++) {
-          renderer.set(textX + i, textY, text[i], renderer.fgRgb(r, g, b));
         }
       }
     }

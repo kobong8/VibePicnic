@@ -6,9 +6,8 @@ import summer from "./themes/summer";
 import autumn from "./themes/autumn";
 import winter from "./themes/winter";
 import sunrise from "./themes/sunrise";
-import ginkgo from "./themes/ginkgo";
 
-export const themes: Record<string, Theme> = { spring, summer, autumn, winter, sunrise, ginkgo };
+export const themes: Record<string, Theme> = { spring, summer, autumn, winter, sunrise };
 
 export interface RunOptions {
   season?: string;
@@ -87,7 +86,6 @@ export function run(options: RunOptions): void {
     if (key === "3") switchTheme("autumn");
     if (key === "4") switchTheme("winter");
     if (key === "5") switchTheme("sunrise");
-    if (key === "6") switchTheme("ginkgo");
   });
 
   let activeTheme = theme;
@@ -190,7 +188,7 @@ export function run(options: RunOptions): void {
     const h = renderer.height;
 
     const icons: Record<string, string> = {
-      spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", sunrise: "🌅", ginkgo: "🌳",
+      spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", sunrise: "🌅",
     };
     const icon = icons[activeTheme.name] || "✨";
 
@@ -245,7 +243,6 @@ export function run(options: RunOptions): void {
       autumn: "🍂 Autumn breeze",
       winter: "❄️ Winter wonderland",
       sunrise: "🌅 새해 첫 일출",
-      ginkgo: "🌳 은행나무 단풍",
     };
 
     return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
@@ -263,7 +260,7 @@ export function run(options: RunOptions): void {
       renderer.set(tx + i, 0, title[i], titleColor);
     }
 
-    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-6:season | arrows:ctrl | q:quit `;
+    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-5:season | arrows:ctrl | q:quit `;
     const ix = Math.max(0, Math.floor((w - info.length) / 2));
     for (let i = 0; i < info.length && ix + i < w; i++) {
       renderer.set(ix + i, h - 1, info[i], infoColor);
@@ -279,7 +276,7 @@ export function run(options: RunOptions): void {
 
     if (!splash) {
       const labels: Record<string, string> = {
-        spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", sunrise: "🌅", ginkgo: "🌳",
+        spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", sunrise: "🌅",
       };
       console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`);
     }
