@@ -1,32 +1,27 @@
-"use strict";
-
-/**
- * 🌧️ 여름 - 비가 내리는 테마
- */
-
-const { Particle } = require("../particle");
-const renderer = require("../renderer");
+import { Particle, ParticleSystem } from "../particle";
+import renderer from "../renderer";
+import { Theme, GroundMap } from "./types";
 
 const RAIN_CHARS = ["|", "│", "┃", "¦", ":", "!"];
 const RAIN_ASCII = ["|", "!", ":", ";", "'", "."];
 const SPLASH_CHARS = ["·", ".", "'", "`", ","];
 
 const COLORS = [
-  renderer.fgRgb(100, 149, 237), // 코발트블루
-  renderer.fgRgb(135, 170, 222), // 연파랑
-  renderer.fgRgb(70, 130, 210),  // 블루
-  renderer.fgRgb(160, 190, 230), // 밝은 파랑
-  renderer.fgRgb(80, 120, 180),  // 진한 파랑
+  renderer.fgRgb(100, 149, 237),
+  renderer.fgRgb(135, 170, 222),
+  renderer.fgRgb(70, 130, 210),
+  renderer.fgRgb(160, 190, 230),
+  renderer.fgRgb(80, 120, 180),
 ];
 
 const SPLASH_COLOR = renderer.fgRgb(150, 200, 255);
 
-module.exports = {
+const summer: Theme = {
   name: "summer",
   label: "🌧️ 여름 - 비",
   fps: 30,
 
-  createParticle(width, startY, ascii) {
+  createParticle(width: number, startY: number, ascii: boolean): Particle {
     const chars = ascii ? RAIN_ASCII : RAIN_CHARS;
     const isSplash = startY > 0;
     if (isSplash) {
@@ -51,12 +46,11 @@ module.exports = {
     });
   },
 
-  spawnRate(density) {
+  spawnRate(density: number): number {
     return Math.random() < density * 0.06 ? Math.ceil(Math.random() * 3) : 0;
   },
 
-  renderGround(groundMap, height, width) {
-    // 비는 바닥에 물웅덩이 효과
+  renderGround(groundMap: GroundMap, height: number, width: number): void {
     const color = renderer.fgRgb(60, 100, 160);
     const gy = height - 2;
     if (gy <= 0) return;
@@ -69,8 +63,7 @@ module.exports = {
     }
   },
 
-  onLanded(landed, system, height) {
-    // 비가 바닥에 닿으면 스플래시 파티클 생성
+  onLanded(landed: Particle[], system: ParticleSystem, height: number): void {
     for (const p of landed) {
       if (Math.random() < 0.3) {
         const splash = this.createParticle(0, height - 2, false);
@@ -80,7 +73,9 @@ module.exports = {
     }
   },
 
-  getTitle() {
+  getTitle(): string {
     return " 🌧️ Vibe Picnic - 여름 ";
   },
 };
+
+export default summer;

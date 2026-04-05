@@ -1,31 +1,26 @@
-"use strict";
-
-/**
- * 🌸 봄 - 벚꽃이 흩날리는 테마
- */
-
-const { Particle } = require("../particle");
-const renderer = require("../renderer");
+import { Particle } from "../particle";
+import renderer from "../renderer";
+import { Theme, GroundMap } from "./types";
 
 const PETALS = ["🌸", "✿", "❀", "✾", "❁", "⚘", "·", ","];
 const PETALS_ASCII = ["*", "o", "@", "+", "x", ".", ",", "'"];
 const GROUND_CHARS = [".", ",", "~", "_", "'"];
 
 const COLORS = [
-  renderer.fgRgb(255, 183, 197), // 연분홍
-  renderer.fgRgb(255, 150, 170), // 분홍
-  renderer.fgRgb(255, 200, 210), // 밝은 분홍
-  renderer.fgRgb(255, 220, 230), // 아주 연한 분홍
-  renderer.fgRgb(240, 128, 160), // 진한 분홍
-  renderer.fgRgb(255, 240, 245), // 거의 흰색
+  renderer.fgRgb(255, 183, 197),
+  renderer.fgRgb(255, 150, 170),
+  renderer.fgRgb(255, 200, 210),
+  renderer.fgRgb(255, 220, 230),
+  renderer.fgRgb(240, 128, 160),
+  renderer.fgRgb(255, 240, 245),
 ];
 
-module.exports = {
+const spring: Theme = {
   name: "spring",
   label: "🌸 봄 - 벚꽃",
   fps: 25,
 
-  createParticle(width, startY, ascii) {
+  createParticle(width: number, startY: number, ascii: boolean): Particle {
     const chars = ascii ? PETALS_ASCII : PETALS;
     const idx = Math.floor(Math.random() * chars.length);
     return new Particle(Math.random() * width, startY, {
@@ -39,11 +34,11 @@ module.exports = {
     });
   },
 
-  spawnRate(density) {
+  spawnRate(density: number): number {
     return Math.random() < density * 0.04 ? Math.ceil(Math.random() * 2) : 0;
   },
 
-  renderGround(groundMap, height, width, ascii) {
+  renderGround(groundMap: GroundMap, height: number, width: number): void {
     const color = renderer.fgRgb(200, 160, 170);
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
@@ -60,7 +55,9 @@ module.exports = {
     }
   },
 
-  getTitle() {
+  getTitle(): string {
     return " 🌸 Vibe Picnic - 봄 ";
   },
 };
+
+export default spring;

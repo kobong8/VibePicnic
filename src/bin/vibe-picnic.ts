@@ -1,11 +1,9 @@
 #!/usr/bin/env node
-"use strict";
 
-const { run, detectSeason, themes } = require("../src/index");
+import { run, detectSeason, themes } from "../index";
 
 const args = process.argv.slice(2);
 
-// --help
 if (args.includes("--help") || args.includes("-h")) {
   console.log(`
 🌸 Vibe Picnic - 터미널에 계절이 내리는 CLI 애니메이션
@@ -64,14 +62,13 @@ Shell Setup (터미널 시작 시 자동 실행):
   process.exit(0);
 }
 
-// 인자 파싱
-function getArg(name, defaultVal) {
+function getArg(name: string, defaultVal: string): string {
   const idx = args.indexOf(name);
   if (idx === -1) return defaultVal;
   return args[idx + 1] || defaultVal;
 }
 
-function hasFlag(name) {
+function hasFlag(name: string): boolean {
   return args.includes(name);
 }
 
@@ -87,14 +84,12 @@ const options = {
   message: getArg("--message", ""),
 };
 
-// 유효성 검사
 const validSeasons = ["auto", "spring", "summer", "autumn", "winter"];
 if (!validSeasons.includes(options.season)) {
   console.error(`Error: Unknown season '${options.season}'. Use: ${validSeasons.join(", ")}`);
   process.exit(1);
 }
 
-// splash 모드는 바로 시작
 if (options.splash) {
   run(options);
 } else if (options.season === "auto") {
