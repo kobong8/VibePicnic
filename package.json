@@ -1,0 +1,35 @@
+{
+  "name": "beforesunrise",
+  "version": "1.0.0",
+  "description": "🌸 터미널에 계절이 내리는 CLI 애니메이션 - 봄 벚꽃, 여름 비, 가을 낙엽, 겨울 눈",
+  "main": "src/index.js",
+  "bin": {
+    "beforesunrise": "bin/beforesunrise.js",
+    "bfs": "bin/beforesunrise.js"
+  },
+  "keywords": [
+    "cli",
+    "terminal",
+    "animation",
+    "cherry-blossom",
+    "sakura",
+    "rain",
+    "snow",
+    "leaves",
+    "seasons",
+    "ascii-art"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kobong8/BeforeSunrise"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ]
+}
