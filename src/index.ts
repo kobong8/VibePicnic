@@ -5,9 +5,9 @@ import spring from "./themes/spring";
 import summer from "./themes/summer";
 import autumn from "./themes/autumn";
 import winter from "./themes/winter";
-import sunrise from "./themes/sunrise";
+import moonlake from "./themes/moonlake";
 
-export const themes: Record<string, Theme> = { spring, summer, autumn, winter, sunrise };
+export const themes: Record<string, Theme> = { spring, summer, autumn, winter, moonlake };
 
 export interface RunOptions {
   season?: string;
@@ -85,7 +85,7 @@ export function run(options: RunOptions): void {
     if (key === "2") switchTheme("summer");
     if (key === "3") switchTheme("autumn");
     if (key === "4") switchTheme("winter");
-    if (key === "5") switchTheme("sunrise");
+    if (key === "5") switchTheme("moonlake");
   });
 
   let activeTheme = theme;
@@ -188,7 +188,7 @@ export function run(options: RunOptions): void {
     const h = renderer.height;
 
     const icons: Record<string, string> = {
-      spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", sunrise: "🌅",
+      spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", moonlake: "🌕",
     };
     const icon = icons[activeTheme.name] || "✨";
 
@@ -242,7 +242,7 @@ export function run(options: RunOptions): void {
       summer: "🌧️ Summer rain",
       autumn: "🍂 Autumn breeze",
       winter: "❄️ Winter wonderland",
-      sunrise: "🌅 새해 첫 일출",
+      moonlake: "🌕 호숫가 달빛",
     };
 
     return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
@@ -276,7 +276,7 @@ export function run(options: RunOptions): void {
 
     if (!splash) {
       const labels: Record<string, string> = {
-        spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", sunrise: "🌅",
+        spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", moonlake: "🌕",
       };
       console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`);
     }
