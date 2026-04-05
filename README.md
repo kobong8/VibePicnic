@@ -1,4 +1,4 @@
-# BeforeSunrise
+# Vibe Picnic
 
 터미널에 계절이 내리는 CLI 애니메이션.
 `cmatrix`, `pipes.sh` 같은 터미널 아트 도구입니다.
@@ -11,14 +11,14 @@
 
 ```bash
 # npx로 바로 실행 (설치 불필요)
-npx beforesunrise
+npx vibe-picnic
 
 # 또는 전역 설치
-npm install -g beforesunrise
-beforesunrise
+npm install -g vibe-picnic
+vibe-picnic
 
 # 또는 단축 명령어
-bfs
+vp
 ```
 
 ## 옵션
@@ -46,13 +46,13 @@ bfs
 ## 예시
 
 ```bash
-beforesunrise                             # 현재 월 기준 자동 계절
-beforesunrise --season spring             # 봄 벚꽃
-beforesunrise --season summer --wind 2    # 비바람
-beforesunrise --season autumn             # 가을 낙엽
-beforesunrise --season winter --wind 0    # 고요한 겨울 눈
-beforesunrise --density 40 --speed 2      # 빠르고 화려하게
-beforesunrise --ascii --no-color          # 최소 환경용
+vibe-picnic                             # 현재 월 기준 자동 계절
+vibe-picnic --season spring             # 봄 벚꽃
+vibe-picnic --season summer --wind 2    # 비바람
+vibe-picnic --season autumn             # 가을 낙엽
+vibe-picnic --season winter --wind 0    # 고요한 겨울 눈
+vibe-picnic --density 40 --speed 2      # 빠르고 화려하게
+vibe-picnic --ascii --no-color          # 최소 환경용
 ```
 
 ## 자동 계절 감지

@@ -61,6 +61,6 @@ module.exports = {
   },
 
   getTitle() {
-    return " 🌸 BeforeSunrise - 봄 ";
+    return " 🌸 Vibe Picnic - 봄 ";
   },
 };

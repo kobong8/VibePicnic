@@ -187,7 +187,7 @@ function run(options) {
     process.stdin.pause();
 
     const labels = { spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️" };
-    console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - BeforeSunrise\n`);
+    console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`);
     process.exit(0);
   }
 

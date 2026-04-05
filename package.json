@@ -1,11 +1,11 @@
 {
-  "name": "beforesunrise",
+  "name": "vibe-picnic",
   "version": "1.0.0",
   "description": "🌸 터미널에 계절이 내리는 CLI 애니메이션 - 봄 벚꽃, 여름 비, 가을 낙엽, 겨울 눈",
   "main": "src/index.js",
   "bin": {
-    "beforesunrise": "bin/beforesunrise.js",
-    "bfs": "bin/beforesunrise.js"
+    "vibe-picnic": "bin/vibe-picnic.js",
+    "vp": "bin/vibe-picnic.js"
   },
   "keywords": [
     "cli",

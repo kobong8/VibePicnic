@@ -8,11 +8,11 @@ const args = process.argv.slice(2);
 // --help
 if (args.includes("--help") || args.includes("-h")) {
   console.log(`
-🌸 BeforeSunrise - 터미널에 계절이 내리는 CLI 애니메이션
+🌸 Vibe Picnic - 터미널에 계절이 내리는 CLI 애니메이션
 
 Usage:
-  beforesunrise [options]
-  npx beforesunrise [options]
+  vibe-picnic [options]
+  npx vibe-picnic [options]
 
 Options:
   --season <name>   계절 선택: spring, summer, autumn, winter, auto (기본: auto)
@@ -39,11 +39,11 @@ Seasons:
   auto    현재 월에 맞는 계절 자동 선택
 
 Examples:
-  beforesunrise                          자동 계절 감지
-  beforesunrise --season spring          봄 벚꽃
-  beforesunrise --season winter --wind 0 고요한 겨울 눈
-  beforesunrise --density 30 --speed 2   빠르고 화려하게
-  beforesunrise --ascii --no-color       최소 환경용
+  vibe-picnic                            자동 계절 감지
+  vibe-picnic --season spring            봄 벚꽃
+  vibe-picnic --season winter --wind 0   고요한 겨울 눈
+  vibe-picnic --density 30 --speed 2     빠르고 화려하게
+  vibe-picnic --ascii --no-color         최소 환경용
 `);
   process.exit(0);
 }

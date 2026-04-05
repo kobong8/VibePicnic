@@ -68,6 +68,6 @@ module.exports = {
   },
 
   getTitle() {
-    return " 🍂 BeforeSunrise - 가을 ";
+    return " 🍂 Vibe Picnic - 가을 ";
   },
 };

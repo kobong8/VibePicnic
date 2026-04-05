@@ -62,6 +62,6 @@ module.exports = {
   },
 
   getTitle() {
-    return " ❄️ BeforeSunrise - 겨울 ";
+    return " ❄️ Vibe Picnic - 겨울 ";
   },
 };
