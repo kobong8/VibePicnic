@@ -15,11 +15,30 @@ function starHash(x: number, y: number): number {
   return (h ^ (h >> 16)) >>> 0;
 }
 
-function lakeColor(distFromCenter: number, _tick: number, y: number): [number, number, number] {
-  // Base lake: deep dark blue-indigo
-  const baseR = 5 + Math.floor(Math.sin(y * 0.2) * 3);
-  const baseG = 12 + Math.floor(Math.sin(y * 0.3) * 5);
-  const baseB = 35 + Math.floor(Math.sin(y * 0.15) * 8);
+// ============================================================
+// 달 모양을 수정하려면 이 영역을 편집하세요!
+// To customize the moon shape, edit this section!
+//
+// moonRadius : 달 크기 (클수록 큼)
+// moonY      : 달의 Y 위치 (작을수록 위쪽)
+// moonCenterX: 달의 X 위치 (width * 0.5 = 가운데)
+// aspectRatio: 세로 보정 비율 (2.0 = 터미널 기본)
+//
+// 동심원 링 (normDist 기준):
+//   0.00 ~ 0.30 : 중심부 (가장 밝음, █)
+//   0.30 ~ 0.55 : 중간부 (▓)
+//   0.55 ~ 0.75 : 외곽부 (▒)
+//   0.75 ~ 0.90 : 가장자리 (░)
+//   0.90 ~ 1.00 : 테두리 (░, 어두움)
+//
+// 각 구간의 cr, cg, cb 값이 색상입니다 (R, G, B).
+// ============================================================
+
+function lakeColor(_distFromCenter: number, _tick: number, y: number): [number, number, number] {
+  // Base lake: blue / sky-blue tone
+  const baseR = 30 + Math.floor(Math.sin(y * 0.2) * 8);
+  const baseG = 80 + Math.floor(Math.sin(y * 0.3) * 12);
+  const baseB = 160 + Math.floor(Math.sin(y * 0.15) * 15);
 
   return [
     Math.min(255, Math.max(0, baseR)),
@@ -34,17 +53,15 @@ const moonlake: Theme = {
   fps: 18,
 
   createParticle(width: number, startY: number, ascii: boolean): Particle {
-    // Firefly / glowing particle near the lake surface
     const chars = ascii ? STAR_ASCII : STAR_CHARS;
     const brightness = Math.random();
 
-    // Pale moonlit sparkle colors
     const palette: [number, number, number][] = [
-      [200, 210, 240],  // cool white
-      [180, 190, 220],  // pale blue
-      [220, 220, 200],  // warm white
-      [160, 180, 210],  // steel blue
-      [210, 200, 180],  // pale gold
+      [220, 230, 255],  // bright white
+      [200, 215, 250],  // pale blue
+      [240, 235, 200],  // warm white
+      [180, 210, 250],  // light blue
+      [240, 220, 160],  // pale gold
     ];
     const c = palette[Math.floor(Math.random() * palette.length)];
 
@@ -56,7 +73,7 @@ const moonlake: Theme = {
       amplitude: 0.1 + Math.random() * 0.3,
       maxAge: 80 + Math.floor(Math.random() * 160),
       bold: brightness > 0.8,
-      dim: brightness < 0.4,
+      dim: false,
     });
   },
 
@@ -75,14 +92,13 @@ const moonlake: Theme = {
   renderBackground(tick: number, width: number, height: number, ascii?: boolean): void {
     const horizonY = Math.floor(height * 0.45);
 
+    // ── 달 위치/크기 설정 ──
     const moonCenterX = Math.floor(width * 0.5);
     const moonY = Math.floor(height * 0.18);
-    // Large moon: ~12% of the smaller screen dimension
     const moonRadius = Math.max(5, Math.floor(Math.min(width, height) * 0.12));
-
     const aspectRatio = 2.0;
 
-    // === Draw night sky ===
+    // === Night sky background (dark blue, not black) ===
     for (let y = 0; y < horizonY; y++) {
       const yRatio = y / horizonY;
       for (let x = 0; x < width; x++) {
@@ -91,43 +107,43 @@ const moonlake: Theme = {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < moonRadius) {
-          // === Moon body - large circular moon ===
+          // === 달 본체 (Moon body) ===
           const normDist = dist / moonRadius;
 
           let ch: string;
           let cr: number, cg: number, cb: number;
 
-          // Moon surface: pale silver-white with subtle craters
-          const craterNoise = Math.sin(x * 1.7 + y * 2.3) * 0.15 +
-                              Math.sin(x * 0.8 - y * 1.1) * 0.1;
+          // Crater texture for surface detail
+          const craterNoise = Math.sin(x * 1.7 + y * 2.3) * 0.12 +
+                              Math.sin(x * 0.8 - y * 1.1) * 0.08;
 
-          if (normDist < 0.3) {
-            // Inner core: brightest silver
+          if (normDist < 0.30) {
+            // 중심부: 밝은 노란색
             ch = ascii ? "@" : "█";
-            cr = 240 + Math.floor(craterNoise * 15);
-            cg = 238 + Math.floor(craterNoise * 12);
-            cb = 225 + Math.floor(craterNoise * 15);
+            cr = 255;
+            cg = 240 + Math.floor(craterNoise * 15);
+            cb = 120 + Math.floor(craterNoise * 20);
           } else if (normDist < 0.55) {
             ch = ascii ? "#" : "▓";
-            cr = 220 + Math.floor(craterNoise * 20);
-            cg = 218 + Math.floor(craterNoise * 15);
-            cb = 205 + Math.floor(craterNoise * 20);
+            cr = 250;
+            cg = 225 + Math.floor(craterNoise * 15);
+            cb = 100 + Math.floor(craterNoise * 20);
           } else if (normDist < 0.75) {
             ch = ascii ? "=" : "▒";
-            cr = 195 + Math.floor(craterNoise * 25);
-            cg = 193 + Math.floor(craterNoise * 20);
-            cb = 180 + Math.floor(craterNoise * 25);
-          } else if (normDist < 0.9) {
+            cr = 240;
+            cg = 205 + Math.floor(craterNoise * 20);
+            cb = 80 + Math.floor(craterNoise * 20);
+          } else if (normDist < 0.90) {
             ch = ascii ? "-" : "░";
-            cr = 165 + Math.floor(craterNoise * 25);
-            cg = 163 + Math.floor(craterNoise * 20);
-            cb = 155 + Math.floor(craterNoise * 20);
+            cr = 220;
+            cg = 185 + Math.floor(craterNoise * 20);
+            cb = 65 + Math.floor(craterNoise * 15);
           } else {
-            // Very edge - thin soft border
+            // 테두리: 약간 어두운 노란색
             ch = ascii ? "." : "░";
-            cr = 130;
-            cg = 128;
-            cb = 125;
+            cr = 190;
+            cg = 160;
+            cb = 55;
           }
 
           cr = Math.min(255, Math.max(0, cr));
@@ -135,16 +151,16 @@ const moonlake: Theme = {
           cb = Math.min(255, Math.max(0, cb));
           renderer.set(x, y, ch, renderer.fgRgb(cr, cg, cb));
 
-        } else if (dist < moonRadius * 1.8) {
-          // Moon glow - soft halo
-          const glowIntensity = Math.max(0, 1 - (dist - moonRadius) / (moonRadius * 0.8));
-          const gi = glowIntensity * 0.5;
+        } else if (dist < moonRadius * 2.0) {
+          // 달 주변 후광 (Moon glow) - warm yellow halo
+          const glowIntensity = Math.max(0, 1 - (dist - moonRadius) / moonRadius);
+          const gi = glowIntensity * 0.6;
 
-          if (gi > 0.15) {
-            const r = Math.min(255, Math.floor(20 + gi * 120));
-            const g = Math.min(255, Math.floor(20 + gi * 115));
-            const b = Math.min(255, Math.floor(40 + gi * 100));
-            const ch = gi > 0.3 ? (ascii ? "." : "·") : " ";
+          if (gi > 0.1) {
+            const r = Math.min(255, Math.floor(40 + gi * 180));
+            const g = Math.min(255, Math.floor(35 + gi * 160));
+            const b = Math.min(255, Math.floor(20 + gi * 60));
+            const ch = gi > 0.25 ? (ascii ? "." : "·") : " ";
             if (ch !== " ") {
               renderer.set(x, y, ch, renderer.fgRgb(r, g, b));
             }
@@ -156,55 +172,48 @@ const moonlake: Theme = {
     // === Twinkling stars ===
     for (let y = 0; y < horizonY; y++) {
       for (let x = 0; x < width; x++) {
-        // Skip if already drawn (moon area)
         const dx = x - moonCenterX;
         const dy = (y - moonY) * aspectRatio;
         const distToMoon = Math.sqrt(dx * dx + dy * dy);
-        if (distToMoon < moonRadius * 1.8) continue;
+        if (distToMoon < moonRadius * 2.0) continue;
 
         const hash = starHash(x, y);
-        // ~2% of sky cells are stars
-        if ((hash % 100) < 2) {
-          // Twinkle: use hash + tick to create per-star phase
+        if ((hash % 100) < 3) {  // ~3% density for more visible stars
           const phase = (hash % 1000) / 1000 * Math.PI * 2;
           const twinkle = Math.sin(tick * 0.06 + phase);
-          // Star is visible when twinkle > threshold (creates on/off blinking)
-          const brightness = twinkle * 0.5 + 0.5; // 0~1
+          const brightness = twinkle * 0.5 + 0.5;
 
-          if (brightness > 0.2) {
+          if (brightness > 0.15) {
             const starType = hash % STAR_CHARS.length;
             const ch = ascii ? STAR_ASCII[starType] : STAR_CHARS[starType];
 
-            // Star color variations
             const colorType = (hash >> 8) % 5;
             let r: number, g: number, b: number;
             if (colorType === 0) {
-              // Cool white
-              r = Math.floor(180 + brightness * 75);
-              g = Math.floor(185 + brightness * 70);
-              b = Math.floor(200 + brightness * 55);
+              // Bright white
+              r = Math.floor(200 + brightness * 55);
+              g = Math.floor(205 + brightness * 50);
+              b = Math.floor(220 + brightness * 35);
             } else if (colorType === 1) {
               // Warm yellow
-              r = Math.floor(200 + brightness * 55);
-              g = Math.floor(190 + brightness * 55);
-              b = Math.floor(140 + brightness * 50);
+              r = Math.floor(220 + brightness * 35);
+              g = Math.floor(210 + brightness * 35);
+              b = Math.floor(150 + brightness * 40);
             } else if (colorType === 2) {
-              // Pale blue
-              r = Math.floor(150 + brightness * 60);
-              g = Math.floor(170 + brightness * 60);
-              b = Math.floor(210 + brightness * 45);
+              // Light blue
+              r = Math.floor(170 + brightness * 50);
+              g = Math.floor(195 + brightness * 50);
+              b = Math.floor(230 + brightness * 25);
             } else {
-              // Standard white
-              r = Math.floor(170 + brightness * 85);
-              g = Math.floor(170 + brightness * 85);
-              b = Math.floor(175 + brightness * 80);
+              // Standard bright white
+              r = Math.floor(195 + brightness * 60);
+              g = Math.floor(195 + brightness * 60);
+              b = Math.floor(200 + brightness * 55);
             }
 
-            const isBold = brightness > 0.8;
-            const isDim = brightness < 0.4;
+            const isBold = brightness > 0.75;
             let color = renderer.fgRgb(r, g, b);
             if (isBold) color = renderer.bold() + color;
-            if (isDim) color = renderer.dim() + color;
             renderer.set(x, y, ch, color);
           }
         }
@@ -215,10 +224,9 @@ const moonlake: Theme = {
     for (let x = 0; x < width; x++) {
       const distFromMoon = Math.abs(x - moonCenterX);
       const glow = Math.max(0, 1 - distFromMoon / (width * 0.35));
-      const r = Math.min(255, Math.floor(15 + glow * 60));
-      const g = Math.min(255, Math.floor(20 + glow * 55));
-      const b = Math.min(255, Math.floor(30 + glow * 50));
-      // Organic shoreline with subtle variation
+      const r = Math.min(255, Math.floor(50 + glow * 120));
+      const g = Math.min(255, Math.floor(60 + glow * 110));
+      const b = Math.min(255, Math.floor(70 + glow * 80));
       const shoreCh = ascii ? "-" : ((x + Math.floor(Math.sin(x * 0.3) * 2)) % 3 === 0 ? "━" : "─");
       renderer.set(x, horizonY, shoreCh, renderer.fgRgb(r, g, b));
     }
@@ -233,59 +241,55 @@ const moonlake: Theme = {
         const distFromCenter = Math.abs(x - moonCenterX);
         const [wr, wg, wb] = lakeColor(distFromCenter, tick, y);
 
-        // Moon reflection: elongated vertical strip on water
+        // Moon reflection
         const reflectionWidth = moonRadius * (0.8 + lakeDepth * 2.5);
         const inReflection = distFromCenter < reflectionWidth;
 
         if (inReflection) {
           const reflectIntensity = (1 - distFromCenter / reflectionWidth);
-          // Gentle shimmer for calm lake surface
           const shimmer = Math.sin(tick * 0.03 + y * 1.0 + x * 0.2) * 0.25 + 0.75;
           const ri = reflectIntensity * shimmer;
 
-          // Moon reflection: silver-white on dark water
-          const rr = Math.min(255, Math.floor(wr + ri * 180));
-          const rg = Math.min(255, Math.floor(wg + ri * 175));
-          const rb = Math.min(255, Math.floor(wb + ri * 160));
+          // Moon reflection: warm yellow on blue water
+          const rr = Math.min(255, Math.floor(wr + ri * 220));
+          const rg = Math.min(255, Math.floor(wg + ri * 180));
+          const rb = Math.min(255, Math.floor(wb - ri * 40));
 
           const waveOffset = Math.sin(tick * 0.025 + x * 0.1) * 0.3;
           if (ri > 0.35 + waveOffset * 0.15) {
             const chars = ascii ? WAVE_ASCII : WAVE_CHARS;
             const ch = ri > 0.7 ? (ascii ? "*" : "✦") : chars[Math.floor((x + tick * 0.2) * 0.3) % chars.length];
-            renderer.set(x, y, ch, renderer.fgRgb(rr, rg, rb));
+            renderer.set(x, y, ch, renderer.fgRgb(rr, rg, Math.max(0, rb)));
           } else {
             const chars = ascii ? WAVE_ASCII : WAVE_CHARS;
             renderer.set(x, y, chars[(x + y + Math.floor(tick * 0.15)) % chars.length],
               renderer.fgRgb(
-                Math.min(255, wr + Math.floor(ri * 40)),
-                Math.min(255, wg + Math.floor(ri * 38)),
-                Math.min(255, wb + Math.floor(ri * 35)),
+                Math.min(255, wr + Math.floor(ri * 60)),
+                Math.min(255, wg + Math.floor(ri * 50)),
+                Math.min(255, wb - Math.floor(ri * 10)),
               ));
           }
         } else {
-          // Regular lake - dark calm water
+          // Regular lake - blue / sky-blue water
           const wave = Math.sin(tick * 0.02 + x * 0.1 + y * 0.15);
-          const darkR = Math.max(0, wr - 2);
-          const darkG = Math.max(0, wg);
-          const darkB = Math.min(255, wb + 15);
 
           if (wave > 0.65) {
             const chars = ascii ? WAVE_ASCII : WAVE_CHARS;
             renderer.set(x, y, chars[(x + y) % chars.length],
-              renderer.fgRgb(darkR, darkG, darkB));
+              renderer.fgRgb(wr, wg, wb));
           } else if (wave > 0.2) {
             renderer.set(x, y, ascii ? "~" : "∽",
               renderer.fgRgb(
-                Math.max(0, darkR - 3),
-                Math.max(0, darkG - 2),
-                Math.min(255, darkB + 5),
+                Math.max(0, wr - 5),
+                Math.max(0, wg - 5),
+                Math.min(255, wb + 10),
               ));
           } else {
             renderer.set(x, y, ascii ? "-" : "~",
               renderer.fgRgb(
-                Math.max(0, darkR - 5),
-                Math.max(0, darkG - 4),
-                Math.min(255, darkB + 3),
+                Math.max(0, wr - 8),
+                Math.max(0, wg - 8),
+                Math.min(255, wb + 5),
               ));
           }
         }
@@ -301,29 +305,27 @@ const moonlake: Theme = {
         const ty = horizonY - 1 - dy;
         if (ty >= 0) {
           const ch = ascii ? "^" : (dy === treeHeight - 1 ? "▲" : "█");
-          // Very dark silhouette with faint moonlight highlight on top
-          const highlight = dy === treeHeight - 1 ? 15 : 0;
-          renderer.set(x, ty, ch, renderer.fgRgb(8 + highlight, 12 + highlight, 8 + highlight));
+          const highlight = dy === treeHeight - 1 ? 25 : 5;
+          renderer.set(x, ty, ch, renderer.fgRgb(15 + highlight, 25 + highlight, 15 + highlight));
         }
       }
     }
 
-    // === Star reflections on lake (occasional glints) ===
+    // === Star reflections on lake ===
     for (let y = horizonY + 2; y < height - 2; y++) {
       for (let x = 0; x < width; x++) {
-        // Skip reflection zone (already has moon reflection)
         const distFromCenter = Math.abs(x - moonCenterX);
         const lakeDepth = (y - horizonY) / (height - 1 - horizonY);
         const reflectionWidth = moonRadius * (0.8 + lakeDepth * 2.5);
         if (distFromCenter < reflectionWidth) continue;
 
-        const hash = starHash(x, horizonY * 2 - y); // Mirror the sky star positions
-        if ((hash % 200) < 1) {
+        const hash = starHash(x, horizonY * 2 - y);
+        if ((hash % 150) < 1) {
           const phase = (hash % 1000) / 1000 * Math.PI * 2;
-          const twinkle = Math.sin(tick * 0.04 + phase + 1.5); // Offset phase from sky stars
-          if (twinkle > 0.5) {
-            const b = Math.floor(twinkle * 80 + 80);
-            renderer.set(x, y, ascii ? "." : "·", renderer.fgRgb(b - 20, b - 15, b));
+          const twinkle = Math.sin(tick * 0.04 + phase + 1.5);
+          if (twinkle > 0.4) {
+            const b = Math.floor(twinkle * 100 + 120);
+            renderer.set(x, y, ascii ? "." : "·", renderer.fgRgb(b - 10, b, Math.min(255, b + 20)));
           }
         }
       }
