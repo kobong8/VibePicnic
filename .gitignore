@@ -1,1 +1,4 @@
-node_modules/\n*.log\n.DS_Store
+node_modules/
+__pycache__/
+*.log
+.DS_Store
