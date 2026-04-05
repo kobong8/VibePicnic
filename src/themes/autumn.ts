@@ -1,33 +1,28 @@
-"use strict";
-
-/**
- * 🍂 가을 - 낙엽이 떨어지는 테마
- */
-
-const { Particle } = require("../particle");
-const renderer = require("../renderer");
+import { Particle } from "../particle";
+import renderer from "../renderer";
+import { Theme, GroundMap } from "./types";
 
 const LEAVES = ["🍂", "🍁", "🍃", "🌿", "✦", "❧", "♣", "⍟"];
 const LEAVES_ASCII = ["&", "%", "@", "#", "W", "M", "V", "Y"];
 const GROUND_CHARS = ["_", "~", ",", ".", "="];
 
 const COLORS = [
-  renderer.fgRgb(210, 105, 30),  // 갈색
-  renderer.fgRgb(255, 140, 0),   // 주황
-  renderer.fgRgb(178, 34, 34),   // 짙은 빨강
-  renderer.fgRgb(218, 165, 32),  // 골드
-  renderer.fgRgb(160, 82, 45),   // 시에나
-  renderer.fgRgb(205, 133, 63),  // 페루
-  renderer.fgRgb(255, 69, 0),    // 빨강주황
-  renderer.fgRgb(139, 90, 43),   // 어두운 갈색
+  renderer.fgRgb(210, 105, 30),
+  renderer.fgRgb(255, 140, 0),
+  renderer.fgRgb(178, 34, 34),
+  renderer.fgRgb(218, 165, 32),
+  renderer.fgRgb(160, 82, 45),
+  renderer.fgRgb(205, 133, 63),
+  renderer.fgRgb(255, 69, 0),
+  renderer.fgRgb(139, 90, 43),
 ];
 
-module.exports = {
+const autumn: Theme = {
   name: "autumn",
   label: "🍂 가을 - 낙엽",
   fps: 20,
 
-  createParticle(width, startY, ascii) {
+  createParticle(width: number, startY: number, ascii: boolean): Particle {
     const chars = ascii ? LEAVES_ASCII : LEAVES;
     const idx = Math.floor(Math.random() * chars.length);
     return new Particle(Math.random() * width, startY, {
@@ -35,17 +30,17 @@ module.exports = {
       speedX: Math.random() * 0.4 - 0.1,
       char: chars[idx],
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      amplitude: 1.0 + Math.random() * 3.0, // 낙엽은 크게 흔들림
+      amplitude: 1.0 + Math.random() * 3.0,
       bold: idx < 3,
       dim: false,
     });
   },
 
-  spawnRate(density) {
+  spawnRate(density: number): number {
     return Math.random() < density * 0.03 ? Math.ceil(Math.random() * 2) : 0;
   },
 
-  renderGround(groundMap, height, width) {
+  renderGround(groundMap: GroundMap, height: number, width: number): void {
     const colors = [
       renderer.fgRgb(160, 82, 45),
       renderer.fgRgb(139, 90, 43),
@@ -67,7 +62,9 @@ module.exports = {
     }
   },
 
-  getTitle() {
+  getTitle(): string {
     return " 🍂 Vibe Picnic - 가을 ";
   },
 };
+
+export default autumn;

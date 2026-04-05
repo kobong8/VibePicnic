@@ -1,23 +1,33 @@
-"use strict";
-
-/**
- * 터미널 렌더링 엔진
- * 외부 의존성 없이 ANSI escape code로 직접 렌더링
- */
-
 const ESC = "\x1b[";
 
-const renderer = {
+export interface Renderer {
+  width: number;
+  height: number;
+  buffer: string[][];
+  colorBuffer: string[][];
+  init(): void;
+  updateSize(): void;
+  clear(): void;
+  set(x: number, y: number, char: string, color?: string): void;
+  flush(): void;
+  cleanup(): void;
+  fg(n: number): string;
+  bold(): string;
+  dim(): string;
+  fgRgb(r: number, g: number, b: number): string;
+}
+
+const renderer: Renderer = {
   width: 0,
   height: 0,
-  buffer: null,
-  colorBuffer: null,
+  buffer: [],
+  colorBuffer: [],
 
   init() {
     this.updateSize();
-    process.stdout.write(`${ESC}?25l`);   // 커서 숨김
-    process.stdout.write(`${ESC}?1049h`); // 대체 화면 버퍼
-    process.stdout.write(`${ESC}2J`);     // 화면 클리어
+    process.stdout.write(`${ESC}?25l`);
+    process.stdout.write(`${ESC}?1049h`);
+    process.stdout.write(`${ESC}2J`);
   },
 
   updateSize() {
@@ -36,7 +46,7 @@ const renderer = {
     }
   },
 
-  set(x, y, char, color) {
+  set(x: number, y: number, char: string, color?: string) {
     const ix = Math.floor(x);
     const iy = Math.floor(y);
     if (ix >= 0 && ix < this.width && iy >= 0 && iy < this.height) {
@@ -46,10 +56,10 @@ const renderer = {
   },
 
   flush() {
-    let out = `${ESC}H`; // 커서를 홈으로
+    let out = `${ESC}H`;
     for (let y = 0; y < this.height; y++) {
       let line = "";
-      let prevColor = null;
+      let prevColor: string | null = null;
       for (let x = 0; x < this.width; x++) {
         const color = this.colorBuffer[y][x];
         if (color !== prevColor) {
@@ -66,27 +76,26 @@ const renderer = {
   },
 
   cleanup() {
-    process.stdout.write(`${ESC}?1049l`); // 메인 화면 복원
-    process.stdout.write(`${ESC}?25h`);   // 커서 복원
-    process.stdout.write(`${ESC}0m`);     // 색상 리셋
+    process.stdout.write(`${ESC}?1049l`);
+    process.stdout.write(`${ESC}?25h`);
+    process.stdout.write(`${ESC}0m`);
   },
 
-  // ANSI 256 color
-  fg(n) {
+  fg(n: number): string {
     return `${ESC}38;5;${n}m`;
   },
 
-  bold() {
+  bold(): string {
     return `${ESC}1m`;
   },
 
-  dim() {
+  dim(): string {
     return `${ESC}2m`;
   },
 
-  fgRgb(r, g, b) {
+  fgRgb(r: number, g: number, b: number): string {
     return `${ESC}38;2;${r};${g};${b}m`;
   },
 };
 
-module.exports = renderer;
+export default renderer;

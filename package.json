@@ -2,10 +2,10 @@
   "name": "vibe-picnic",
   "version": "1.0.0",
   "description": "🌸 터미널에 계절이 내리는 CLI 애니메이션 - 봄 벚꽃, 여름 비, 가을 낙엽, 겨울 눈",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "bin": {
-    "vibe-picnic": "bin/vibe-picnic.js",
-    "vp": "bin/vibe-picnic.js"
+    "vibe-picnic": "dist/bin/vibe-picnic.js",
+    "vp": "dist/bin/vibe-picnic.js"
   },
   "keywords": [
     "cli",
@@ -23,13 +23,22 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kobong8/BeforeSunrise"
+    "url": "git+https://github.com/kobong8/BeforeSunrise.git"
   },
   "engines": {
     "node": ">=14.0.0"
   },
   "files": [
-    "bin/",
-    "src/"
-  ]
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/bin/vibe-picnic.js",
+    "dev": "tsc && node dist/bin/vibe-picnic.js",
+    "prepublishOnly": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "typescript": "^6.0.2"
+  }
 }

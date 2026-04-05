@@ -1,31 +1,25 @@
-"use strict";
-
-/**
- * ❄️ 겨울 - 눈이 내리는 테마
- */
-
-const { Particle } = require("../particle");
-const renderer = require("../renderer");
+import { Particle } from "../particle";
+import renderer from "../renderer";
+import { Theme, GroundMap } from "./types";
 
 const SNOW = ["❄", "❅", "❆", "✦", "✧", "·", ".", "*"];
 const SNOW_ASCII = ["*", "+", ".", "o", "'", "`", ",", "~"];
-const GROUND_CHARS = ["_", "▁", ".", "~", " "];
 
 const COLORS = [
-  renderer.fgRgb(255, 255, 255), // 흰색
-  renderer.fgRgb(220, 230, 255), // 푸른 흰색
-  renderer.fgRgb(200, 215, 240), // 연파랑
-  renderer.fgRgb(240, 248, 255), // 앨리스블루
-  renderer.fgRgb(176, 196, 222), // 라이트스틸블루
-  renderer.fgRgb(230, 230, 250), // 라벤더
+  renderer.fgRgb(255, 255, 255),
+  renderer.fgRgb(220, 230, 255),
+  renderer.fgRgb(200, 215, 240),
+  renderer.fgRgb(240, 248, 255),
+  renderer.fgRgb(176, 196, 222),
+  renderer.fgRgb(230, 230, 250),
 ];
 
-module.exports = {
+const winter: Theme = {
   name: "winter",
   label: "❄️ 겨울 - 눈",
   fps: 18,
 
-  createParticle(width, startY, ascii) {
+  createParticle(width: number, startY: number, ascii: boolean): Particle {
     const chars = ascii ? SNOW_ASCII : SNOW;
     const idx = Math.floor(Math.random() * chars.length);
     return new Particle(Math.random() * width, startY, {
@@ -39,11 +33,11 @@ module.exports = {
     });
   },
 
-  spawnRate(density) {
+  spawnRate(density: number): number {
     return Math.random() < density * 0.035 ? Math.ceil(Math.random() * 2) : 0;
   },
 
-  renderGround(groundMap, height, width) {
+  renderGround(groundMap: GroundMap, height: number, width: number): void {
     const color = renderer.fgRgb(220, 230, 255);
     const brightColor = renderer.fgRgb(255, 255, 255);
     for (let x = 0; x < width; x++) {
@@ -61,7 +55,9 @@ module.exports = {
     }
   },
 
-  getTitle() {
+  getTitle(): string {
     return " ❄️ Vibe Picnic - 겨울 ";
   },
 };
+
+export default winter;
