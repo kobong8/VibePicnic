@@ -4,7 +4,8 @@ import { Theme, GroundMap } from "./types";
 
 const LEAVES = ["🍂", "🍁", "🍃", "🌿", "✦", "❧", "♣", "⍟"];
 const LEAVES_ASCII = ["&", "%", "@", "#", "W", "M", "V", "Y"];
-const GROUND_CHARS = ["_", "~", ",", ".", "="];
+const GROUND_LEAVES = ["❧", "♣", "✦", "⍟", "❧", "♣"];
+const GROUND_LEAVES_ASCII = ["&", "%", "@", "#", "W", "M"];
 
 const COLORS = [
   renderer.fgRgb(210, 105, 30),
@@ -40,28 +41,37 @@ const autumn: Theme = {
     return Math.random() < density * 0.03 ? Math.ceil(Math.random() * 2) : 0;
   },
 
-  renderGround(groundMap: GroundMap, height: number, width: number): void {
-    const colors = [
-      renderer.fgRgb(160, 82, 45),
-      renderer.fgRgb(139, 90, 43),
-      renderer.fgRgb(210, 105, 30),
-    ];
+  groundDisplayH(landings: number): number {
+    return Math.min(landings, 5);
+  },
+
+  renderGround(groundMap: GroundMap, height: number, width: number, ascii?: boolean): void {
+    const palette = ascii ? GROUND_LEAVES_ASCII : GROUND_LEAVES;
     const topColors = [
+      renderer.fgRgb(255, 165, 0),
       renderer.fgRgb(218, 165, 32),
       renderer.fgRgb(255, 140, 0),
-      renderer.fgRgb(205, 133, 63),
+    ];
+    const midColors = [
+      renderer.fgRgb(180, 100, 30),
+      renderer.fgRgb(160, 82, 45),
+      renderer.fgRgb(200, 120, 40),
+    ];
+    const baseColors = [
+      renderer.fgRgb(120, 60, 20),
+      renderer.fgRgb(100, 50, 15),
+      renderer.fgRgb(139, 70, 30),
     ];
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(h, Math.floor(height / 5));
+        const displayH = Math.min(h, 5);
         for (let dy = 0; dy < displayH; dy++) {
           const gy = height - 2 - dy;
           if (gy > 0 && gy < height - 1) {
-            const isTop = dy === displayH - 1;
-            const ch = GROUND_CHARS[Math.floor(Math.random() * GROUND_CHARS.length)];
-            const palette = isTop ? topColors : colors;
-            const color = palette[Math.floor(Math.random() * palette.length)];
+            const ch = palette[(x * 11 + dy * 7) % palette.length];
+            const colorPalette = dy === displayH - 1 ? topColors : (dy < 2 ? midColors : baseColors);
+            const color = colorPalette[(x * 5 + dy * 3) % colorPalette.length];
             renderer.set(x, gy, ch, color);
           }
         }

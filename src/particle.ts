@@ -56,7 +56,7 @@ export class ParticleSystem {
     this.particles.push(p);
   }
 
-  update(tick: number, wind: number, width: number, height: number): Particle[] {
+  update(tick: number, wind: number, width: number, height: number, getGroundY?: (x: number) => number): Particle[] {
     const alive: Particle[] = [];
     const landed: Particle[] = [];
     for (const p of this.particles) {
@@ -64,9 +64,10 @@ export class ParticleSystem {
       if (p.x < 0) p.x += width;
       if (p.x >= width) p.x -= width;
 
-      if (ok && p.y < height - 1) {
+      const landY = getGroundY ? getGroundY(Math.floor(p.x)) : height - 1;
+      if (ok && p.y < landY) {
         alive.push(p);
-      } else if (p.y >= height - 1) {
+      } else if (p.y >= landY) {
         landed.push(p);
       }
     }

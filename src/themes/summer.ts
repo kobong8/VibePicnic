@@ -50,6 +50,10 @@ const summer: Theme = {
     return Math.random() < density * 0.06 ? Math.ceil(Math.random() * 3) : 0;
   },
 
+  groundDisplayH(landings: number): number {
+    return landings > 2 ? 1 : 0;
+  },
+
   renderGround(groundMap: GroundMap, height: number, width: number): void {
     const color = renderer.fgRgb(60, 100, 160);
     const gy = height - 2;

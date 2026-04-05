@@ -132,7 +132,13 @@ export function run(options: RunOptions): void {
     }
 
     const adjustedWind = wind * speed;
-    const landed = system.update(tick, adjustedWind, renderer.width, renderer.height);
+    const getGroundY = noGround
+      ? undefined
+      : (x: number): number => {
+          const dh = activeTheme.groundDisplayH(groundMap[x] || 0);
+          return dh > 0 ? renderer.height - 1 - dh : renderer.height - 1;
+        };
+    const landed = system.update(tick, adjustedWind, renderer.width, renderer.height, getGroundY);
 
     if (!noGround) {
       for (const p of landed) {

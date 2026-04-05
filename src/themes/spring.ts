@@ -4,7 +4,8 @@ import { Theme, GroundMap } from "./types";
 
 const PETALS = ["🌸", "✿", "❀", "✾", "❁", "⚘", "·", ","];
 const PETALS_ASCII = ["*", "o", "@", "+", "x", ".", ",", "'"];
-const GROUND_CHARS = [".", ",", "~", "_", "'"];
+const GROUND_PETALS = ["✿", "❀", "✾", "❁", "·", ","];
+const GROUND_PETALS_ASCII = ["o", "@", "+", "x", ".", ","];
 
 const COLORS = [
   renderer.fgRgb(255, 183, 197),
@@ -38,19 +39,25 @@ const spring: Theme = {
     return Math.random() < density * 0.04 ? Math.ceil(Math.random() * 2) : 0;
   },
 
-  renderGround(groundMap: GroundMap, height: number, width: number): void {
-    const color = renderer.fgRgb(200, 160, 170);
-    const dimColor = renderer.fgRgb(230, 190, 200);
+  groundDisplayH(landings: number): number {
+    return Math.min(Math.floor(landings / 2), 5);
+  },
+
+  renderGround(groundMap: GroundMap, height: number, width: number, ascii?: boolean): void {
+    const palette = ascii ? GROUND_PETALS_ASCII : GROUND_PETALS;
+    const topColor = renderer.fgRgb(255, 210, 220);
+    const midColor = renderer.fgRgb(220, 170, 185);
+    const baseColor = renderer.fgRgb(185, 140, 155);
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(Math.floor(h / 2), Math.floor(height / 5));
+        const displayH = Math.min(Math.floor(h / 2), 5);
         for (let dy = 0; dy < displayH; dy++) {
           const gy = height - 2 - dy;
           if (gy > 0 && gy < height - 1) {
-            const isTop = dy === displayH - 1;
-            const ch = isTop ? GROUND_CHARS[Math.floor(Math.random() * GROUND_CHARS.length)] : ".";
-            renderer.set(x, gy, ch, isTop ? dimColor : color);
+            const ch = palette[(x * 7 + dy * 13) % palette.length];
+            const color = dy === displayH - 1 ? topColor : (dy < 2 ? midColor : baseColor);
+            renderer.set(x, gy, ch, color);
           }
         }
       }

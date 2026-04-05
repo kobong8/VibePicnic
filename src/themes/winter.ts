@@ -4,6 +4,8 @@ import { Theme, GroundMap } from "./types";
 
 const SNOW = ["❄", "❅", "❆", "✦", "✧", "·", ".", "*"];
 const SNOW_ASCII = ["*", "+", ".", "o", "'", "`", ",", "~"];
+const GROUND_SNOW = ["❄", "❅", "❆", "✦", "·", "*"];
+const GROUND_SNOW_ASCII = ["*", "+", ".", "o", "'", "`"];
 
 const COLORS = [
   renderer.fgRgb(255, 255, 255),
@@ -37,21 +39,25 @@ const winter: Theme = {
     return Math.random() < density * 0.035 ? Math.ceil(Math.random() * 2) : 0;
   },
 
-  renderGround(groundMap: GroundMap, height: number, width: number): void {
-    const color = renderer.fgRgb(200, 215, 240);
-    const brightColor = renderer.fgRgb(255, 255, 255);
-    const midColor = renderer.fgRgb(230, 240, 255);
+  groundDisplayH(landings: number): number {
+    return Math.min(Math.floor(landings / 2), 5);
+  },
+
+  renderGround(groundMap: GroundMap, height: number, width: number, ascii?: boolean): void {
+    const palette = ascii ? GROUND_SNOW_ASCII : GROUND_SNOW;
+    const topColor = renderer.fgRgb(255, 255, 255);
+    const midColor = renderer.fgRgb(210, 225, 255);
+    const baseColor = renderer.fgRgb(170, 190, 230);
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(Math.floor(h / 2), Math.floor(height / 4));
+        const displayH = Math.min(Math.floor(h / 2), 5);
         for (let dy = 0; dy < displayH; dy++) {
           const gy = height - 2 - dy;
           if (gy > 0 && gy < height - 1) {
-            const isTop = dy === displayH - 1;
-            const ch = isTop ? "~" : (dy < 2 ? ":" : ".");
-            const c = isTop ? brightColor : (dy === 0 ? midColor : color);
-            renderer.set(x, gy, ch, c);
+            const ch = palette[(x * 9 + dy * 11) % palette.length];
+            const color = dy === displayH - 1 ? topColor : (dy < 2 ? midColor : baseColor);
+            renderer.set(x, gy, ch, color);
           }
         }
       }
