@@ -30,6 +30,8 @@ function run(options) {
     ascii = false,
     noColor = false,
     noGround = false,
+    splash = false,
+    message = "",
   } = options;
 
   const themeName = season === "auto" ? detectSeason() : season;
@@ -57,6 +59,12 @@ function run(options) {
 
   // 키 입력 처리
   process.stdin.on("data", (key) => {
+    // splash 모드: 아무 키나 누르면 종료
+    if (splash) {
+      running = false;
+      return;
+    }
+
     if (key === "q" || key === "Q" || key === "\x1b" || key === "\x03") {
       running = false;
       return;
@@ -149,13 +157,91 @@ function run(options) {
     }
 
     // UI 렌더링
-    drawUI();
+    if (splash) {
+      drawSplashUI();
+    } else {
+      drawUI();
+    }
 
     renderer.flush();
     tick++;
 
     const interval = Math.floor(1000 / (activeTheme.fps * speed));
     setTimeout(frame, interval);
+  }
+
+  // splash 모드 전용 UI
+  function drawSplashUI() {
+    const w = renderer.width;
+    const h = renderer.height;
+
+    // 계절별 아이콘
+    const icons = { spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️" };
+    const icon = icons[activeTheme.name] || "✨";
+
+    // 로고 (중앙 상단 1/3 위치)
+    const logoLines = [
+      `${icon}  V I B E   P I C N I C  ${icon}`,
+    ];
+
+    const logoY = Math.floor(h * 0.3);
+    const logoColor = noColor ? "" : renderer.bold() + renderer.fgRgb(255, 255, 255);
+
+    for (let li = 0; li < logoLines.length; li++) {
+      const line = logoLines[li];
+      const lx = Math.max(0, Math.floor((w - line.length) / 2));
+      for (let i = 0; i < line.length && lx + i < w; i++) {
+        renderer.set(lx + i, logoY + li, line[i], logoColor);
+      }
+    }
+
+    // 커스텀 메시지 또는 날짜/인사말
+    const greeting = message || getGreeting(activeTheme.name);
+    if (greeting) {
+      const gy = logoY + 2;
+      const greetColor = noColor ? "" : renderer.fgRgb(200, 200, 220);
+      const gx = Math.max(0, Math.floor((w - greeting.length) / 2));
+      for (let i = 0; i < greeting.length && gx + i < w; i++) {
+        renderer.set(gx + i, gy, greeting[i], greetColor);
+      }
+    }
+
+    // "Press any key to continue..." 깜빡임 효과
+    const blink = Math.floor(tick / 15) % 2 === 0; // ~0.6초 간격 깜빡임
+    if (blink) {
+      const prompt = "Press any key to continue...";
+      const px = Math.max(0, Math.floor((w - prompt.length) / 2));
+      const py = Math.floor(h * 0.65);
+      const promptColor = noColor ? "" : renderer.bold() + renderer.fgRgb(220, 220, 240);
+      for (let i = 0; i < prompt.length && px + i < w; i++) {
+        renderer.set(px + i, py, prompt[i], promptColor);
+      }
+    }
+
+    // 하단 작은 텍스트
+    const footer = "vibe-picnic";
+    const fx = Math.max(0, Math.floor((w - footer.length) / 2));
+    const footerColor = noColor ? "" : renderer.dim() + renderer.fgRgb(100, 100, 120);
+    for (let i = 0; i < footer.length && fx + i < w; i++) {
+      renderer.set(fx + i, h - 1, footer[i], footerColor);
+    }
+  }
+
+  function getGreeting(seasonName) {
+    const hour = new Date().getHours();
+    let timeGreet;
+    if (hour >= 5 && hour < 12) timeGreet = "Good Morning";
+    else if (hour >= 12 && hour < 18) timeGreet = "Good Afternoon";
+    else timeGreet = "Good Evening";
+
+    const seasonGreet = {
+      spring: "🌸 Spring has come",
+      summer: "🌧️ Summer rain",
+      autumn: "🍂 Autumn breeze",
+      winter: "❄️ Winter wonderland",
+    };
+
+    return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
   }
 
   function drawUI() {
@@ -186,8 +272,10 @@ function run(options) {
     }
     process.stdin.pause();
 
-    const labels = { spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️" };
-    console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`);
+    if (!splash) {
+      const labels = { spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️" };
+      console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`);
+    }
     process.exit(0);
   }
 
