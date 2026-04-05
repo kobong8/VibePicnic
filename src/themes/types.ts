@@ -13,5 +13,6 @@ export interface Theme {
   groundDisplayH(landings: number): number;
   renderGround(groundMap: GroundMap, height: number, width: number, ascii?: boolean): void;
   onLanded?(landed: Particle[], system: ParticleSystem, height: number): void;
+  renderBackground?(tick: number, width: number, height: number, ascii?: boolean): void;
   getTitle(): string;
 }

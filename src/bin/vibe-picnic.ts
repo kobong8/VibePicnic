@@ -13,7 +13,7 @@ Usage:
   npx vibe-picnic [options]
 
 Options:
-  --season <name>     계절 선택: spring, summer, autumn, winter, auto (기본: auto)
+  --season <name>     계절 선택: spring, summer, autumn, winter, sunrise, ginkgo, auto (기본: auto)
   --density <n>       파티클 밀도 1-50 (기본: 15)
   --speed <n>         속도 배율 0.1-5.0 (기본: 1.0)
   --wind <n>          바람 세기 -5.0~5.0 (기본: 0.5)
@@ -27,7 +27,7 @@ Options:
 Controls (일반 모드):
   ← →               바람 방향/세기 조절
   ↑ ↓               파티클 밀도 조절
-  1-4               계절 전환 (1:봄 2:여름 3:가을 4:겨울)
+  1-6               계절 전환 (1:봄 2:여름 3:가을 4:겨울 5:일출 6:은행나무)
   r                 바닥 리셋
   q / ESC           종료
 
@@ -39,6 +39,8 @@ Seasons:
   summer  🌧️  비가 내림
   autumn  🍂 낙엽이 떨어짐
   winter  ❄️  눈이 내림
+  sunrise 🌅 새해 동해 일출
+  ginkgo  🌳 가을 은행나무 단풍
   auto    현재 월에 맞는 계절 자동 선택
 
 Examples:
@@ -84,7 +86,7 @@ const options = {
   message: getArg("--message", ""),
 };
 
-const validSeasons = ["auto", "spring", "summer", "autumn", "winter"];
+const validSeasons = ["auto", "spring", "summer", "autumn", "winter", "sunrise", "ginkgo"];
 if (!validSeasons.includes(options.season)) {
   console.error(`Error: Unknown season '${options.season}'. Use: ${validSeasons.join(", ")}`);
   process.exit(1);
