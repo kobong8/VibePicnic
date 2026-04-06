@@ -19,19 +19,20 @@ function starHash(x: number, y: number): number {
 // 달 모양을 수정하려면 이 영역을 편집하세요!
 // To customize the moon shape, edit this section!
 //
-// moonRadius : 달 크기 (클수록 큼)
+// moonRadius : 달 크기 (클수록 큼, 기본: 화면의 12%)
 // moonY      : 달의 Y 위치 (작을수록 위쪽)
 // moonCenterX: 달의 X 위치 (width * 0.5 = 가운데)
 // aspectRatio: 세로 보정 비율 (2.0 = 터미널 기본)
 //
-// 동심원 링 (normDist 기준):
-//   0.00 ~ 0.30 : 중심부 (가장 밝음, █)
-//   0.30 ~ 0.55 : 중간부 (▓)
-//   0.55 ~ 0.75 : 외곽부 (▒)
-//   0.75 ~ 0.90 : 가장자리 (░)
-//   0.90 ~ 1.00 : 테두리 (░, 어두움)
+// 달 렌더링 방식: 행별 원 경계 계산
+//   각 행(row)에서 원의 가로 범위(xExtent)를 수학적으로 계산
+//   distFromEdge = xExtent - |col| (양수=내부, 음수=외부)
+//     >= 2  : 내부 (█, 밝은 노란색 R:255 G:235 B:110)
+//     >= 1  : 테두리 안쪽 (▓, R:245 G:215 B:85)
+//     >= 0  : 가장자리 (▒, R:220 G:190 B:65)
+//     >= -1.5: 후광 (·, 은은한 노란 glow)
 //
-// 각 구간의 cr, cg, cb 값이 색상입니다 (R, G, B).
+// 색상을 바꾸려면 renderer.fgRgb(R, G, B) 값을 수정하세요.
 // ============================================================
 
 function lakeColor(_distFromCenter: number, _tick: number, y: number): [number, number, number] {
@@ -98,73 +99,79 @@ const moonlake: Theme = {
     const moonRadius = Math.max(5, Math.floor(Math.min(width, height) * 0.12));
     const aspectRatio = 2.0;
 
-    // === Night sky background (dark blue, not black) ===
-    for (let y = 0; y < horizonY; y++) {
-      const yRatio = y / horizonY;
-      for (let x = 0; x < width; x++) {
-        const dx = x - moonCenterX;
-        const dy = (y - moonY) * aspectRatio;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+    // === 달 본체 - 행별 정확한 원 경계 계산 방식 ===
+    // 터미널 문자는 세로가 가로의 ~2배이므로, 세로 반경은 절반
+    const moonHalfH = Math.ceil(moonRadius / aspectRatio);
 
-        if (dist < moonRadius) {
-          // === 달 본체 (Moon body) ===
-          const normDist = dist / moonRadius;
+    for (let row = -moonHalfH - 1; row <= moonHalfH + 1; row++) {
+      const screenY = moonY + row;
+      if (screenY < 0 || screenY >= horizonY) continue;
 
-          let ch: string;
-          let cr: number, cg: number, cb: number;
+      // 이 행에서 원의 정확한 가로 범위 계산
+      const dyNorm = (row * aspectRatio) / moonRadius; // -1 ~ 1
+      if (Math.abs(dyNorm) > 1) continue;
+      const xExtent = Math.sqrt(1 - dyNorm * dyNorm) * moonRadius;
 
-          // Crater texture for surface detail
-          const craterNoise = Math.sin(x * 1.7 + y * 2.3) * 0.12 +
-                              Math.sin(x * 0.8 - y * 1.1) * 0.08;
+      for (let col = Math.floor(-xExtent - 2); col <= Math.ceil(xExtent + 2); col++) {
+        const screenX = moonCenterX + col;
+        if (screenX < 0 || screenX >= width) continue;
 
-          if (normDist < 0.30) {
-            // 중심부: 밝은 노란색
-            ch = ascii ? "@" : "█";
-            cr = 255;
-            cg = 240 + Math.floor(craterNoise * 15);
-            cb = 120 + Math.floor(craterNoise * 20);
-          } else if (normDist < 0.55) {
-            ch = ascii ? "#" : "▓";
-            cr = 250;
-            cg = 225 + Math.floor(craterNoise * 15);
-            cb = 100 + Math.floor(craterNoise * 20);
-          } else if (normDist < 0.75) {
-            ch = ascii ? "=" : "▒";
-            cr = 240;
-            cg = 205 + Math.floor(craterNoise * 20);
-            cb = 80 + Math.floor(craterNoise * 20);
-          } else if (normDist < 0.90) {
-            ch = ascii ? "-" : "░";
-            cr = 220;
-            cg = 185 + Math.floor(craterNoise * 20);
-            cb = 65 + Math.floor(craterNoise * 15);
-          } else {
-            // 테두리: 약간 어두운 노란색
-            ch = ascii ? "." : "░";
-            cr = 190;
-            cg = 160;
-            cb = 55;
-          }
+        const distFromEdge = xExtent - Math.abs(col); // 양수=안쪽, 음수=바깥
 
-          cr = Math.min(255, Math.max(0, cr));
-          cg = Math.min(255, Math.max(0, cg));
-          cb = Math.min(255, Math.max(0, cb));
-          renderer.set(x, y, ch, renderer.fgRgb(cr, cg, cb));
+        if (distFromEdge >= 2) {
+          // 내부: 전부 █ (꽉 찬 노란 원)
+          const craterNoise = Math.sin(screenX * 1.7 + screenY * 2.3) * 8 +
+                              Math.sin(screenX * 0.8 - screenY * 1.1) * 5;
+          const cr = 255;
+          const cg = Math.min(255, Math.max(0, 235 + Math.floor(craterNoise)));
+          const cb = Math.min(255, Math.max(0, 110 + Math.floor(craterNoise)));
+          const ch = ascii ? "@" : "█";
+          renderer.set(screenX, screenY, ch, renderer.fgRgb(cr, cg, cb));
 
-        } else if (dist < moonRadius * 2.0) {
-          // 달 주변 후광 (Moon glow) - warm yellow halo
-          const glowIntensity = Math.max(0, 1 - (dist - moonRadius) / moonRadius);
-          const gi = glowIntensity * 0.6;
+        } else if (distFromEdge >= 1) {
+          // 테두리 안쪽 1px: ▓
+          const ch = ascii ? "#" : "▓";
+          renderer.set(screenX, screenY, ch, renderer.fgRgb(245, 215, 85));
 
-          if (gi > 0.1) {
-            const r = Math.min(255, Math.floor(40 + gi * 180));
-            const g = Math.min(255, Math.floor(35 + gi * 160));
-            const b = Math.min(255, Math.floor(20 + gi * 60));
-            const ch = gi > 0.25 ? (ascii ? "." : "·") : " ";
-            if (ch !== " ") {
-              renderer.set(x, y, ch, renderer.fgRgb(r, g, b));
-            }
-          }
+        } else if (distFromEdge >= 0) {
+          // 테두리 가장자리: ▒
+          const ch = ascii ? "=" : "▒";
+          renderer.set(screenX, screenY, ch, renderer.fgRgb(220, 190, 65));
+
+        } else if (distFromEdge >= -1.5) {
+          // 후광 (바로 바깥): 부드러운 glow
+          const gi = (distFromEdge + 1.5) / 1.5; // 1 at edge, 0 at -1.5
+          const r = Math.min(255, Math.floor(40 + gi * 160));
+          const g = Math.min(255, Math.floor(35 + gi * 140));
+          const b = Math.min(255, Math.floor(15 + gi * 50));
+          renderer.set(screenX, screenY, ascii ? "." : "·", renderer.fgRgb(r, g, b));
+        }
+      }
+    }
+
+    // === 달 위아래 후광 (상하 glow) ===
+    for (let row = -moonHalfH - 3; row <= moonHalfH + 3; row++) {
+      const screenY = moonY + row;
+      if (screenY < 0 || screenY >= horizonY) continue;
+
+      const dyNorm = (row * aspectRatio) / moonRadius;
+      const absDy = Math.abs(dyNorm);
+      if (absDy <= 1) continue; // 달 본체 영역은 스킵
+      if (absDy > 1.6) continue;
+
+      const gi = (1.6 - absDy) / 0.6; // 1 near moon, 0 at edge
+      const glowWidth = Math.floor(moonRadius * gi * 0.6);
+
+      for (let col = -glowWidth; col <= glowWidth; col++) {
+        const screenX = moonCenterX + col;
+        if (screenX < 0 || screenX >= width) continue;
+        const xi = 1 - Math.abs(col) / (glowWidth + 1);
+        const intensity = gi * xi * 0.5;
+        if (intensity > 0.08) {
+          const r = Math.min(255, Math.floor(35 + intensity * 170));
+          const g = Math.min(255, Math.floor(30 + intensity * 150));
+          const b = Math.min(255, Math.floor(15 + intensity * 50));
+          renderer.set(screenX, screenY, ascii ? "." : "·", renderer.fgRgb(r, g, b));
         }
       }
     }
@@ -172,10 +179,10 @@ const moonlake: Theme = {
     // === Twinkling stars ===
     for (let y = 0; y < horizonY; y++) {
       for (let x = 0; x < width; x++) {
-        const dx = x - moonCenterX;
-        const dy = (y - moonY) * aspectRatio;
-        const distToMoon = Math.sqrt(dx * dx + dy * dy);
-        if (distToMoon < moonRadius * 2.0) continue;
+        // 달 + 후광 영역 스킵
+        const dxm = Math.abs(x - moonCenterX);
+        const dym = Math.abs(y - moonY);
+        if (dxm < moonRadius + 4 && dym < moonHalfH + 4) continue;
 
         const hash = starHash(x, y);
         if ((hash % 100) < 3) {  // ~3% density for more visible stars
