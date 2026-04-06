@@ -33,10 +33,50 @@ vibe-picnic --season moonlake
 vp --season fireplace    # 단축 명령어
 ```
 
-> **링크 해제 방법:**
+### 🗑️ 완전 삭제 방법
+
+**1. 글로벌 패키지 제거**
+
+먼저 등록된 패키지명을 확인합니다.
+```bash
+npm ls -g --depth=0
+```
+
+확인한 패키지명으로 제거합니다.
+```bash
+npm uninstall -g vibe-picnic
+```
+
+> `npm link`로 등록한 경우 프로젝트 폴더에서 `npm unlink`를 실행해도 됩니다.
 > ```bash
+> cd VibePicnic
 > npm unlink
 > ```
+
+**2. 터미널 시작 설정 제거**
+
+shell 설정 파일에서 `vibe-picnic` 관련 줄을 삭제합니다.
+
+- **Bash:** `~/.bashrc`
+- **Zsh:** `~/.zshrc`
+- **Fish:** `~/.config/fish/config.fish`
+- **PowerShell:** `$PROFILE` (`echo $PROFILE`로 경로 확인)
+
+예시 (`~/.zshrc`):
+```bash
+# 아래 줄을 찾아서 삭제
+vibe-picnic --splash
+```
+
+변경 사항을 즉시 반영하려면 설정 파일을 다시 불러옵니다.
+```bash
+source ~/.zshrc   # Bash는 source ~/.bashrc
+```
+
+**3. 설정 파일 제거 (선택)**
+```bash
+rm ~/.vibe-picnic.json
+```
 
 ---
 
@@ -65,7 +105,7 @@ vp --season fireplace    # 단축 명령어
 ### CLI 옵션
 | 옵션 | 설명 | 기본값 |
 |---|---|:---:|
-| `--season <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `fireplace`, `auto`) | `auto` |
+| `--season <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `fireplace`, `auto`, `random`) | `auto` |
 | `--density <n>` | 파티클 밀도 (1-50) | `15` |
 | `--speed <n>` | 애니메이션 속도 배율 (0.1-5.0) | `1.0` |
 | `--wind <n>` | 바람의 세기와 방향 (-5.0 ~ 5.0) | `0.5` |
@@ -143,6 +183,27 @@ vibe-picnic config path    # 예: ~/.vibe-picnic.json
 | 6월 - 8월 | 여름 (summer) |
 | 9월 - 11월 | 가을 (autumn) |
 | 12월 - 2월 | 겨울 (winter) |
+
+---
+
+## 🎲 랜덤 테마 (Random Mode)
+
+`--season random` 사용 시, 실행할 때마다 6가지 테마 중 하나가 무작위로 선택됩니다.
+
+```bash
+# 한 번만 랜덤
+vibe-picnic --season random
+
+# 기본 설정을 랜덤으로
+vibe-picnic config set season random
+```
+
+터미널 시작 스플래시와 함께 사용하면 매번 다른 테마로 터미널이 열립니다.
+
+```bash
+# ~/.zshrc 또는 ~/.bashrc 에 추가
+vibe-picnic --splash --season random
+```
 
 ---
 
