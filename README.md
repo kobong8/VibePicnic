@@ -33,10 +33,50 @@ vibe-picnic --season moonlake
 vp --season fireplace    # 단축 명령어
 ```
 
-> **링크 해제 방법:**
+### 🗑️ 완전 삭제 방법
+
+**1. 글로벌 패키지 제거**
+
+먼저 등록된 패키지명을 확인합니다.
+```bash
+npm ls -g --depth=0
+```
+
+확인한 패키지명으로 제거합니다.
+```bash
+npm uninstall -g vibe-picnic
+```
+
+> `npm link`로 등록한 경우 프로젝트 폴더에서 `npm unlink`를 실행해도 됩니다.
 > ```bash
+> cd VibePicnic
 > npm unlink
 > ```
+
+**2. 터미널 시작 설정 제거**
+
+shell 설정 파일에서 `vibe-picnic` 관련 줄을 삭제합니다.
+
+- **Bash:** `~/.bashrc`
+- **Zsh:** `~/.zshrc`
+- **Fish:** `~/.config/fish/config.fish`
+- **PowerShell:** `$PROFILE` (`echo $PROFILE`로 경로 확인)
+
+예시 (`~/.zshrc`):
+```bash
+# 아래 줄을 찾아서 삭제
+vibe-picnic --splash
+```
+
+변경 사항을 즉시 반영하려면 설정 파일을 다시 불러옵니다.
+```bash
+source ~/.zshrc   # Bash는 source ~/.bashrc
+```
+
+**3. 설정 파일 제거 (선택)**
+```bash
+rm ~/.vibe-picnic.json
+```
 
 ---
 
