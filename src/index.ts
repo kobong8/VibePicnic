@@ -217,11 +217,17 @@ export function run(options: RunOptions): void {
       }
     }
 
+    const prompt = "Press any key to continue...";
+    const px = Math.max(0, Math.floor((w - prompt.length) / 2));
+    const py = Math.floor(h * 0.65);
+
+    // Clear the line for the prompt to prevent background artifacts
+    for (let i = 0; i < prompt.length && px + i < w; i++) {
+      renderer.set(px + i, py, " ", "");
+    }
+
     const blink = Math.floor(tick / 15) % 2 === 0;
     if (blink) {
-      const prompt = "Press any key to continue...";
-      const px = Math.max(0, Math.floor((w - prompt.length) / 2));
-      const py = Math.floor(h * 0.65);
       const promptColor = noColor ? "" : renderer.bold() + renderer.fgRgb(220, 220, 240);
       for (let i = 0; i < prompt.length && px + i < w; i++) {
         renderer.set(px + i, py, prompt[i], promptColor);

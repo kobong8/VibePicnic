@@ -292,21 +292,6 @@ const moonlake: Theme = {
       }
     }
 
-    // === Distant treeline silhouette along shore ===
-    for (let x = 0; x < width; x++) {
-      const treeHeight = Math.floor(
-        1 + Math.abs(Math.sin(x * 0.08) * 2.5 + Math.sin(x * 0.2) * 1.2 + Math.sin(x * 0.03) * 1.8)
-      );
-      for (let dy = 0; dy < treeHeight && dy < 4; dy++) {
-        const ty = horizonY - 1 - dy;
-        if (ty >= 0) {
-          const ch = ascii ? "^" : (dy === treeHeight - 1 ? "▲" : "█");
-          const highlight = dy === treeHeight - 1 ? 25 : 5;
-          renderer.set(x, ty, ch, renderer.fgRgb(15 + highlight, 25 + highlight, 15 + highlight));
-        }
-      }
-    }
-
     // === Star reflections on lake ===
     for (let y = horizonY + 2; y < height - 2; y++) {
       for (let x = 0; x < width; x++) {
