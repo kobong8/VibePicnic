@@ -37,6 +37,11 @@ export function detectSeason(): string {
   return "winter";
 }
 
+export function pickRandomTheme(): string {
+  const names = Object.keys(themes);
+  return names[Math.floor(Math.random() * names.length)];
+}
+
 export function run(options: RunOptions): void {
   const {
     season = "auto",
@@ -50,11 +55,16 @@ export function run(options: RunOptions): void {
     message = "",
   } = options;
 
-  const themeName = season === "auto" ? detectSeason() : season;
+  const themeName =
+    season === "auto"
+      ? detectSeason()
+      : season === "random"
+        ? pickRandomTheme()
+        : season;
   const theme = themes[themeName];
   if (!theme) {
     console.error(
-      `Unknown season: ${season}. Use: spring, summer, autumn, winter`,
+      `Unknown season: ${season}. Use: spring, summer, autumn, winter, moonlake, fireplace, auto, random`,
     );
     process.exit(1);
   }

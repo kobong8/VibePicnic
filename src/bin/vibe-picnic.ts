@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { run, detectSeason, themes } from "../index";
+import { run, detectSeason, pickRandomTheme, themes } from "../index";
 import { loadConfig, saveConfig, getConfigPath, getDefaults, mergeWithDefaults, Config } from "../config";
 
 const args = process.argv.slice(2);
-const VALID_SEASONS = ["auto", "spring", "summer", "autumn", "winter", "moonlake", "fireplace"];
+const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "fireplace"];
 
 // ── vibe-picnic config 서브커맨드 ──
 if (args[0] === "config") {
@@ -186,6 +186,7 @@ Themes:
   moonlake   🌕 호숫가 달빛
   fireplace  🔥 벽난로
   auto       현재 월에 맞는 계절 자동 선택
+  random     실행할 때마다 랜덤 테마 선택
 
 Examples:
   vibe-picnic                                 자동 계절 감지
@@ -235,6 +236,11 @@ if (options.splash) {
   const label = themes[detected].label;
   console.log(`${label} (auto-detected)`);
   setTimeout(() => run(options), 800);
+} else if (options.season === "random") {
+  const picked = pickRandomTheme();
+  const label = themes[picked].label;
+  console.log(`${label} (random)`);
+  setTimeout(() => run({ ...options, season: picked }), 800);
 } else {
   run(options);
 }
