@@ -244,16 +244,11 @@ export function run(options: RunOptions): void {
       renderer.set(lx + i, logoY, logoLine[i], logoColor);
     }
 
-    const greeting = message;
+    const greeting = message || getGreeting(activeTheme.name);
     if (greeting) {
       const gy = logoY + 2;
-      const gx = Math.max(0, Math.floor((w - greeting.length) / 2));
-
-      for (let i = 0; i < greeting.length && gx + i < w; i++) {
-        renderer.set(gx + i, gy, " ", "");
-      }
-
       const greetColor = noColor ? "" : renderer.fgRgb(200, 200, 220);
+      const gx = Math.max(0, Math.floor((w - greeting.length) / 2));
       for (let i = 0; i < greeting.length && gx + i < w; i++) {
         renderer.set(gx + i, gy, greeting[i], greetColor);
       }
@@ -299,8 +294,8 @@ export function run(options: RunOptions): void {
       summer: "🌧️ Summer rain",
       autumn: "🍂 Autumn breeze",
       winter: "❄️ Winter wonderland",
-      moonlake: "🌕 호숫가 달빛",
-      fireplace: "🔥 벽난로",
+      moonlake: "🌕 Full Moon, Full Heart",
+      fireplace: "🔥 Cozy moments by the fire",
     };
 
     return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
