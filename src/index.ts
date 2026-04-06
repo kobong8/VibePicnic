@@ -170,6 +170,10 @@ export function run(options: RunOptions): void {
       activeTheme.renderGround(groundMap, renderer.height, renderer.width, ascii);
     }
 
+    if (activeTheme.renderForeground) {
+      activeTheme.renderForeground(tick, renderer.width, renderer.height, ascii);
+    }
+
     if (splash) {
       drawSplashUI();
     } else {
