@@ -8,7 +8,14 @@ import winter from "./themes/winter";
 import moonlake from "./themes/moonlake";
 import fireplace from "./themes/fireplace";
 
-export const themes: Record<string, Theme> = { spring, summer, autumn, winter, moonlake, fireplace };
+export const themes: Record<string, Theme> = {
+  spring,
+  summer,
+  autumn,
+  winter,
+  moonlake,
+  fireplace,
+};
 
 export interface RunOptions {
   season?: string;
@@ -46,7 +53,9 @@ export function run(options: RunOptions): void {
   const themeName = season === "auto" ? detectSeason() : season;
   const theme = themes[themeName];
   if (!theme) {
-    console.error(`Unknown season: ${season}. Use: spring, summer, autumn, winter`);
+    console.error(
+      `Unknown season: ${season}. Use: spring, summer, autumn, winter`,
+    );
     process.exit(1);
   }
 
@@ -100,7 +109,7 @@ export function run(options: RunOptions): void {
       const p = activeTheme.createParticle(
         renderer.width,
         Math.random() * renderer.height,
-        ascii
+        ascii,
       );
       system.add(p);
     }
@@ -115,7 +124,7 @@ export function run(options: RunOptions): void {
     const p = activeTheme.createParticle(
       renderer.width,
       Math.random() * renderer.height,
-      ascii
+      ascii,
     );
     system.add(p);
   }
@@ -129,7 +138,12 @@ export function run(options: RunOptions): void {
     renderer.clear();
 
     if (activeTheme.renderBackground) {
-      activeTheme.renderBackground(tick, renderer.width, renderer.height, ascii);
+      activeTheme.renderBackground(
+        tick,
+        renderer.width,
+        renderer.height,
+        ascii,
+      );
     }
 
     const spawnCount = activeTheme.spawnRate(currentDensity);
@@ -146,7 +160,13 @@ export function run(options: RunOptions): void {
           const dh = activeTheme.groundDisplayH(groundMap[x] || 0);
           return dh > 0 ? renderer.height - 1 - dh : renderer.height - 1;
         };
-    const landed = system.update(tick, adjustedWind, renderer.width, renderer.height, getGroundY);
+    const landed = system.update(
+      tick,
+      adjustedWind,
+      renderer.width,
+      renderer.height,
+      getGroundY,
+    );
 
     if (!noGround) {
       for (const p of landed) {
@@ -169,11 +189,21 @@ export function run(options: RunOptions): void {
     }
 
     if (!noGround) {
-      activeTheme.renderGround(groundMap, renderer.height, renderer.width, ascii);
+      activeTheme.renderGround(
+        groundMap,
+        renderer.height,
+        renderer.width,
+        ascii,
+      );
     }
 
     if (activeTheme.renderForeground) {
-      activeTheme.renderForeground(tick, renderer.width, renderer.height, ascii);
+      activeTheme.renderForeground(
+        tick,
+        renderer.width,
+        renderer.height,
+        ascii,
+      );
     }
 
     if (splash) {
@@ -194,13 +224,20 @@ export function run(options: RunOptions): void {
     const h = renderer.height;
 
     const icons: Record<string, string> = {
-      spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", moonlake: "🌕", fireplace: "🔥",
+      spring: "🌸",
+      summer: "🌧️",
+      autumn: "🍂",
+      winter: "❄️",
+      moonlake: "🌕",
+      fireplace: "🔥",
     };
     const icon = icons[activeTheme.name] || "✨";
 
     const logoLine = `${icon}  V I B E   P I C N I C  ${icon}`;
     const logoY = Math.floor(h * 0.3);
-    const logoColor = noColor ? "" : renderer.bold() + renderer.fgRgb(255, 255, 255);
+    const logoColor = noColor
+      ? ""
+      : renderer.bold() + renderer.fgRgb(255, 255, 255);
 
     const lx = Math.max(0, Math.floor((w - logoLine.length) / 2));
     for (let i = 0; i < logoLine.length && lx + i < w; i++) {
@@ -233,18 +270,21 @@ export function run(options: RunOptions): void {
 
     const blink = Math.floor(tick / 15) % 2 === 0;
     if (blink) {
-      const promptColor = noColor ? "" : renderer.bold() + renderer.fgRgb(220, 220, 240);
+      const promptColor = noColor
+        ? ""
+        : renderer.bold() + renderer.fgRgb(220, 220, 240);
       for (let i = 0; i < prompt.length && px + i < w; i++) {
         renderer.set(px + i, py, prompt[i], promptColor);
       }
     }
 
-    const footer = "vibe-picnic";
-    const fx = Math.max(0, Math.floor((w - footer.length) / 2));
-    const footerColor = noColor ? "" : renderer.dim() + renderer.fgRgb(100, 100, 120);
-    for (let i = 0; i < footer.length && fx + i < w; i++) {
-      renderer.set(fx + i, h - 1, footer[i], footerColor);
-    }
+    // fotter 미사용
+    // const footer = "vibe-picnic";
+    // const fx = Math.max(0, Math.floor((w - footer.length) / 2));
+    // const footerColor = noColor ? "" : renderer.dim() + renderer.fgRgb(100, 100, 120);
+    // for (let i = 0; i < footer.length && fx + i < w; i++) {
+    //   renderer.set(fx + i, h - 1, footer[i], footerColor);
+    // }
   }
 
   function getGreeting(seasonName: string): string {
@@ -269,8 +309,12 @@ export function run(options: RunOptions): void {
   function drawUI(): void {
     const w = renderer.width;
     const h = renderer.height;
-    const titleColor = noColor ? "" : renderer.fgRgb(200, 200, 200) + renderer.bold();
-    const infoColor = noColor ? "" : renderer.dim() + renderer.fgRgb(140, 140, 140);
+    const titleColor = noColor
+      ? ""
+      : renderer.fgRgb(200, 200, 200) + renderer.bold();
+    const infoColor = noColor
+      ? ""
+      : renderer.dim() + renderer.fgRgb(140, 140, 140);
 
     const title = activeTheme.getTitle();
     const tx = Math.max(0, Math.floor((w - title.length) / 2));
@@ -294,15 +338,26 @@ export function run(options: RunOptions): void {
 
     if (!splash) {
       const labels: Record<string, string> = {
-        spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", moonlake: "🌕", fireplace: "🔥",
+        spring: "🌸",
+        summer: "🌧️",
+        autumn: "🍂",
+        winter: "❄️",
+        moonlake: "🌕",
+        fireplace: "🔥",
       };
-      console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`);
+      console.log(
+        `\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`,
+      );
     }
     process.exit(0);
   }
 
-  process.on("SIGINT", () => { running = false; });
-  process.on("SIGTERM", () => { running = false; });
+  process.on("SIGINT", () => {
+    running = false;
+  });
+  process.on("SIGTERM", () => {
+    running = false;
+  });
 
   frame();
 }
