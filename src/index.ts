@@ -5,8 +5,10 @@ import spring from "./themes/spring";
 import summer from "./themes/summer";
 import autumn from "./themes/autumn";
 import winter from "./themes/winter";
+import moonlake from "./themes/moonlake";
+import fireplace from "./themes/fireplace";
 
-export const themes: Record<string, Theme> = { spring, summer, autumn, winter };
+export const themes: Record<string, Theme> = { spring, summer, autumn, winter, moonlake, fireplace };
 
 export interface RunOptions {
   season?: string;
@@ -84,6 +86,8 @@ export function run(options: RunOptions): void {
     if (key === "2") switchTheme("summer");
     if (key === "3") switchTheme("autumn");
     if (key === "4") switchTheme("winter");
+    if (key === "5") switchTheme("moonlake");
+    if (key === "6") switchTheme("fireplace");
   });
 
   let activeTheme = theme;
@@ -123,6 +127,10 @@ export function run(options: RunOptions): void {
     }
 
     renderer.clear();
+
+    if (activeTheme.renderBackground) {
+      activeTheme.renderBackground(tick, renderer.width, renderer.height, ascii);
+    }
 
     const spawnCount = activeTheme.spawnRate(currentDensity);
     for (let i = 0; i < spawnCount; i++) {
@@ -164,6 +172,10 @@ export function run(options: RunOptions): void {
       activeTheme.renderGround(groundMap, renderer.height, renderer.width, ascii);
     }
 
+    if (activeTheme.renderForeground) {
+      activeTheme.renderForeground(tick, renderer.width, renderer.height, ascii);
+    }
+
     if (splash) {
       drawSplashUI();
     } else {
@@ -182,7 +194,7 @@ export function run(options: RunOptions): void {
     const h = renderer.height;
 
     const icons: Record<string, string> = {
-      spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️",
+      spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", moonlake: "🌕", fireplace: "🔥",
     };
     const icon = icons[activeTheme.name] || "✨";
 
@@ -236,6 +248,8 @@ export function run(options: RunOptions): void {
       summer: "🌧️ Summer rain",
       autumn: "🍂 Autumn breeze",
       winter: "❄️ Winter wonderland",
+      moonlake: "🌕 호숫가 달빛",
+      fireplace: "🔥 벽난로",
     };
 
     return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
@@ -253,7 +267,7 @@ export function run(options: RunOptions): void {
       renderer.set(tx + i, 0, title[i], titleColor);
     }
 
-    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-4:season | arrows:ctrl | q:quit `;
+    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-6:season | arrows:ctrl | q:quit `;
     const ix = Math.max(0, Math.floor((w - info.length) / 2));
     for (let i = 0; i < info.length && ix + i < w; i++) {
       renderer.set(ix + i, h - 1, info[i], infoColor);
@@ -269,7 +283,7 @@ export function run(options: RunOptions): void {
 
     if (!splash) {
       const labels: Record<string, string> = {
-        spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️",
+        spring: "🌸", summer: "🌧️", autumn: "🍂", winter: "❄️", moonlake: "🌕", fireplace: "🔥",
       };
       console.log(`\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`);
     }
