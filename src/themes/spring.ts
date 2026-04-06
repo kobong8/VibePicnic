@@ -40,7 +40,7 @@ const spring: Theme = {
   },
 
   groundDisplayH(landings: number): number {
-    return Math.min(Math.floor(landings / 2), 5);
+    return landings > 0 ? 1 : 0;
   },
 
   renderGround(groundMap: GroundMap, height: number, width: number, ascii?: boolean): void {
@@ -51,14 +51,10 @@ const spring: Theme = {
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(Math.floor(h / 2), 5);
-        for (let dy = 0; dy < displayH; dy++) {
-          const gy = height - 2 - dy;
-          if (gy > 0 && gy < height - 1) {
-            const ch = palette[(x * 7 + dy * 13) % palette.length];
-            const color = dy === displayH - 1 ? topColor : (dy < 2 ? midColor : baseColor);
-            renderer.set(x, gy, ch, color);
-          }
+        const gy = height - 2;
+        if (gy > 0 && gy < height - 1) {
+          const ch = palette[(x * 7) % palette.length];
+          renderer.set(x, gy, ch, topColor);
         }
       }
     }

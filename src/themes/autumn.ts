@@ -42,7 +42,7 @@ const autumn: Theme = {
   },
 
   groundDisplayH(landings: number): number {
-    return Math.min(landings, 5);
+    return landings > 0 ? 1 : 0;
   },
 
   renderGround(groundMap: GroundMap, height: number, width: number, ascii?: boolean): void {
@@ -65,15 +65,11 @@ const autumn: Theme = {
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const displayH = Math.min(h, 5);
-        for (let dy = 0; dy < displayH; dy++) {
-          const gy = height - 2 - dy;
-          if (gy > 0 && gy < height - 1) {
-            const ch = palette[(x * 11 + dy * 7) % palette.length];
-            const colorPalette = dy === displayH - 1 ? topColors : (dy < 2 ? midColors : baseColors);
-            const color = colorPalette[(x * 5 + dy * 3) % colorPalette.length];
-            renderer.set(x, gy, ch, color);
-          }
+        const gy = height - 2;
+        if (gy > 0 && gy < height - 1) {
+          const ch = palette[(x * 11) % palette.length];
+          const color = topColors[(x * 5) % topColors.length];
+          renderer.set(x, gy, ch, color);
         }
       }
     }

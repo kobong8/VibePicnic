@@ -22,6 +22,73 @@ function fireHash(x: number, y: number): number {
   return (h ^ (h >> 16)) >>> 0;
 }
 
+function getFireplaceLayout(width: number, height: number) {
+  const fpW = Math.floor(width * FIREPLACE_WIDTH_RATIO);
+  const fpH = Math.floor(height * FIREPLACE_HEIGHT_RATIO);
+  const fpLeft = Math.floor((width - fpW) / 2);
+  const fpTop = Math.floor((height - fpH) / 2) - 1;
+  const fpBottom = fpTop + fpH;
+  const fpRight = fpLeft + fpW;
+  const innerLeft = fpLeft + 3;
+  const innerRight = fpRight - 3;
+  const innerTop = fpTop + 2;
+  const innerBottom = fpBottom - 1;
+  return { fpW, fpH, fpLeft, fpTop, fpBottom, fpRight, innerLeft, innerRight, innerTop, innerBottom };
+}
+
+// 벽난로 프레임(벽돌, 선반, 바닥)을 그리는 함수
+// renderForeground에서도 호출하여 파티클이 프레임을 뚫지 못하게 함
+function drawFireplaceFrame(width: number, height: number, ascii?: boolean): void {
+  const { fpLeft, fpTop, fpBottom, fpRight } = getFireplaceLayout(width, height);
+
+  const brickColor = renderer.fgRgb(140, 70, 40);
+  const brickDark = renderer.fgRgb(100, 50, 28);
+  const brickLight = renderer.fgRgb(170, 90, 55);
+  const stoneColor = renderer.fgRgb(120, 115, 105);
+  const stoneDark = renderer.fgRgb(85, 80, 72);
+
+  // 상단 선반 (mantel)
+  for (let x = fpLeft - 1; x <= fpRight + 1; x++) {
+    if (x >= 0 && x < width && fpTop - 1 >= 0) {
+      renderer.set(x, fpTop - 1, ascii ? "=" : "▀",
+        (x === fpLeft - 1 || x === fpRight + 1) ? stoneDark : stoneColor);
+    }
+    if (x >= 0 && x < width && fpTop >= 0) {
+      renderer.set(x, fpTop, ascii ? "=" : "█",
+        ((x + fpTop) % 2 === 0) ? stoneColor : stoneDark);
+    }
+  }
+
+  // 좌우 벽돌 벽
+  for (let y = fpTop + 1; y < fpBottom; y++) {
+    if (y < 0 || y >= height) continue;
+
+    for (let dx = 0; dx < 3; dx++) {
+      const lx = fpLeft + dx;
+      if (lx >= 0 && lx < width) {
+        const brickRow = (y + dx) % 3;
+        const c = brickRow === 0 ? brickDark : (brickRow === 1 ? brickColor : brickLight);
+        renderer.set(lx, y, ascii ? "#" : "▓", c);
+      }
+
+      const rx = fpRight - 1 - dx;
+      if (rx >= 0 && rx < width) {
+        const brickRow = (y + dx) % 3;
+        const c = brickRow === 0 ? brickDark : (brickRow === 1 ? brickColor : brickLight);
+        renderer.set(rx, y, ascii ? "#" : "▓", c);
+      }
+    }
+  }
+
+  // 하단 바닥
+  for (let x = fpLeft; x < fpRight; x++) {
+    if (x >= 0 && x < width && fpBottom < height) {
+      renderer.set(x, fpBottom, ascii ? "=" : "▄",
+        ((x + fpBottom) % 2 === 0) ? stoneDark : stoneColor);
+    }
+  }
+}
+
 const fireplace: Theme = {
   name: "fireplace",
   label: "🔥 벽난로",
@@ -29,12 +96,7 @@ const fireplace: Theme = {
 
   createParticle(width: number, _startY: number, ascii: boolean): Particle {
     const chars = ascii ? EMBER_ASCII : EMBER_CHARS;
-
-    // 벽난로 영역 계산
-    const fpW = Math.floor(width * FIREPLACE_WIDTH_RATIO);
-    const fpLeft = Math.floor((width - fpW) / 2);
-    const innerLeft = fpLeft + 3;
-    const innerRight = fpLeft + fpW - 3;
+    const { innerLeft, innerRight } = getFireplaceLayout(width, 24);
     const innerWidth = innerRight - innerLeft;
 
     const rand = Math.random();
@@ -44,28 +106,27 @@ const fireplace: Theme = {
       const spawnX = innerLeft + Math.random() * innerWidth;
       const brightness = Math.random();
 
-      // 불씨 색상: 밝은 주황~노랑
       const palette: [number, number, number][] = [
-        [255, 200, 50],   // bright yellow
-        [255, 160, 30],   // orange
-        [255, 120, 20],   // deep orange
-        [255, 230, 80],   // pale yellow
-        [255, 100, 10],   // red-orange
+        [255, 200, 50],
+        [255, 160, 30],
+        [255, 120, 20],
+        [255, 230, 80],
+        [255, 100, 10],
       ];
       const c = palette[Math.floor(Math.random() * palette.length)];
 
       return new Particle(spawnX, _startY, {
-        speedY: -(0.1 + Math.random() * 0.25),  // 위로 올라감
+        speedY: -(0.1 + Math.random() * 0.25),
         speedX: (Math.random() - 0.5) * 0.15,
         char: chars[Math.floor(Math.random() * chars.length)],
         color: renderer.fgRgb(c[0], c[1], c[2]),
         amplitude: 0.3 + Math.random() * 0.8,
-        maxAge: 40 + Math.floor(Math.random() * 80),
+        maxAge: 20 + Math.floor(Math.random() * 30),
         bold: brightness > 0.6,
         dim: false,
       });
     } else {
-      // 연기 (smoke) - 더 위에서 천천히 올라감
+      // 연기 (smoke)
       const spawnX = innerLeft + innerWidth * 0.3 + Math.random() * innerWidth * 0.4;
       const smokeChars = ascii ? [".", ",", "'"] : ["░", "·", "∘"];
 
@@ -75,7 +136,7 @@ const fireplace: Theme = {
         char: smokeChars[Math.floor(Math.random() * smokeChars.length)],
         color: renderer.fgRgb(100 + Math.floor(Math.random() * 40), 90 + Math.floor(Math.random() * 30), 80 + Math.floor(Math.random() * 20)),
         amplitude: 0.2 + Math.random() * 0.5,
-        maxAge: 60 + Math.floor(Math.random() * 100),
+        maxAge: 25 + Math.floor(Math.random() * 40),
         bold: false,
         dim: false,
       });
@@ -95,71 +156,13 @@ const fireplace: Theme = {
   },
 
   renderBackground(tick: number, width: number, height: number, ascii?: boolean): void {
-    const fpW = Math.floor(width * FIREPLACE_WIDTH_RATIO);
-    const fpH = Math.floor(height * FIREPLACE_HEIGHT_RATIO);
-    const fpLeft = Math.floor((width - fpW) / 2);
-    const fpTop = Math.floor((height - fpH) / 2) - 1;
-    const fpBottom = fpTop + fpH;
-    const fpRight = fpLeft + fpW;
-
-    const innerLeft = fpLeft + 3;
-    const innerRight = fpRight - 3;
-    const innerTop = fpTop + 2;
-    const innerBottom = fpBottom - 1;
+    const { fpLeft, fpTop, fpBottom, fpRight, innerLeft, innerRight, innerTop, innerBottom } =
+      getFireplaceLayout(width, height);
     const innerWidth = innerRight - innerLeft;
     const innerHeight = innerBottom - innerTop;
 
     // === 벽돌 벽난로 프레임 ===
-    const brickColor = renderer.fgRgb(140, 70, 40);
-    const brickDark = renderer.fgRgb(100, 50, 28);
-    const brickLight = renderer.fgRgb(170, 90, 55);
-    const stoneColor = renderer.fgRgb(120, 115, 105);
-    const stoneDark = renderer.fgRgb(85, 80, 72);
-
-    // 상단 선반 (mantel)
-    for (let x = fpLeft - 1; x <= fpRight + 1; x++) {
-      if (x >= 0 && x < width && fpTop - 1 >= 0) {
-        renderer.set(x, fpTop - 1, ascii ? "=" : "▀",
-          (x === fpLeft - 1 || x === fpRight + 1) ? stoneDark : stoneColor);
-      }
-      if (x >= 0 && x < width && fpTop >= 0) {
-        renderer.set(x, fpTop, ascii ? "=" : "█",
-          ((x + fpTop) % 2 === 0) ? stoneColor : stoneDark);
-      }
-    }
-
-    // 좌우 벽돌 벽
-    for (let y = fpTop + 1; y < fpBottom; y++) {
-      if (y < 0 || y >= height) continue;
-
-      // 왼쪽 벽
-      for (let dx = 0; dx < 3; dx++) {
-        const x = fpLeft + dx;
-        if (x >= 0 && x < width) {
-          const brickRow = (y + dx) % 3;
-          const c = brickRow === 0 ? brickDark : (brickRow === 1 ? brickColor : brickLight);
-          renderer.set(x, y, ascii ? "#" : "▓", c);
-        }
-      }
-
-      // 오른쪽 벽
-      for (let dx = 0; dx < 3; dx++) {
-        const x = fpRight - 1 - dx;
-        if (x >= 0 && x < width) {
-          const brickRow = (y + dx) % 3;
-          const c = brickRow === 0 ? brickDark : (brickRow === 1 ? brickColor : brickLight);
-          renderer.set(x, y, ascii ? "#" : "▓", c);
-        }
-      }
-    }
-
-    // 하단 바닥
-    for (let x = fpLeft; x < fpRight; x++) {
-      if (x >= 0 && x < width && fpBottom < height) {
-        renderer.set(x, fpBottom, ascii ? "=" : "▄",
-          ((x + fpBottom) % 2 === 0) ? stoneDark : stoneColor);
-      }
-    }
+    drawFireplaceFrame(width, height, ascii);
 
     // === 벽난로 내부 어두운 배경 ===
     for (let y = innerTop; y < innerBottom; y++) {
@@ -174,7 +177,6 @@ const fireplace: Theme = {
     const logY = innerBottom - 2;
     const logMidX = Math.floor((innerLeft + innerRight) / 2);
 
-    // 장작 1: 왼쪽 아래에서 오른쪽 위로 사선
     for (let i = 0; i < Math.min(innerWidth - 4, 18); i++) {
       const lx = innerLeft + 2 + i;
       const ly = logY + 1 - Math.floor(i * 0.3);
@@ -185,7 +187,6 @@ const fireplace: Theme = {
       }
     }
 
-    // 장작 2: 오른쪽 아래에서 왼쪽 위로 사선 (교차)
     for (let i = 0; i < Math.min(innerWidth - 4, 18); i++) {
       const lx = innerRight - 3 - i;
       const ly = logY + 1 - Math.floor(i * 0.3);
@@ -196,7 +197,6 @@ const fireplace: Theme = {
       }
     }
 
-    // 장작 3: 가로 (아래쪽)
     if (logY + 1 < innerBottom && logY + 1 < height) {
       for (let i = -5; i <= 5; i++) {
         const lx = logMidX + i;
@@ -208,7 +208,7 @@ const fireplace: Theme = {
       }
     }
 
-    // === 숯불 / 불씨 (Glowing embers at log base) ===
+    // === 숯불 ===
     for (let x = innerLeft + 2; x < innerRight - 2; x++) {
       const ey = logY + 1;
       if (ey >= innerTop && ey < innerBottom && ey < height) {
@@ -217,8 +217,7 @@ const fireplace: Theme = {
           const r = Math.min(255, Math.floor(180 + glow * 75));
           const g = Math.min(255, Math.floor(40 + glow * 80));
           const b = Math.floor(glow * 15);
-          renderer.set(x, ey, ascii ? "~" : "▁",
-            renderer.fgRgb(r, g, b));
+          renderer.set(x, ey, ascii ? "~" : "▁", renderer.fgRgb(r, g, b));
         }
       }
     }
@@ -232,15 +231,13 @@ const fireplace: Theme = {
       const screenY = flameBaseY - fy;
       if (screenY < innerTop || screenY >= innerBottom || screenY >= height) continue;
 
-      // 불꽃 너비: 아래쪽이 넓고 위로 갈수록 좁아짐
-      const heightRatio = fy / flameHeight; // 0=바닥, 1=꼭대기
+      const heightRatio = fy / flameHeight;
       const flameWidth = Math.floor((1 - heightRatio * heightRatio) * (innerWidth * 0.35));
 
       for (let fx = -flameWidth; fx <= flameWidth; fx++) {
         const screenX = flameCenterX + fx;
         if (screenX < innerLeft + 1 || screenX >= innerRight - 1) continue;
 
-        // 불꽃 흔들림
         const wave1 = Math.sin(tick * 0.12 + fx * 0.3 + fy * 0.5) * 0.4;
         const wave2 = Math.sin(tick * 0.08 - fx * 0.2 + fy * 0.8) * 0.3;
         const turbulence = wave1 + wave2;
@@ -253,25 +250,21 @@ const fireplace: Theme = {
           let ch: string;
 
           if (heightRatio < 0.2 && intensity > 0.6) {
-            // 불꽃 바닥: 밝은 흰-노랑 (가장 뜨거운 부분)
             r = 255;
             g = Math.min(255, Math.floor(230 + intensity * 25));
             b = Math.min(255, Math.floor(150 + intensity * 60));
             ch = ascii ? "#" : "█";
           } else if (heightRatio < 0.45 && intensity > 0.45) {
-            // 중간: 밝은 노랑~주황
             r = 255;
             g = Math.min(255, Math.floor(160 + (1 - heightRatio) * 80));
             b = Math.floor(20 + turbulence * 20);
             ch = ascii ? "%" : "▓";
           } else if (intensity > 0.35) {
-            // 위쪽: 주황~빨강
             r = Math.min(255, Math.floor(200 + intensity * 55));
             g = Math.min(255, Math.floor(60 + intensity * 60));
             b = Math.floor(5 + turbulence * 10);
             ch = ascii ? "*" : "▒";
           } else {
-            // 가장자리: 어두운 빨강
             r = Math.min(255, Math.floor(150 + intensity * 80));
             g = Math.floor(30 + intensity * 30);
             b = Math.floor(turbulence * 8);
@@ -292,14 +285,12 @@ const fireplace: Theme = {
       const distFromFlame = Math.abs(y - flameBaseY);
       const glow = Math.max(0, 1 - distFromFlame / (innerHeight * 0.8));
 
-      // 왼쪽 내벽
       if (innerLeft - 1 >= fpLeft + 3) {
         const r = Math.min(255, Math.floor(30 + glow * 80));
         const g = Math.min(255, Math.floor(10 + glow * 25));
         const b = Math.floor(glow * 5);
         renderer.set(innerLeft, y, ascii ? "|" : "▐", renderer.fgRgb(r, g, b));
       }
-      // 오른쪽 내벽
       if (innerRight < fpRight - 3) {
         const r = Math.min(255, Math.floor(30 + glow * 80));
         const g = Math.min(255, Math.floor(10 + glow * 25));
@@ -309,13 +300,10 @@ const fireplace: Theme = {
     }
 
     // === 주변 벽 (어두운 배경) ===
-    const wallColor = renderer.fgRgb(25, 22, 20);
     const wallChar = ascii ? "." : "·";
     for (let y = 0; y < height - 1; y++) {
       for (let x = 0; x < width; x++) {
-        // 벽난로 영역 바깥
         if (x < fpLeft - 1 || x > fpRight + 1 || y < fpTop - 1 || y > fpBottom) {
-          // 불빛이 주변 벽에 은은하게 비침
           const distX = Math.min(Math.abs(x - fpLeft), Math.abs(x - fpRight));
           const distY = Math.min(Math.abs(y - fpTop), Math.abs(y - fpBottom));
           const dist = Math.sqrt(distX * distX + distY * distY);
@@ -331,6 +319,11 @@ const fireplace: Theme = {
         }
       }
     }
+  },
+
+  // 파티클 위에 벽난로 프레임을 다시 그려서 불씨가 프레임을 뚫지 못하게 함
+  renderForeground(_tick: number, width: number, height: number, ascii?: boolean): void {
+    drawFireplaceFrame(width, height, ascii);
   },
 
   getTitle(): string {
