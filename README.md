@@ -50,6 +50,49 @@ vp --season fireplace    # 단축 명령어
 > npm rm -g vibe-picnic
 > ```
 
+## 터미널 시작 스플래시 설정
+
+터미널을 열 때 자동으로 계절 애니메이션이 나타나고, 아무 키나 누르면 쉘이 시작됩니다.
+
+### Bash
+
+`~/.bashrc` 맨 아래에 추가:
+```bash
+vibe-picnic --splash
+```
+
+### Zsh
+
+`~/.zshrc` 맨 아래에 추가:
+```bash
+vibe-picnic --splash
+```
+
+### PowerShell
+
+`$PROFILE` 파일에 추가 (경로 확인: `echo $PROFILE`):
+```powershell
+vibe-picnic --splash
+```
+
+### Fish
+
+`~/.config/fish/config.fish`에 추가:
+```fish
+vibe-picnic --splash
+```
+
+### Windows Terminal + Oh My Posh 사용자
+
+Oh My Posh와 함께 사용할 때, `$PROFILE`에서 Oh My Posh 초기화 **위에** 추가하세요:
+```powershell
+# 1. 스플래시 (아무 키 → 쉘 시작)
+vibe-picnic --splash
+
+# 2. Oh My Posh 프롬프트 테마
+oh-my-posh init pwsh --config 'your-theme.omp.json' | Invoke-Expression
+```
+
 ## 테마
 
 ### 계절 테마 (파티클 기반)
