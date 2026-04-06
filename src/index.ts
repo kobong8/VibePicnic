@@ -207,19 +207,24 @@ export function run(options: RunOptions): void {
       renderer.set(lx + i, logoY, logoLine[i], logoColor);
     }
 
-    const greeting = message || getGreeting(activeTheme.name);
+    const greeting = message;
     if (greeting) {
       const gy = logoY + 2;
-      const greetColor = noColor ? "" : renderer.fgRgb(200, 200, 220);
       const gx = Math.max(0, Math.floor((w - greeting.length) / 2));
+
+      for (let i = 0; i < greeting.length && gx + i < w; i++) {
+        renderer.set(gx + i, gy, " ", "");
+      }
+
+      const greetColor = noColor ? "" : renderer.fgRgb(200, 200, 220);
       for (let i = 0; i < greeting.length && gx + i < w; i++) {
         renderer.set(gx + i, gy, greeting[i], greetColor);
       }
     }
 
     const prompt = "Press any key to continue...";
-    const px = Math.max(0, Math.floor((w - prompt.length) / 2));
-    const py = Math.floor(h * 0.65);
+    const px = Math.max(0, w - prompt.length - 2);
+    const py = h - 1;
 
     // Clear the line for the prompt to prevent background artifacts
     for (let i = 0; i < prompt.length && px + i < w; i++) {
