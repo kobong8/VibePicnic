@@ -101,6 +101,8 @@ rm ~/.vibe-picnic.json
 
 ## 💡 실행화면
 
+- 실행화면은 예시로 보시는 것보다 예쁩니다. 특히 모닥불은 색이 다 안담겼어요 ㅠ
+
 #### 🌸 봄 (spring)
 
 ![spring](images/spring.gif)
@@ -123,6 +125,7 @@ rm ~/.vibe-picnic.json
 
 #### 🔥 모닥불 (campfire)
 
+![campfire](images/campfire.gif)
 
 ---
 
@@ -138,7 +141,7 @@ rm ~/.vibe-picnic.json
 | `3` | `autumn` | 🍂 낙엽이 고요하게 떨어지는 가을 |
 | `4` | `winter` | ❄️ 하얀 눈이 소복이 쌓이는 겨울 |
 
-### 특별 장면 테마
+### 특정 장면 테마
 | 키 | 테마명 | 설명 |
 |:---:|:---:|---|
 | `5` | `moonlake` | 🌕 호숫가 위 큰 달과 수면에 비치는 달빛, 반짝이는 별 |
