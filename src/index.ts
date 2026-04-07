@@ -6,7 +6,7 @@ import summer from "./themes/summer";
 import autumn from "./themes/autumn";
 import winter from "./themes/winter";
 import moonlake from "./themes/moonlake";
-import fireplace from "./themes/fireplace";
+import campfire from "./themes/campfire";
 
 export const themes: Record<string, Theme> = {
   spring,
@@ -14,7 +14,7 @@ export const themes: Record<string, Theme> = {
   autumn,
   winter,
   moonlake,
-  fireplace,
+  campfire,
 };
 
 export interface RunOptions {
@@ -64,7 +64,7 @@ export function run(options: RunOptions): void {
   const theme = themes[themeName];
   if (!theme) {
     console.error(
-      `Unknown season: ${season}. Use: spring, summer, autumn, winter, moonlake, fireplace, auto, random`,
+      `Unknown season: ${season}. Use: spring, summer, autumn, winter, moonlake, campfire, auto, random`,
     );
     process.exit(1);
   }
@@ -106,7 +106,7 @@ export function run(options: RunOptions): void {
     if (key === "3") switchTheme("autumn");
     if (key === "4") switchTheme("winter");
     if (key === "5") switchTheme("moonlake");
-    if (key === "6") switchTheme("fireplace");
+    if (key === "6") switchTheme("campfire");
   });
 
   let activeTheme = theme;
@@ -239,7 +239,7 @@ export function run(options: RunOptions): void {
       autumn: "🍂",
       winter: "❄️",
       moonlake: "🌕",
-      fireplace: "🔥",
+      campfire: "🔥",
     };
     const icon = icons[activeTheme.name] || "✨";
 
@@ -305,7 +305,7 @@ export function run(options: RunOptions): void {
       autumn: "🍂 Autumn breeze",
       winter: "❄️ Winter wonderland",
       moonlake: "🌕 Full Moon, Full Heart",
-      fireplace: "🔥 Cozy moments by the fire",
+      campfire: "🔥 Cozy moments by the fire",
     };
 
     return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
@@ -348,7 +348,7 @@ export function run(options: RunOptions): void {
         autumn: "🍂",
         winter: "❄️",
         moonlake: "🌕",
-        fireplace: "🔥",
+        campfire: "🔥",
       };
       console.log(
         `\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`,

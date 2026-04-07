@@ -32,7 +32,12 @@ export function loadConfig(): Partial<Config> {
   try {
     if (fs.existsSync(CONFIG_PATH)) {
       const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
-      return JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      // Legacy support: map 'fireplace' to 'campfire'
+      if (parsed.season === "fireplace") {
+        parsed.season = "campfire";
+      }
+      return parsed;
     }
   } catch {
     // ignore invalid config

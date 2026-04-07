@@ -4,8 +4,10 @@
 
 ```text
 🌸 봄 - 벚꽃    🌧️ 여름 - 비    🍂 가을 - 낙엽    ❄️ 겨울 - 눈
-🌕 호숫가 달빛   🔥 벽난로
+🌕 호숫가 달빛   🔥 모닥불
 ```
+
+![moonlake](images/moonlake.gif)
 
 ---
 
@@ -20,7 +22,7 @@ npm run build
 npm start
 
 # 특정 테마로 실행
-node dist/bin/vibe-picnic.js --season fireplace
+node dist/bin/vibe-picnic.js --season campfire
 ```
 
 ### 글로벌 명령어로 등록 (어디서든 `vibe-picnic` 사용)
@@ -30,7 +32,7 @@ npm link
 # 이후 어디서든 실행 가능
 vibe-picnic
 vibe-picnic --season moonlake
-vp --season fireplace    # 단축 명령어
+vp --season campfire    # 단축 명령어
 ```
 
 ### ✨ 터미널 시작 스플래시 설정
@@ -99,9 +101,30 @@ rm ~/.vibe-picnic.json
 
 ---
 
-## 💡 예시
+## 💡 실행화면
 
-<!-- 추후 예시 추가 예정 -->
+#### 🌸 봄 (spring)
+
+![spring](images/spring.gif)
+
+#### 🌧️ 여름 (summer)
+
+![summer](images/summer.gif)
+
+#### 🍂 가을 (autumn)
+
+![autumn](images/autumn.gif)
+
+#### ❄️ 겨울 (winter)
+
+![winter](images/winter.gif)
+
+#### 🌕 달이 비치는 호숫가 (moonlake)
+
+![moonlake](images/moonlake.gif)
+
+#### 🔥 모닥불 (campfire)
+
 
 ---
 
@@ -121,7 +144,7 @@ rm ~/.vibe-picnic.json
 | 키 | 테마명 | 설명 |
 |:---:|:---:|---|
 | `5` | `moonlake` | 🌕 호숫가 위 큰 달과 수면에 비치는 달빛, 반짝이는 별 |
-| `6` | `fireplace` | 🔥 타오르는 장작과 불꽃 애니메이션, 따뜻한 벽난로 |
+| `6` | `campfire` | 🔥 타오르는 장작과 불꽃 애니메이션, 따뜻한 모닥불 |
 
 ---
 
@@ -130,7 +153,7 @@ rm ~/.vibe-picnic.json
 ### CLI 옵션
 | 옵션 | 설명 | 기본값 |
 |---|---|:---:|
-| `--season <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `fireplace`, `auto`, `random`) | `auto` |
+| `--season <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `auto`, `random`) | `auto` |
 | `--density <n>` | 파티클 밀도 (1-50) | `15` |
 | `--speed <n>` | 애니메이션 속도 배율 (0.1-5.0) | `1.0` |
 | `--wind <n>` | 바람의 세기와 방향 (-5.0 ~ 5.0) | `0.5` |
@@ -159,8 +182,8 @@ rm ~/.vibe-picnic.json
 # 현재 설정 확인 (✏️ 표시가 직접 설정한 값)
 vibe-picnic config show
 
-# 기본 테마를 벽난로로 변경
-vibe-picnic config set season fireplace
+# 기본 테마를 모닥불로 변경
+vibe-picnic config set season campfire
 
 # 파티클 밀도 변경
 vibe-picnic config set density 30

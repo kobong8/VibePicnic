@@ -4,7 +4,7 @@ import { run, detectSeason, pickRandomTheme, themes } from "../index";
 import { loadConfig, saveConfig, getConfigPath, getDefaults, mergeWithDefaults, Config } from "../config";
 
 const args = process.argv.slice(2);
-const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "fireplace"];
+const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire"];
 
 // ── vibe-picnic config 서브커맨드 ──
 if (args[0] === "config") {
@@ -32,7 +32,7 @@ Usage:
   message   스플래시 메시지
 
 Examples:
-  vibe-picnic config set season fireplace   기본 테마를 벽난로로 변경
+  vibe-picnic config set season campfire   기본 테마를 모닥불로 변경
   vibe-picnic config set density 30         파티클 밀도를 30으로 변경
   vibe-picnic config set ascii true         ASCII 모드 활성화
   vibe-picnic config show                   현재 설정 확인
@@ -174,7 +174,7 @@ Config:
 Controls (일반 모드):
   ← →               바람 방향/세기 조절
   ↑ ↓               파티클 밀도 조절
-  1-6               테마 전환 (1:봄 2:여름 3:가을 4:겨울 5:달빛호수 6:벽난로)
+  1-6               테마 전환 (1:봄 2:여름 3:가을 4:겨울 5:달빛호수 6:모닥불)
   r                 바닥 리셋
   q / ESC           종료
 
@@ -184,13 +184,13 @@ Themes:
   autumn     🍂 낙엽이 떨어짐
   winter     ❄️  눈이 내림
   moonlake   🌕 호숫가 달빛
-  fireplace  🔥 벽난로
+  campfire  🔥 모닥불
   auto       현재 월에 맞는 계절 자동 선택
   random     실행할 때마다 랜덤 테마 선택
 
 Examples:
   vibe-picnic                                 자동 계절 감지
-  vibe-picnic --season fireplace              벽난로
+  vibe-picnic --season campfire              모닥불
   vibe-picnic config set season moonlake      기본 테마를 달빛호수로
   vibe-picnic config show                     설정 확인
 `);
