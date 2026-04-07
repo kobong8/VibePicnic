@@ -91,61 +91,66 @@ const campfire: Theme = {
     const logMidX = Math.floor(width / 2);
     const groundY = height - 2;
 
-    // === 바닥 (Ground / Dirt) ===
-    for (let x = 0; x < width; x++) {
-      const distFromCenter = Math.abs(x - logMidX);
-      const glow = Math.max(0, 1 - distFromCenter / (width * 0.4));
-      
-      const r = Math.min(255, Math.floor(50 + glow * 80));
-      const g = Math.min(255, Math.floor(40 + glow * 40));
-      const b = Math.floor(30 + glow * 10);
-      
-      if (x % 3 === 0) {
-        renderer.set(x, groundY, ascii ? "-" : "▱", renderer.fgRgb(r, g, b));
-      } else if (x % 7 === 0) {
-        renderer.set(x, groundY, ascii ? "_" : "▰", renderer.fgRgb(r - 10, g - 10, b));
-      } else {
-        renderer.set(x, groundY, ascii ? "." : "·", renderer.fgRgb(r, g, b));
-      }
-    }
-
-    // === 장작 (Logs - 삼각뿔/피라미드 형태로 세워진 모닥불) ===
-    const logHeight = 5;
+    // === 장작 (Logs - 나무 느낌을 더 살린 두꺼운 모닥불) ===
     const logBaseY = groundY - 1;
 
-    // 뒷쪽 장작
-    for (let i = 0; i < logHeight; i++) {
-      const ly = logBaseY - i;
-      const spread = (logHeight - i) * 1.5;
-      
-      // 왼쪽으로 기댄 장작
-      const lx1 = Math.floor(logMidX - spread);
-      const bark1 = (i + tick) % 4 === 0;
-      renderer.set(lx1, ly, ascii ? "\\" : "▨", bark1 ? renderer.fgRgb(60, 30, 15) : renderer.fgRgb(40, 20, 10));
-      renderer.set(lx1 + 1, ly, ascii ? "\\" : "▧", renderer.fgRgb(50, 25, 12));
-
-      // 오른쪽으로 기댄 장작
-      const lx2 = Math.floor(logMidX + spread);
-      const bark2 = (i + tick + 2) % 4 === 0;
-      renderer.set(lx2, ly, ascii ? "/" : "▧", bark2 ? renderer.fgRgb(65, 32, 16) : renderer.fgRgb(45, 22, 10));
-      renderer.set(lx2 - 1, ly, ascii ? "/" : "▨", renderer.fgRgb(55, 28, 14));
-    }
-
     // 숯불 (Glowing Embers at the base)
-    for (let x = logMidX - 8; x <= logMidX + 8; x++) {
+    for (let x = logMidX - 10; x <= logMidX + 10; x++) {
       const glow = Math.sin(tick * 0.1 + x * 0.4) * 0.5 + 0.5;
-      if (glow > 0.2) {
+      if (glow > 0.15) {
         const r = Math.min(255, Math.floor(180 + glow * 75));
         const g = Math.min(255, Math.floor(40 + glow * 80));
         const b = Math.floor(glow * 15);
         renderer.set(x, logBaseY, ascii ? "~" : "▅", renderer.fgRgb(r, g, b));
+        if (Math.random() > 0.5) renderer.set(x, logBaseY + 1, ascii ? "." : "▃", renderer.fgRgb(Math.floor(r * 0.7), Math.floor(g * 0.7), Math.floor(b * 0.7)));
+      }
+    }
+
+    // 뒷쪽 대각선 장작 (두께감 있게)
+    for (let i = 0; i < 6; i++) {
+      const ly = logBaseY - i;
+      const lx1 = logMidX - 2 - i * 1.6;
+      const lx2 = logMidX + 2 + i * 1.6;
+      
+      const woodDark = renderer.fgRgb(50, 25, 10);
+      const woodMid = renderer.fgRgb(70, 35, 15);
+      const woodLight = renderer.fgRgb(90, 45, 20);
+      const burn = renderer.fgRgb(120, 40, 10);
+      
+      // 왼쪽 나무
+      for (let w = 0; w < 3; w++) {
+        const x = Math.floor(lx1) + w;
+        if (x < 0 || x >= width) continue;
+        const isBurned = i < 2 && Math.random() > 0.4;
+        const color = isBurned ? burn : (w === 0 ? woodDark : w === 1 ? woodMid : woodLight);
+        const char = ascii ? "\\" : "█";
+        renderer.set(x, ly, char, color);
+      }
+      
+      // 오른쪽 나무
+      for (let w = 0; w < 3; w++) {
+        const x = Math.floor(lx2) - w;
+        if (x < 0 || x >= width) continue;
+        const isBurned = i < 2 && Math.random() > 0.4;
+        const color = isBurned ? burn : (w === 0 ? woodDark : w === 1 ? woodMid : woodLight);
+        const char = ascii ? "/" : "█";
+        renderer.set(x, ly, char, color);
       }
     }
 
     // 앞쪽 가로 장작
-    for (let x = logMidX - 6; x <= logMidX + 6; x++) {
-      const bark = (x + tick) % 3 === 0;
-      renderer.set(x, logBaseY, ascii ? "=" : "▤", bark ? renderer.fgRgb(70, 35, 18) : renderer.fgRgb(45, 22, 12));
+    for (let x = logMidX - 7; x <= logMidX + 7; x++) {
+      const woodColor = (x + tick) % 3 === 0 ? renderer.fgRgb(60, 30, 15) : renderer.fgRgb(80, 40, 20);
+      const burnColor = renderer.fgRgb(130, 45, 10);
+      const isCenter = Math.abs(x - logMidX) < 3;
+      
+      // 위쪽 절반
+      const topColor = isCenter && Math.random() > 0.3 ? burnColor : woodColor;
+      renderer.set(x, logBaseY - 1, ascii ? "=" : "▄", topColor); 
+      
+      // 아래쪽 절반
+      const bottomColor = isCenter && Math.random() > 0.5 ? burnColor : renderer.fgRgb(50, 25, 10);
+      renderer.set(x, logBaseY, ascii ? "=" : "▆", bottomColor);
     }
 
     // === 불꽃 (Campfire Flames) ===
