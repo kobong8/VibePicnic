@@ -91,66 +91,71 @@ const campfire: Theme = {
     const logMidX = Math.floor(width / 2);
     const groundY = height - 2;
 
-    // === 장작 (Logs - 나무 느낌을 더 살린 두꺼운 모닥불) ===
+    // === 장작 (Logs) ===
     const logBaseY = groundY - 1;
 
-    // 숯불 (Glowing Embers at the base)
-    for (let x = logMidX - 10; x <= logMidX + 10; x++) {
+    // 숯불 (Glowing embers at the very base)
+    for (let x = logMidX - 8; x <= logMidX + 8; x++) {
       const glow = Math.sin(tick * 0.1 + x * 0.4) * 0.5 + 0.5;
       if (glow > 0.15) {
-        const r = Math.min(255, Math.floor(180 + glow * 75));
-        const g = Math.min(255, Math.floor(40 + glow * 80));
-        const b = Math.floor(glow * 15);
-        renderer.set(x, logBaseY, ascii ? "~" : "▅", renderer.fgRgb(r, g, b));
-        if (Math.random() > 0.5) renderer.set(x, logBaseY + 1, ascii ? "." : "▃", renderer.fgRgb(Math.floor(r * 0.7), Math.floor(g * 0.7), Math.floor(b * 0.7)));
+        const r = Math.min(255, Math.floor(185 + glow * 70));
+        const g = Math.min(255, Math.floor(45 + glow * 65));
+        renderer.set(x, groundY, ascii ? "~" : "▃", renderer.fgRgb(r, g, 0));
       }
     }
 
-    // 뒷쪽 대각선 장작 (두께감 있게)
-    for (let i = 0; i < 6; i++) {
-      const ly = logBaseY - i;
-      const lx1 = logMidX - 2 - i * 1.6;
-      const lx2 = logMidX + 2 + i * 1.6;
-      
-      const woodDark = renderer.fgRgb(50, 25, 10);
-      const woodMid = renderer.fgRgb(70, 35, 15);
-      const woodLight = renderer.fgRgb(90, 45, 20);
-      const burn = renderer.fgRgb(120, 40, 10);
-      
-      // 왼쪽 나무
-      for (let w = 0; w < 3; w++) {
-        const x = Math.floor(lx1) + w;
-        if (x < 0 || x >= width) continue;
-        const isBurned = i < 2 && Math.random() > 0.4;
-        const color = isBurned ? burn : (w === 0 ? woodDark : w === 1 ? woodMid : woodLight);
-        const char = ascii ? "\\" : "█";
-        renderer.set(x, ly, char, color);
-      }
-      
-      // 오른쪽 나무
-      for (let w = 0; w < 3; w++) {
-        const x = Math.floor(lx2) - w;
-        if (x < 0 || x >= width) continue;
-        const isBurned = i < 2 && Math.random() > 0.4;
-        const color = isBurned ? burn : (w === 0 ? woodDark : w === 1 ? woodMid : woodLight);
-        const char = ascii ? "/" : "█";
-        renderer.set(x, ly, char, color);
-      }
+    // 앞쪽 가로 장작 (Front horizontal log - cylindrical shape)
+    for (let x = logMidX - 9; x <= logMidX + 9; x++) {
+      const distFromCenter = Math.abs(x - logMidX);
+      const isEnd = distFromCenter >= 8;
+      const isBurning = distFromCenter < 4 && Math.random() > 0.45;
+
+      // Wood grain: subtle color variation along the length
+      const grainIdx = (x - logMidX + 20) % 4;
+      const grainMult = grainIdx === 0 ? 0.85 : grainIdx === 2 ? 1.15 : 1.0;
+
+      const baseR = isEnd ? 110 : 88;
+      const baseG = isEnd ? 55 : 44;
+      const baseB = isEnd ? 22 : 18;
+
+      // Top row: cylinder highlight (rounded top catches light)
+      const hiR = isBurning ? 155 : Math.min(255, Math.floor(baseR * 1.35 * grainMult));
+      const hiG = isBurning ? 55  : Math.min(255, Math.floor(baseG * 1.2  * grainMult));
+      const hiB = isBurning ? 12  : Math.floor(baseB * grainMult);
+      // End caps show the rounded log end cross-section
+      renderer.set(x, logBaseY - 1, ascii ? (isEnd ? "o" : "-") : (isEnd ? "▐" : "▀"),
+        renderer.fgRgb(hiR, hiG, hiB));
+
+      // Bottom row: shadow under cylinder (contact with ground)
+      const shR = isBurning ? 105 : Math.floor(baseR * 0.7);
+      const shG = isBurning ? 38  : Math.floor(baseG * 0.7);
+      const shB = isBurning ? 6   : Math.floor(baseB * 0.7);
+      renderer.set(x, logBaseY, ascii ? "=" : "▄",
+        renderer.fgRgb(shR, shG, shB));
     }
 
-    // 앞쪽 가로 장작
-    for (let x = logMidX - 7; x <= logMidX + 7; x++) {
-      const woodColor = (x + tick) % 3 === 0 ? renderer.fgRgb(60, 30, 15) : renderer.fgRgb(80, 40, 20);
-      const burnColor = renderer.fgRgb(130, 45, 10);
-      const isCenter = Math.abs(x - logMidX) < 3;
-      
-      // 위쪽 절반
-      const topColor = isCenter && Math.random() > 0.3 ? burnColor : woodColor;
-      renderer.set(x, logBaseY - 1, ascii ? "=" : "▄", topColor); 
-      
-      // 아래쪽 절반
-      const bottomColor = isCenter && Math.random() > 0.5 ? burnColor : renderer.fgRgb(50, 25, 10);
-      renderer.set(x, logBaseY, ascii ? "=" : "▆", bottomColor);
+    // 뒷쪽 대각선 장작 (Back crossed logs - teepee V-shape)
+    // Each log is 2 chars wide with highlight/shadow to suggest a cylinder
+    const numLogSegs = 8;
+    for (let i = 0; i < numLogSegs; i++) {
+      const ly = logBaseY - 2 - i;
+      if (ly < 0) break;
+      const spread = i * 2.1;
+      const isBurningLog = i < 3;
+
+      // Left log going \ (lighter on left face = highlight, darker on right = shadow)
+      const lxL = Math.floor(logMidX - 2 - spread);
+      const lHi = isBurningLog ? renderer.fgRgb(130, 48, 12) : renderer.fgRgb(102, 52, 22);
+      const lSh = isBurningLog ? renderer.fgRgb(75,  28,  8) : renderer.fgRgb(58,  30, 12);
+      if (lxL     >= 0 && lxL     < width) renderer.set(lxL,     ly, ascii ? "\\" : "▓", lHi);
+      if (lxL + 1 >= 0 && lxL + 1 < width) renderer.set(lxL + 1, ly, ascii ? "\\" : "█", lSh);
+
+      // Right log going / (darker on left face = shadow, lighter on right = highlight)
+      const lxR = Math.floor(logMidX + 2 + spread);
+      const rHi = isBurningLog ? renderer.fgRgb(130, 48, 12) : renderer.fgRgb(102, 52, 22);
+      const rSh = isBurningLog ? renderer.fgRgb(75,  28,  8) : renderer.fgRgb(58,  30, 12);
+      if (lxR - 1 >= 0 && lxR - 1 < width) renderer.set(lxR - 1, ly, ascii ? "/" : "█", rSh);
+      if (lxR     >= 0 && lxR     < width) renderer.set(lxR,     ly, ascii ? "/" : "▓", rHi);
     }
 
     // === 불꽃 (Campfire Flames) ===

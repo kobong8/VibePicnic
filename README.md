@@ -20,13 +20,11 @@ cd VibePicnic
 npm install
 npm run build
 npm start
-
-# 특정 테마로 실행
-node dist/bin/vibe-picnic.js --season campfire
 ```
 
 ### 글로벌 명령어로 등록 (어디서든 `vibe-picnic` 사용)
 ```bash
+npm run build
 npm link
 
 # 이후 어디서든 실행 가능
@@ -47,7 +45,7 @@ vp --season campfire    # 단축 명령어
 - **PowerShell:** `$PROFILE` (`echo $PROFILE`로 경로 확인)
 
 > **Oh My Posh 사용자 (PowerShell):**
-> `$PROFILE`에서 Oh My Posh 초기화 코드 **위**에 추가하면 더 깔끔합니다.
+> `$PROFILE`에서 Oh My Posh 초기화 코드 위쪽에 추가하여 사용하시면 됩니다.
 > ```powershell
 > vibe-picnic --splash
 > oh-my-posh init pwsh --config 'your-theme.omp.json' | Invoke-Expression
