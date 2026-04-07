@@ -22,6 +22,7 @@ function starHash(x: number, y: number): number {
 // MOON_POS_Y  : 달의 Y 위치 비율 (0.18 = 위에서 18%, 작을수록 위)
 // MOON_POS_X  : 달의 X 위치 비율 (0.5 = 가운데)
 // ASPECT_RATIO: 세로 보정 비율 (2.0 = 터미널 기본)
+// MOON_WIDTH_STRETCH: 달 가로 늘림 비율 (1.0 = 기본, 1.5 = 가로로 1.5배 넓음)
 //
 // 달은 renderForeground에서 파티클 위에 그려져서 항상 유지됩니다.
 //
@@ -36,7 +37,6 @@ const MOON_SIZE = 0.18;
 const MOON_POS_Y = 0.18;
 const MOON_POS_X = 0.5;
 const ASPECT_RATIO = 2.0;
-
 function getMoonParams(width: number, height: number) {
   const moonCenterX = Math.floor(width * MOON_POS_X);
   const moonY = Math.floor(height * MOON_POS_Y);
@@ -57,67 +57,51 @@ function lakeColor(_distFromCenter: number, _tick: number, y: number): [number, 
 }
 
 // 달 본체를 그리는 함수 (renderBackground와 renderForeground에서 공유)
+// 유클리디안 거리(Euclidean Distance)를 사용하여 왜곡 없는 완벽한 원형(타원 보정)을 렌더링합니다.
 function drawMoon(width: number, height: number, horizonY: number, ascii?: boolean): void {
   const { moonCenterX, moonY, moonRadius, moonHalfH } = getMoonParams(width, height);
 
-  // === 달 본체 ===
-  for (let row = -moonHalfH - 1; row <= moonHalfH + 1; row++) {
+  const maxRow = moonHalfH + 3;
+  const maxCol = moonRadius + 6;
+
+  for (let row = -maxRow; row <= maxRow; row++) {
     const screenY = moonY + row;
     if (screenY < 0 || screenY >= horizonY) continue;
 
-    const dyNorm = (row * ASPECT_RATIO) / moonRadius;
-    if (Math.abs(dyNorm) > 1) continue;
-    const xExtent = Math.sqrt(1 - dyNorm * dyNorm) * moonRadius;
+    const dy = row * ASPECT_RATIO;
 
-    for (let col = Math.floor(-xExtent - 2); col <= Math.ceil(xExtent + 2); col++) {
+    for (let col = -maxCol; col <= maxCol; col++) {
       const screenX = moonCenterX + col;
       if (screenX < 0 || screenX >= width) continue;
 
-      const distFromEdge = xExtent - Math.abs(col);
+      const dx = col;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const distFromEdge = moonRadius - dist;
 
-      if (distFromEdge >= 2) {
+      if (distFromEdge >= 1.5) {
+        // 내부 (크레이터 노이즈)
         const craterNoise = Math.sin(screenX * 1.7 + screenY * 2.3) * 8 +
                             Math.sin(screenX * 0.8 - screenY * 1.1) * 5;
         const cr = 255;
         const cg = Math.min(255, Math.max(0, 235 + Math.floor(craterNoise)));
         const cb = Math.min(255, Math.max(0, 110 + Math.floor(craterNoise)));
         renderer.set(screenX, screenY, ascii ? "@" : "█", renderer.fgRgb(cr, cg, cb));
-      } else if (distFromEdge >= 1) {
+      } else if (distFromEdge >= 0.5) {
+        // 테두리 안쪽
         renderer.set(screenX, screenY, ascii ? "#" : "▓", renderer.fgRgb(245, 215, 85));
-      } else if (distFromEdge >= 0) {
+      } else if (distFromEdge >= -0.5) {
+        // 가장자리
         renderer.set(screenX, screenY, ascii ? "=" : "▒", renderer.fgRgb(220, 190, 65));
-      } else if (distFromEdge >= -1.5) {
-        const gi = (distFromEdge + 1.5) / 1.5;
-        const r = Math.min(255, Math.floor(40 + gi * 160));
-        const g = Math.min(255, Math.floor(35 + gi * 140));
-        const b = Math.min(255, Math.floor(15 + gi * 50));
-        renderer.set(screenX, screenY, ascii ? "." : "·", renderer.fgRgb(r, g, b));
-      }
-    }
-  }
-
-  // === 달 위아래 후광 ===
-  for (let row = -moonHalfH - 3; row <= moonHalfH + 3; row++) {
-    const screenY = moonY + row;
-    if (screenY < 0 || screenY >= horizonY) continue;
-
-    const dyNorm = (row * ASPECT_RATIO) / moonRadius;
-    const absDy = Math.abs(dyNorm);
-    if (absDy <= 1 || absDy > 1.6) continue;
-
-    const gi = (1.6 - absDy) / 0.6;
-    const glowWidth = Math.floor(moonRadius * gi * 0.6);
-
-    for (let col = -glowWidth; col <= glowWidth; col++) {
-      const screenX = moonCenterX + col;
-      if (screenX < 0 || screenX >= width) continue;
-      const xi = 1 - Math.abs(col) / (glowWidth + 1);
-      const intensity = gi * xi * 0.5;
-      if (intensity > 0.08) {
-        const r = Math.min(255, Math.floor(35 + intensity * 170));
-        const g = Math.min(255, Math.floor(30 + intensity * 150));
-        const b = Math.min(255, Math.floor(15 + intensity * 50));
-        renderer.set(screenX, screenY, ascii ? "." : "·", renderer.fgRgb(r, g, b));
+      } else if (distFromEdge >= -4.0) {
+        // 후광 (점진적으로 어두워짐)
+        const gi = (distFromEdge + 4.0) / 3.5; 
+        const intensity = gi * gi * 0.8; 
+        if (intensity > 0.05) {
+          const r = Math.min(255, Math.floor(35 + intensity * 170));
+          const g = Math.min(255, Math.floor(30 + intensity * 150));
+          const b = Math.min(255, Math.floor(15 + intensity * 50));
+          renderer.set(screenX, screenY, ascii ? "." : "·", renderer.fgRgb(r, g, b));
+        }
       }
     }
   }
