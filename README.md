@@ -33,9 +33,29 @@ vibe-picnic --season moonlake
 vp --season fireplace    # 단축 명령어
 ```
 
-### 🗑️ 완전 삭제 방법
+### ✨ 터미널 시작 스플래시 설정
 
-**1. 글로벌 패키지 제거**
+터미널을 열 때마다 자동으로 감성적인 애니메이션을 감상할 수 있습니다. 아무 키나 누르면 즉시 쉘이 시작됩니다.
+
+설정 파일 맨 아래에 `vibe-picnic --splash`를 추가하세요.
+
+- **Bash:** `~/.bashrc`
+- **Zsh:** `~/.zshrc`
+- **Fish:** `~/.config/fish/config.fish`
+- **PowerShell:** `$PROFILE` (`echo $PROFILE`로 경로 확인)
+
+> **Oh My Posh 사용자 (PowerShell):**
+> `$PROFILE`에서 Oh My Posh 초기화 코드 **위**에 추가하면 더 깔끔합니다.
+> ```powershell
+> vibe-picnic --splash
+> oh-my-posh init pwsh --config 'your-theme.omp.json' | Invoke-Expression
+> ```
+
+---
+
+## 🗑️ 삭제 방법
+
+### 1. 글로벌 패키지 제거
 
 먼저 등록된 패키지명을 확인합니다.
 ```bash
@@ -53,7 +73,7 @@ npm uninstall -g vibe-picnic
 > npm unlink
 > ```
 
-**2. 터미널 시작 설정 제거**
+### 2. 터미널 시작 설정 제거
 
 shell 설정 파일에서 `vibe-picnic` 관련 줄을 삭제합니다.
 
@@ -62,7 +82,6 @@ shell 설정 파일에서 `vibe-picnic` 관련 줄을 삭제합니다.
 - **Fish:** `~/.config/fish/config.fish`
 - **PowerShell:** `$PROFILE` (`echo $PROFILE`로 경로 확인)
 
-예시 (`~/.zshrc`):
 ```bash
 # 아래 줄을 찾아서 삭제
 vibe-picnic --splash
@@ -73,10 +92,16 @@ vibe-picnic --splash
 source ~/.zshrc   # Bash는 source ~/.bashrc
 ```
 
-**3. 설정 파일 제거 (선택)**
+### 3. 설정 파일 제거 (선택)
 ```bash
 rm ~/.vibe-picnic.json
 ```
+
+---
+
+## 💡 예시
+
+<!-- 추후 예시 추가 예정 -->
 
 ---
 
@@ -149,27 +174,6 @@ vibe-picnic config reset
 # 설정 파일 위치 확인
 vibe-picnic config path    # 예: ~/.vibe-picnic.json
 ```
-
----
-
-## ✨ 터미널 시작 스플래시 설정
-
-터미널을 열 때마다 자동으로 감성적인 애니메이션을 감상할 수 있습니다. 아무 키나 누르면 즉시 쉘이 시작됩니다.
-
-### 쉘별 설정 방법
-설정 파일 맨 아래에 `vibe-picnic --splash`를 추가하세요.
-
-- **Bash:** `~/.bashrc`
-- **Zsh:** `~/.zshrc`
-- **Fish:** `~/.config/fish/config.fish`
-- **PowerShell:** `$PROFILE` (`echo $PROFILE`로 경로 확인)
-
-> **Oh My Posh 사용자 (PowerShell):**
-> `$PROFILE`에서 Oh My Posh 초기화 코드 **위**에 추가하면 더 깔끔합니다.
-> ```powershell
-> vibe-picnic --splash
-> oh-my-posh init pwsh --config 'your-theme.omp.json' | Invoke-Expression
-> ```
 
 ---
 
