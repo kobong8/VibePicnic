@@ -94,68 +94,100 @@ const campfire: Theme = {
     // === 장작 (Logs) ===
     const logBaseY = groundY - 1;
 
-    // 숯불 (Glowing embers at the very base)
-    for (let x = logMidX - 8; x <= logMidX + 8; x++) {
+    // ── 1. 뒤쪽 대각선 장작 (먼저 그려서 앞 장작에 가려짐) ──
+    // spread=2 정수 + 3칸 폭 → 인접 행이 1칸 겹쳐 끊김 없는 연속선
+    for (let i = 0; i < 10; i++) {
+      const ly = logBaseY - 2 - i;
+      if (ly < 0) break;
+      const spread = i * 2;
+      const isBurningLog = i < 3;
+
+      // 왼쪽 \ 장작: 왼쪽 면 밝음(하이라이트) → 오른쪽 면 어둠(그림자)
+      const lxL = logMidX - 2 - spread;
+      const lA = isBurningLog ? renderer.fgRgb(140, 54, 14) : renderer.fgRgb(108, 56, 24);
+      const lB = isBurningLog ? renderer.fgRgb(105, 40, 10) : renderer.fgRgb(84,  44, 18);
+      const lC = isBurningLog ? renderer.fgRgb(68,  24,  7) : renderer.fgRgb(52,  27, 10);
+      if (lxL     >= 0 && lxL     < width) renderer.set(lxL,     ly, ascii ? "\\" : "▓", lA);
+      if (lxL + 1 >= 0 && lxL + 1 < width) renderer.set(lxL + 1, ly, ascii ? "\\" : "█", lB);
+      if (lxL + 2 >= 0 && lxL + 2 < width) renderer.set(lxL + 2, ly, ascii ? "\\" : "▓", lC);
+
+      // 오른쪽 / 장작: 왼쪽 면 어둠(그림자) → 오른쪽 면 밝음(하이라이트)
+      const lxR = logMidX + 2 + spread;
+      const rA = isBurningLog ? renderer.fgRgb(68,  24,  7) : renderer.fgRgb(52,  27, 10);
+      const rB = isBurningLog ? renderer.fgRgb(105, 40, 10) : renderer.fgRgb(84,  44, 18);
+      const rC = isBurningLog ? renderer.fgRgb(140, 54, 14) : renderer.fgRgb(108, 56, 24);
+      if (lxR - 2 >= 0 && lxR - 2 < width) renderer.set(lxR - 2, ly, ascii ? "/" : "▓", rA);
+      if (lxR - 1 >= 0 && lxR - 1 < width) renderer.set(lxR - 1, ly, ascii ? "/" : "█", rB);
+      if (lxR     >= 0 && lxR     < width) renderer.set(lxR,     ly, ascii ? "/" : "▓", rC);
+    }
+
+    // ── 2. 숯불 바닥 (Ember bed) ──
+    for (let x = logMidX - 10; x <= logMidX + 10; x++) {
       const glow = Math.sin(tick * 0.1 + x * 0.4) * 0.5 + 0.5;
-      if (glow > 0.15) {
+      if (glow > 0.1) {
         const r = Math.min(255, Math.floor(185 + glow * 70));
-        const g = Math.min(255, Math.floor(45 + glow * 65));
+        const g = Math.min(255, Math.floor(42 + glow * 62));
         renderer.set(x, groundY, ascii ? "~" : "▃", renderer.fgRgb(r, g, 0));
       }
     }
 
-    // 앞쪽 가로 장작 (Front horizontal log - cylindrical shape)
+    // ── 3. 양 옆 뻗은 장작 (Side logs) ──
+    for (const side of [-1, 1]) {
+      // 안쪽 옆 장작 (앞 장작과 같은 높이, 바깥으로 뻗음)
+      for (let d = 0; d < 9; d++) {
+        const x = side > 0 ? logMidX + 10 + d : logMidX - 10 - d;
+        if (x < 0 || x >= width) continue;
+        const isTip = d >= 7;
+        const grain = (x + 7) % 3;
+        const bR = isTip ? 118 : (grain === 0 ? 74 : grain === 1 ? 86 : 80);
+        const bG = isTip ? 60  : (grain === 0 ? 37 : grain === 1 ? 43 : 40);
+        const bB = isTip ? 24  : 15;
+        // 위쪽 하이라이트 (원통형 상단)
+        renderer.set(x, logBaseY - 1, ascii ? (isTip ? "o" : "-") : (isTip ? (side > 0 ? "▐" : "▌") : "▀"),
+          renderer.fgRgb(bR, bG, bB));
+        // 아래쪽 그림자
+        renderer.set(x, logBaseY, ascii ? "=" : "▄",
+          renderer.fgRgb(Math.floor(bR * 0.68), Math.floor(bG * 0.68), Math.floor(bB * 0.68)));
+      }
+      // 바깥쪽 옆 장작 (한 단 낮아서 뒤에 있는 나무 느낌)
+      for (let d = 3; d < 14; d++) {
+        const x = side > 0 ? logMidX + 7 + d : logMidX - 7 - d;
+        if (x < 0 || x >= width) continue;
+        const isTip = d >= 12;
+        const grain = (x + 2) % 3;
+        const bR = isTip ? 100 : (grain === 0 ? 66 : grain === 1 ? 76 : 71);
+        const bG = isTip ? 50  : (grain === 0 ? 33 : grain === 1 ? 38 : 36);
+        const bB = isTip ? 18  : 13;
+        renderer.set(x, logBaseY, ascii ? (isTip ? "o" : "=") : (isTip ? (side > 0 ? "▐" : "▌") : "▄"),
+          renderer.fgRgb(bR, bG, bB));
+      }
+    }
+
+    // ── 4. 앞쪽 가로 장작 (Front horizontal log - 마지막에 그려 앞에 표시) ──
     for (let x = logMidX - 9; x <= logMidX + 9; x++) {
       const distFromCenter = Math.abs(x - logMidX);
       const isEnd = distFromCenter >= 8;
       const isBurning = distFromCenter < 4 && Math.random() > 0.45;
 
-      // Wood grain: subtle color variation along the length
-      const grainIdx = (x - logMidX + 20) % 4;
-      const grainMult = grainIdx === 0 ? 0.85 : grainIdx === 2 ? 1.15 : 1.0;
+      const grain = (x - logMidX + 20) % 4;
+      const grainMult = grain === 0 ? 0.85 : grain === 2 ? 1.15 : 1.0;
+      const baseR = isEnd ? 112 : 90;
+      const baseG = isEnd ? 56  : 45;
+      const baseB = isEnd ? 22  : 18;
 
-      const baseR = isEnd ? 110 : 88;
-      const baseG = isEnd ? 55 : 44;
-      const baseB = isEnd ? 22 : 18;
-
-      // Top row: cylinder highlight (rounded top catches light)
+      // 위: 원통 하이라이트
       const hiR = isBurning ? 155 : Math.min(255, Math.floor(baseR * 1.35 * grainMult));
       const hiG = isBurning ? 55  : Math.min(255, Math.floor(baseG * 1.2  * grainMult));
       const hiB = isBurning ? 12  : Math.floor(baseB * grainMult);
-      // End caps show the rounded log end cross-section
       renderer.set(x, logBaseY - 1, ascii ? (isEnd ? "o" : "-") : (isEnd ? "▐" : "▀"),
         renderer.fgRgb(hiR, hiG, hiB));
 
-      // Bottom row: shadow under cylinder (contact with ground)
-      const shR = isBurning ? 105 : Math.floor(baseR * 0.7);
-      const shG = isBurning ? 38  : Math.floor(baseG * 0.7);
+      // 아래: 원통 그림자
+      const shR = isBurning ? 108 : Math.floor(baseR * 0.7);
+      const shG = isBurning ? 40  : Math.floor(baseG * 0.7);
       const shB = isBurning ? 6   : Math.floor(baseB * 0.7);
       renderer.set(x, logBaseY, ascii ? "=" : "▄",
         renderer.fgRgb(shR, shG, shB));
-    }
-
-    // 뒷쪽 대각선 장작 (Back crossed logs - teepee V-shape)
-    // Each log is 2 chars wide with highlight/shadow to suggest a cylinder
-    const numLogSegs = 8;
-    for (let i = 0; i < numLogSegs; i++) {
-      const ly = logBaseY - 2 - i;
-      if (ly < 0) break;
-      const spread = i * 2.1;
-      const isBurningLog = i < 3;
-
-      // Left log going \ (lighter on left face = highlight, darker on right = shadow)
-      const lxL = Math.floor(logMidX - 2 - spread);
-      const lHi = isBurningLog ? renderer.fgRgb(130, 48, 12) : renderer.fgRgb(102, 52, 22);
-      const lSh = isBurningLog ? renderer.fgRgb(75,  28,  8) : renderer.fgRgb(58,  30, 12);
-      if (lxL     >= 0 && lxL     < width) renderer.set(lxL,     ly, ascii ? "\\" : "▓", lHi);
-      if (lxL + 1 >= 0 && lxL + 1 < width) renderer.set(lxL + 1, ly, ascii ? "\\" : "█", lSh);
-
-      // Right log going / (darker on left face = shadow, lighter on right = highlight)
-      const lxR = Math.floor(logMidX + 2 + spread);
-      const rHi = isBurningLog ? renderer.fgRgb(130, 48, 12) : renderer.fgRgb(102, 52, 22);
-      const rSh = isBurningLog ? renderer.fgRgb(75,  28,  8) : renderer.fgRgb(58,  30, 12);
-      if (lxR - 1 >= 0 && lxR - 1 < width) renderer.set(lxR - 1, ly, ascii ? "/" : "█", rSh);
-      if (lxR     >= 0 && lxR     < width) renderer.set(lxR,     ly, ascii ? "/" : "▓", rHi);
     }
 
     // === 불꽃 (Campfire Flames) ===
