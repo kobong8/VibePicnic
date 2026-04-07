@@ -121,7 +121,7 @@ rm ~/.vibe-picnic.json
 
 ![winter](images/winter.gif)
 
-#### 🌕 달이 비치는 호숫가 (moonlake)
+#### 🌕 달빛 호숫가 (moonlake)
 
 ![moonlake](images/moonlake.gif)
 
