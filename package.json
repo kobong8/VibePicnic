@@ -1,7 +1,7 @@
 {
   "name": "vibe-picnic",
-  "version": "1.0.0",
-  "description": "🌸 터미널에 계절이 내리는 CLI 애니메이션 - 봄 벚꽃, 여름 비, 가을 낙엽, 겨울 눈",
+  "version": "0.1.0",
+  "description": "🌕 터미널에 개발자 감성을 담은 CLI 애니메이션",
   "main": "dist/index.js",
   "bin": {
     "vibe-picnic": "dist/bin/vibe-picnic.js",
@@ -12,10 +12,14 @@
     "terminal",
     "animation",
     "cherry-blossom",
-    "sakura",
     "rain",
     "snow",
     "leaves",
+    "moon",
+    "lake",
+    "moonlake",
+    "fire",
+    "campfire",
     "seasons",
     "ascii-art"
   ],
@@ -23,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kobong8/BeforeSunrise.git"
+    "url": "git+https://github.com/kobong8/VibePicnic.git"
   },
   "engines": {
     "node": ">=14.0.0"
