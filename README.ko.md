@@ -6,7 +6,7 @@
 
 ```text
 🌸 봄 - 벚꽃    🌧️ 여름 - 비    🍂 가을 - 낙엽    ❄️ 겨울 - 눈
-🌕 호숫가 달빛   🔥 모닥불
+🌕 호숫가 달빛   🔥 모닥불   🎆 폭죽놀이
 ```
 
 ![moonlake](images/moonlake.gif)
@@ -35,6 +35,7 @@ npm link
 vibe-picnic
 vibe-picnic --season moonlake
 vp --season campfire    # 단축 명령어
+vp --season fireworks   # 현실적인 야간 폭죽 장면
 ```
 
 ### ✨ 터미널 시작 스플래시 설정
@@ -131,6 +132,12 @@ rm ~/.vibe-picnic.json
 
 ![campfire](images/campfire.gif)
 
+#### 🎆 폭죽놀이 (fireworks)
+
+`fireworks` 테마는 별밤에 펼쳐지는 아름다운 불꽃놀이 입니다.
+
+예시는 추가 예정입니다.
+
 ---
 
 ## 🎨 테마 및 장면
@@ -150,6 +157,7 @@ rm ~/.vibe-picnic.json
 |:---:|:---:|---|
 | `5` | `moonlake` | 🌕 호숫가 위 큰 달과 수면에 비치는 달빛, 반짝이는 별 |
 | `6` | `campfire` | 🔥 타오르는 장작과 불꽃 애니메이션, 따뜻한 모닥불 |
+| `7` | `fireworks` | 🎆 별밤에 펼쳐지는 아름다운 불꽃놀이 |
 
 ---
 
@@ -158,7 +166,7 @@ rm ~/.vibe-picnic.json
 ### CLI 옵션
 | 옵션 | 설명 | 기본값 |
 |---|---|:---:|
-| `--season <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `auto`, `random`) | `auto` |
+| `--season <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `fireworks`, `auto`, `random`) | `auto` |
 | `--density <n>` | 파티클 밀도 (1-50) | `15` |
 | `--speed <n>` | 애니메이션 속도 배율 (0.1-5.0) | `1.0` |
 | `--wind <n>` | 바람의 세기와 방향 (-5.0 ~ 5.0) | `0.5` |
@@ -171,7 +179,7 @@ rm ~/.vibe-picnic.json
 ### 실시간 조작 키
 | 키 | 동작 설명 |
 |:---:|---|
-| `1` ~ `6` | 즉시 테마 전환 |
+| `1` ~ `7` | 즉시 테마 전환 |
 | `↑` `↓` | 파티클 밀도 조절 |
 | `←` `→` | 바람의 방향 및 세기 조절 |
 | `r` | 쌓인 바닥 리셋 |
@@ -187,11 +195,15 @@ rm ~/.vibe-picnic.json
 # 현재 설정 확인 (✏️ 표시가 직접 설정한 값)
 vibe-picnic config show
 
-# 기본 테마를 모닥불로 변경
+# 예시 : 기본 테마를 모닥불로 변경
 vibe-picnic config set season campfire
 
 # 파티클 밀도 변경
 vibe-picnic config set density 30
+
+# 더 풍성한 폭죽 설정 예시
+vibe-picnic config set density 24
+vibe-picnic config set speed 1.2
 
 # ASCII 모드 활성화 (이모지 대신 문자 사용)
 vibe-picnic config set ascii true
@@ -220,7 +232,7 @@ vibe-picnic config path    # 예: ~/.vibe-picnic.json
 
 ## 🎲 랜덤 테마 (Random Mode)
 
-`--season random` 사용 시, 실행할 때마다 6가지 테마 중 하나가 무작위로 선택됩니다.
+`--season random` 사용 시, 실행할 때마다 7가지 테마 중 하나가 무작위로 선택됩니다.
 
 ```bash
 # 한 번만 랜덤

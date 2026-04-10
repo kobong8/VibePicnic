@@ -4,7 +4,7 @@ import { run, detectSeason, pickRandomTheme, themes } from "../index";
 import { loadConfig, saveConfig, getConfigPath, getDefaults, mergeWithDefaults, Config } from "../config";
 
 const args = process.argv.slice(2);
-const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire"];
+const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
 
 // ── vibe-picnic config 서브커맨드 ──
 if (args[0] === "config") {
@@ -29,6 +29,7 @@ Usage:
   noColor   색상 비활성화 (true/false)
   noGround  바닥 쌓임 비활성화 (true/false)
   splash    스플래시 모드 (true/false)
+  fireworks 폭죽 효과 (true/false)
   message   스플래시 메시지
 
 Examples:
@@ -125,7 +126,7 @@ Examples:
         console.error("Error: wind는 -5.0~5.0 사이의 숫자");
         process.exit(1);
       }
-    } else if (k === "ascii" || k === "noColor" || k === "noGround" || k === "splash") {
+    } else if (k === "ascii" || k === "noColor" || k === "noGround" || k === "splash" || k === "fireworks") {
       if (value !== "true" && value !== "false") {
         console.error(`Error: ${key}는 true 또는 false`);
         process.exit(1);
@@ -163,6 +164,7 @@ Options:
   --ascii             ASCII 문자만 사용
   --no-color          색상 비활성화
   --no-ground         바닥 쌓임 비활성화
+  --fireworks         폭죽 효과 활성화
   -h, --help          도움말
 
 Config:
@@ -174,7 +176,7 @@ Config:
 Controls (일반 모드):
   ← →               바람 방향/세기 조절
   ↑ ↓               파티클 밀도 조절
-  1-6               테마 전환 (1:봄 2:여름 3:가을 4:겨울 5:달빛호수 6:모닥불)
+  1-7               테마 전환 (1:봄 2:여름 3:가을 4:겨울 5:달빛호수 6:모닥불 7:폭죽)
   r                 바닥 리셋
   q / ESC           종료
 
@@ -185,6 +187,7 @@ Themes:
   winter     ❄️  눈이 내림
   moonlake   🌕 호숫가 달빛
   campfire  🔥 모닥불
+  fireworks 🎆 폭죽 축제
   auto       현재 월에 맞는 계절 자동 선택
   random     실행할 때마다 랜덤 테마 선택
 
@@ -222,6 +225,7 @@ const options = {
   noGround: hasFlag("--no-ground") || defaults.noGround,
   splash: hasFlag("--splash") || defaults.splash,
   message: getArg("--message", defaults.message),
+  fireworks: hasFlag("--fireworks") || defaults.fireworks,
 };
 
 if (!VALID_SEASONS.includes(options.season)) {

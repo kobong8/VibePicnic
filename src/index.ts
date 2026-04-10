@@ -1,12 +1,14 @@
 import renderer from "./renderer";
 import { ParticleSystem } from "./particle";
 import { Theme, GroundMap } from "./themes/types";
+import { FireworkManager } from "./fireworks";
 import spring from "./themes/spring";
 import summer from "./themes/summer";
 import autumn from "./themes/autumn";
 import winter from "./themes/winter";
 import moonlake from "./themes/moonlake";
 import campfire from "./themes/campfire";
+import fireworksTheme from "./themes/fireworks";
 
 export const themes: Record<string, Theme> = {
   spring,
@@ -15,6 +17,7 @@ export const themes: Record<string, Theme> = {
   winter,
   moonlake,
   campfire,
+  fireworks: fireworksTheme,
 };
 
 export interface RunOptions {
@@ -27,6 +30,7 @@ export interface RunOptions {
   noGround?: boolean;
   splash?: boolean;
   message?: string;
+  fireworks?: boolean;
 }
 
 export function detectSeason(): string {
@@ -107,6 +111,7 @@ export function run(options: RunOptions): void {
     if (key === "4") switchTheme("winter");
     if (key === "5") switchTheme("moonlake");
     if (key === "6") switchTheme("campfire");
+    if (key === "7") switchTheme("fireworks");
   });
 
   let activeTheme = theme;
@@ -240,6 +245,7 @@ export function run(options: RunOptions): void {
       winter: "❄️",
       moonlake: "🌕",
       campfire: "🔥",
+      fireworks: "🎆",
     };
     const icon = icons[activeTheme.name] || "✨";
 
@@ -306,6 +312,7 @@ export function run(options: RunOptions): void {
       winter: "❄️ Winter wonderland",
       moonlake: "🌕 Full Moon, Full Heart",
       campfire: "🔥 Cozy moments by the fire",
+      fireworks: "🎆 Fireworks Night",
     };
 
     return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
@@ -327,7 +334,7 @@ export function run(options: RunOptions): void {
       renderer.set(tx + i, 0, title[i], titleColor);
     }
 
-    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-6:season | arrows:ctrl | q:quit `;
+    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-7:theme | arrows:ctrl | q:quit `;
     const ix = Math.max(0, Math.floor((w - info.length) / 2));
     for (let i = 0; i < info.length && ix + i < w; i++) {
       renderer.set(ix + i, h - 1, info[i], infoColor);
@@ -349,6 +356,7 @@ export function run(options: RunOptions): void {
         winter: "❄️",
         moonlake: "🌕",
         campfire: "🔥",
+        fireworks: "🎆",
       };
       console.log(
         `\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`,

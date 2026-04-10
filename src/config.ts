@@ -12,6 +12,7 @@ export interface Config {
   noGround: boolean;
   splash: boolean;
   message: string;
+  fireworks: boolean;
 }
 
 const CONFIG_PATH = path.join(os.homedir(), ".vibe-picnic.json");
@@ -26,6 +27,7 @@ const DEFAULTS: Config = {
   noGround: false,
   splash: false,
   message: "",
+  fireworks: false,
 };
 
 export function loadConfig(): Partial<Config> {

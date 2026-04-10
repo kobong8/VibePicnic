@@ -6,7 +6,7 @@ A CLI animation tool with developer aesthetics for your terminal. It transforms 
 
 ```text
 🌸 Spring - Cherry Blossoms    🌧️ Summer - Rain    🍂 Autumn - Falling Leaves    ❄️ Winter - Snow
-🌕 Moonlit Lake                🔥 Campfire
+🌕 Moonlit Lake                🔥 Campfire                🎆 Fireworks
 ```
 
 ![moonlake](images/moonlake.gif)
@@ -35,6 +35,7 @@ npm link
 vibe-picnic
 vibe-picnic --season moonlake
 vp --season campfire    # shorthand command
+vp --season fireworks   # realistic night fireworks
 ```
 
 ### ✨ Terminal Splash on Startup
@@ -131,6 +132,12 @@ rm ~/.vibe-picnic.json
 
 ![campfire](images/campfire.gif)
 
+#### 🎆 Fireworks
+
+The `fireworks` theme is a beautiful fireworks display in the starry night.
+
+Examples will be added soon.
+
 ---
 
 ## 🎨 Themes & Scenes
@@ -150,6 +157,7 @@ rm ~/.vibe-picnic.json
 |:---:|:---:|---|
 | `5` | `moonlake` | 🌕 A large moon over a lakeside with shimmering reflections and twinkling stars |
 | `6` | `campfire` | 🔥 A warm campfire with animated burning logs and dancing flames |
+| `7` | `fireworks` | 🎆 A beautiful fireworks display in the starry night |
 
 ---
 
@@ -158,7 +166,7 @@ rm ~/.vibe-picnic.json
 ### CLI Options
 | Option | Description | Default |
 |---|---|:---:|
-| `--season <name>` | Select a theme (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `auto`, `random`) | `auto` |
+| `--season <name>` | Select a theme (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `fireworks`, `auto`, `random`) | `auto` |
 | `--density <n>` | Particle density (1–50) | `15` |
 | `--speed <n>` | Animation speed multiplier (0.1–5.0) | `1.0` |
 | `--wind <n>` | Wind strength and direction (-5.0 to 5.0) | `0.5` |
@@ -171,7 +179,7 @@ rm ~/.vibe-picnic.json
 ### Real-Time Keyboard Controls
 | Key | Action |
 |:---:|---|
-| `1` ~ `6` | Instantly switch themes |
+| `1` ~ `7` | Instantly switch themes |
 | `↑` `↓` | Adjust particle density |
 | `←` `→` | Adjust wind direction and strength |
 | `r` | Reset accumulated ground particles |
@@ -192,6 +200,10 @@ vibe-picnic config set season campfire
 
 # Change particle density
 vibe-picnic config set density 30
+
+# A brighter fireworks setup
+vibe-picnic config set density 24
+vibe-picnic config set speed 1.2
 
 # Enable ASCII mode (use characters instead of emoji)
 vibe-picnic config set ascii true
@@ -220,7 +232,7 @@ When using `--season auto` (the default), a theme is selected based on the syste
 
 ## 🎲 Random Theme Mode
 
-With `--season random`, a random theme is chosen from all 6 options each time you run the program.
+With `--season random`, a random theme is chosen from all 7 options each time you run the program.
 
 ```bash
 # Random for a single run
