@@ -13,6 +13,7 @@ export interface Config {
   splash: boolean;
   message: string;
   fireworks: boolean;
+  schedule: string; // "always" | "daily" | "boot"
 }
 
 const CONFIG_PATH = path.join(os.homedir(), ".vibe-picnic.json");
@@ -28,6 +29,7 @@ const DEFAULTS: Config = {
   splash: false,
   message: "",
   fireworks: false,
+  schedule: "always",
 };
 
 export function loadConfig(): Partial<Config> {

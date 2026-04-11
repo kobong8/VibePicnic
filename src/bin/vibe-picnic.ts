@@ -2,9 +2,11 @@
 
 import { run, detectSeason, pickRandomTheme, themes } from "../index";
 import { loadConfig, saveConfig, getConfigPath, getDefaults, mergeWithDefaults, Config } from "../config";
+import { shouldRunSplash, recordSplashRun } from "../schedule";
 
 const args = process.argv.slice(2);
 const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
+const VALID_SCHEDULES = ["always", "daily", "boot"];
 
 // ── vibe-picnic config 서브커맨드 ──
 if (args[0] === "config") {
@@ -31,13 +33,17 @@ Usage:
   splash    스플래시 모드 (true/false)
   fireworks 폭죽 효과 (true/false)
   message   스플래시 메시지
+  schedule  스플래시 실행 주기: always(매번) | daily(하루 한 번) | boot(부팅 후 한 번)
 
 Examples:
-  vibe-picnic config set season campfire   기본 테마를 모닥불로 변경
-  vibe-picnic config set density 30         파티클 밀도를 30으로 변경
-  vibe-picnic config set ascii true         ASCII 모드 활성화
-  vibe-picnic config show                   현재 설정 확인
-  vibe-picnic config reset                  설정 초기화
+  vibe-picnic config set season campfire    기본 테마를 모닥불로 변경
+  vibe-picnic config set density 30          파티클 밀도를 30으로 변경
+  vibe-picnic config set ascii true          ASCII 모드 활성화
+  vibe-picnic config set schedule daily      하루 한 번만 스플래시 실행
+  vibe-picnic config set schedule boot       부팅 후 첫 터미널에서만 스플래시 실행
+  vibe-picnic config set schedule always     터미널 켤 때마다 스플래시 실행 (기본)
+  vibe-picnic config show                    현재 설정 확인
+  vibe-picnic config reset                   설정 초기화
 `);
     process.exit(0);
   }
@@ -108,6 +114,12 @@ Examples:
         console.error(`사용 가능: ${VALID_SEASONS.join(", ")}`);
         process.exit(1);
       }
+    } else if (k === "schedule") {
+      if (!VALID_SCHEDULES.includes(value)) {
+        console.error(`Error: 알 수 없는 schedule 값 '${value}'`);
+        console.error(`사용 가능: ${VALID_SCHEDULES.join(", ")}`);
+        process.exit(1);
+      }
     } else if (k === "density") {
       parsed = parseInt(value, 10);
       if (isNaN(parsed as number) || (parsed as number) < 1 || (parsed as number) > 50) {
@@ -165,6 +177,7 @@ Options:
   --no-color          색상 비활성화
   --no-ground         바닥 쌓임 비활성화
   --fireworks         폭죽 효과 활성화
+  --schedule <mode>   스플래시 실행 주기: always | daily | boot
   -h, --help          도움말
 
 Config:
@@ -192,10 +205,12 @@ Themes:
   random     실행할 때마다 랜덤 테마 선택
 
 Examples:
-  vibe-picnic                                 자동 계절 감지
-  vibe-picnic --season campfire              모닥불
-  vibe-picnic config set season moonlake      기본 테마를 달빛호수로
-  vibe-picnic config show                     설정 확인
+  vibe-picnic                                     자동 계절 감지
+  vibe-picnic --season campfire                  모닥불
+  vibe-picnic config set season moonlake          기본 테마를 달빛호수로
+  vibe-picnic config set schedule daily           하루 한 번만 스플래시 실행
+  vibe-picnic config set schedule boot            부팅 후 첫 터미널에서만 실행
+  vibe-picnic config show                         설정 확인
 `);
   process.exit(0);
 }
@@ -226,6 +241,7 @@ const options = {
   splash: hasFlag("--splash") || defaults.splash,
   message: getArg("--message", defaults.message),
   fireworks: hasFlag("--fireworks") || defaults.fireworks,
+  schedule: args.includes("--schedule") ? getArg("--schedule", defaults.schedule) : defaults.schedule,
 };
 
 if (!VALID_SEASONS.includes(options.season)) {
@@ -234,6 +250,10 @@ if (!VALID_SEASONS.includes(options.season)) {
 }
 
 if (options.splash) {
+  if (!shouldRunSplash(options.schedule)) {
+    process.exit(0);
+  }
+  recordSplashRun();
   run(options);
 } else if (options.season === "auto") {
   const detected = detectSeason();
