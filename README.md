@@ -158,9 +158,7 @@ rm ~/.vibe-picnic-schedule.json  # splash schedule tracking
 
 #### 🎆 Fireworks
 
-The `fireworks` theme is a beautiful fireworks display in the starry night.
-
-Examples will be added soon.
+![fireworks](images/fireworks.gif)
 
 ---
 

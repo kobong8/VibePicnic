@@ -158,9 +158,7 @@ rm ~/.vibe-picnic-schedule.json  # 스플래시 실행 기록
 
 #### 🎆 폭죽놀이 (fireworks)
 
-`fireworks` 테마는 별밤에 펼쳐지는 아름다운 불꽃놀이 입니다.
-
-예시는 추가 예정입니다.
+![fireworks](images/fireworks.gif)
 
 ---
 

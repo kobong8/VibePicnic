@@ -9,6 +9,28 @@ interface ScheduleData {
   lastRun: number; // Unix timestamp in ms
 }
 
+function parseWmicBootTime(raw: string): number {
+  const match = raw.match(/LastBootUpTime=(\d{14})(?:\.(\d{6}))?([+-]\d{3})?/);
+  if (!match) return 0;
+
+  const [, base, micros = "0", offsetMinutesRaw] = match;
+  const year = parseInt(base.slice(0, 4), 10);
+  const month = parseInt(base.slice(4, 6), 10) - 1;
+  const day = parseInt(base.slice(6, 8), 10);
+  const hour = parseInt(base.slice(8, 10), 10);
+  const minute = parseInt(base.slice(10, 12), 10);
+  const second = parseInt(base.slice(12, 14), 10);
+  const millisecond = Math.floor(parseInt(micros, 10) / 1000);
+  const utcGuess = Date.UTC(year, month, day, hour, minute, second, millisecond);
+
+  if (!offsetMinutesRaw) {
+    return new Date(year, month, day, hour, minute, second, millisecond).getTime();
+  }
+
+  const offsetMinutes = parseInt(offsetMinutesRaw, 10);
+  return utcGuess - offsetMinutes * 60 * 1000;
+}
+
 function loadScheduleData(): ScheduleData {
   try {
     if (fs.existsSync(SCHEDULE_PATH)) {
@@ -42,14 +64,44 @@ function getBootTime(): number {
         return parseInt(match[1], 10) * 1000;
       }
     } else if (process.platform === "win32") {
-      const output = execSync("wmic os get LastBootUpTime /value", { encoding: "utf-8" });
-      const match = output.match(/LastBootUpTime=(\d{14})/);
-      if (match) {
-        const s = match[1];
-        const d = new Date(
-          `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}T${s.slice(8, 10)}:${s.slice(10, 12)}:${s.slice(12, 14)}Z`
-        );
-        return d.getTime();
+      try {
+        const output = execSync("wmic os get LastBootUpTime /value", {
+          encoding: "utf-8",
+          stdio: ["ignore", "pipe", "ignore"],
+          windowsHide: true,
+        });
+        const bootTime = parseWmicBootTime(output);
+        if (bootTime > 0) {
+          return bootTime;
+        }
+      } catch {
+        // WMIC is deprecated and missing on some Windows installs.
+      }
+
+      const output = execSync(
+        'powershell -NoProfile -Command "(Get-CimInstance Win32_OperatingSystem).LastBootUpTime.ToUniversalTime().ToString(\'o\')"',
+        {
+          encoding: "utf-8",
+          stdio: ["ignore", "pipe", "ignore"],
+          windowsHide: true,
+        }
+      ).trim();
+      let bootTime = Date.parse(output);
+      if (!Number.isNaN(bootTime)) {
+        return bootTime;
+      }
+
+      const legacyOutput = execSync(
+        'powershell -NoProfile -Command "(Get-WmiObject Win32_OperatingSystem).LastBootUpTime.ToUniversalTime().ToString(\'o\')"',
+        {
+          encoding: "utf-8",
+          stdio: ["ignore", "pipe", "ignore"],
+          windowsHide: true,
+        }
+      ).trim();
+      bootTime = Date.parse(legacyOutput);
+      if (!Number.isNaN(bootTime)) {
+        return bootTime;
       }
     }
   } catch {
@@ -78,6 +130,9 @@ export function shouldRunSplash(schedule: string): boolean {
 
   if (schedule === "boot") {
     const bootTime = getBootTime();
+    if (bootTime <= 0) {
+      return true;
+    }
     return data.lastRun < bootTime;
   }
 
