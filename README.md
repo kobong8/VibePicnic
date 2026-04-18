@@ -61,29 +61,6 @@ Add `vibe-picnic --splash` to the bottom of your shell config file:
 > oh-my-posh init pwsh --config 'your-theme.omp.json' | Invoke-Expression
 > ```
 
-#### ⏰ Splash Schedule
-
-You can control how often the splash screen appears:
-
-| Mode | Description |
-|:---:|---|
-| `always` | Show every time a terminal opens **(default)** |
-| `daily` | Show only once per day (skips if already shown today) |
-| `boot` | Show only once after each system boot |
-
-```bash
-# Once per day
-vibe-picnic config set schedule daily
-
-# Once per system boot
-vibe-picnic config set schedule boot
-
-# Every terminal open (default)
-vibe-picnic config set schedule always
-```
-
-The last run time is tracked in `~/.vibe-picnic-schedule.json`. When the schedule condition is not met, the splash is silently skipped and your shell starts immediately.
-
 ---
 
 ## 🗑️ Uninstallation
@@ -103,7 +80,7 @@ npm uninstall -g vibe-picnic
 > If you registered it with `npm link`, you can also run `npm unlink` from the project folder:
 > ```bash
 > cd VibePicnic
-> npm unlink
+> npm unlink vibe-picnic
 > ```
 
 ### 2. Remove the Terminal Startup Config
@@ -128,7 +105,6 @@ source ~/.zshrc   # For Bash: source ~/.bashrc
 ### 3. Remove the Config Files (Optional)
 ```bash
 rm ~/.vibe-picnic.json           # settings
-rm ~/.vibe-picnic-schedule.json  # splash schedule tracking
 ```
 
 ---
@@ -198,7 +174,6 @@ rm ~/.vibe-picnic-schedule.json  # splash schedule tracking
 | `--speed <n>` | Animation speed multiplier (0.1–5.0) | `1.0` |
 | `--wind <n>` | Wind strength and direction (-5.0 to 5.0) | `0.5` |
 | `--splash` | Splash mode (press any key to exit) | `off` |
-| `--schedule <mode>` | Splash frequency: `always` / `daily` / `boot` | `always` |
 | `--message <text>` | Custom message to display on the splash screen | - |
 | `--ascii` | Render using ASCII characters only | `off` |
 | `--no-color` | Disable color effects | `off` |
@@ -235,11 +210,6 @@ vibe-picnic config set speed 1.2
 
 # Enable ASCII mode (use characters instead of emoji)
 vibe-picnic config set ascii true
-
-# Set splash schedule
-vibe-picnic config set schedule daily    # once per day
-vibe-picnic config set schedule boot     # once per system boot
-vibe-picnic config set schedule always   # every terminal open (default)
 
 # Reset all settings to defaults
 vibe-picnic config reset

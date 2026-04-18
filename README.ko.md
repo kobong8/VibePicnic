@@ -61,29 +61,6 @@ vp --season fireworks   # 현실적인 야간 폭죽 장면
 > oh-my-posh init pwsh --config 'your-theme.omp.json' | Invoke-Expression
 > ```
 
-#### ⏰ 스플래시 실행 주기 설정
-
-스플래시 화면을 얼마나 자주 표시할지 설정할 수 있습니다.
-
-| 모드 | 설명 |
-|:---:|---|
-| `always` | 터미널을 켤 때마다 실행 **(기본값)** |
-| `daily` | 하루에 한 번만 실행 (오늘 이미 실행했으면 건너뜀) |
-| `boot` | 컴퓨터가 새로 켜진 후 첫 번째 터미널에서만 실행 |
-
-```bash
-# 하루 한 번만 실행
-vibe-picnic config set schedule daily
-
-# 부팅 후 한 번만 실행
-vibe-picnic config set schedule boot
-
-# 터미널 켤 때마다 실행 (기본값으로 복구)
-vibe-picnic config set schedule always
-```
-
-마지막 실행 시각은 `~/.vibe-picnic-schedule.json`에 저장됩니다. 조건이 충족되지 않으면 스플래시를 조용히 건너뛰고 쉘이 바로 시작됩니다.
-
 ---
 
 ## 🗑️ 삭제 방법
@@ -103,7 +80,7 @@ npm uninstall -g vibe-picnic
 > `npm link`로 등록한 경우 프로젝트 폴더에서 `npm unlink`를 실행해도 됩니다.
 > ```bash
 > cd VibePicnic
-> npm unlink
+> npm unlink vibe-picnic
 > ```
 
 ### 2. 터미널 시작 설정 제거
@@ -128,7 +105,6 @@ source ~/.zshrc   # Bash는 source ~/.bashrc
 ### 3. 설정 파일 제거 (선택)
 ```bash
 rm ~/.vibe-picnic.json           # 설정
-rm ~/.vibe-picnic-schedule.json  # 스플래시 실행 기록
 ```
 
 ---
@@ -198,7 +174,6 @@ rm ~/.vibe-picnic-schedule.json  # 스플래시 실행 기록
 | `--speed <n>` | 애니메이션 속도 배율 (0.1-5.0) | `1.0` |
 | `--wind <n>` | 바람의 세기와 방향 (-5.0 ~ 5.0) | `0.5` |
 | `--splash` | 스플래시 모드 (아무 키나 누르면 종료) | `off` |
-| `--schedule <mode>` | 스플래시 실행 주기: `always` / `daily` / `boot` | `always` |
 | `--message <text>` | 스플래시 화면에 표시할 커스텀 메시지 | - |
 | `--ascii` | ASCII 문자만 사용하여 렌더링 | `off` |
 | `--no-color` | 색상 효과 비활성화 | `off` |
@@ -235,11 +210,6 @@ vibe-picnic config set speed 1.2
 
 # ASCII 모드 활성화 (이모지 대신 문자 사용)
 vibe-picnic config set ascii true
-
-# 스플래시 실행 주기 설정
-vibe-picnic config set schedule daily    # 하루 한 번
-vibe-picnic config set schedule boot     # 부팅 후 한 번
-vibe-picnic config set schedule always   # 터미널 켤 때마다 (기본값)
 
 # 설정 초기화 (기본값으로 복구)
 vibe-picnic config reset
