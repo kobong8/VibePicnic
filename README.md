@@ -13,6 +13,11 @@ A CLI animation tool with developer aesthetics for your terminal. It transforms 
 
 ---
 
+## ⚙️ Environment Setup
+
+- Recommended terminal background: black
+- Recommended font: MesloLGL Nerd Font
+
 ## 🚀 Installation & Usage
 
 ### Local Build & Run
