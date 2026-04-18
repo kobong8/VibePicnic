@@ -7,6 +7,7 @@ const SCHEDULE_PATH = path.join(os.homedir(), ".vibe-picnic-schedule.json");
 
 interface ScheduleData {
   lastRun: number; // Unix timestamp in ms
+  lastBootSignature?: string; // 부팅 세션 식별자 (boot 스케줄에서 사용)
 }
 
 function parseWmicBootTime(raw: string): number {
@@ -110,11 +111,85 @@ function getBootTime(): number {
   return 0;
 }
 
+function tryExec(command: string): string | null {
+  try {
+    const output = execSync(command, {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+      windowsHide: true,
+    }).trim();
+    return output || null;
+  } catch {
+    return null;
+  }
+}
+
+let cachedBootSignature: string | null | undefined;
+
+/**
+ * 현재 전원 사이클을 고유하게 식별하는 문자열을 반환합니다.
+ *
+ * Windows 10/11에서 기본 활성화된 Fast Startup은 종료 시 커널을 최대 절전으로
+ * 저장하기 때문에, 종료 후 다시 켜도 `LastBootUpTime` 등 커널 기준의 부팅 시각이
+ * 갱신되지 않는 경우가 있습니다. 이때문에 시각 비교 대신 전원 인가 시 매번
+ * 새로 생기는 식별자로 세션을 비교합니다.
+ */
+function getBootSignature(): string | null {
+  if (cachedBootSignature !== undefined) return cachedBootSignature;
+  cachedBootSignature = computeBootSignature();
+  return cachedBootSignature;
+}
+
+function computeBootSignature(): string | null {
+  if (process.platform === "linux") {
+    try {
+      const bootId = fs
+        .readFileSync("/proc/sys/kernel/random/boot_id", "utf-8")
+        .trim();
+      if (bootId) return `linux:${bootId}`;
+    } catch {
+      // fall through
+    }
+  } else if (process.platform === "darwin") {
+    const uuid = tryExec("sysctl -n kern.bootsessionuuid");
+    if (uuid) return `darwin:${uuid}`;
+  } else if (process.platform === "win32") {
+    // Fast Startup으로 복귀할 때에도 기록되는 Kernel-Boot 이벤트 27을 기준으로
+    // 전원 사이클을 구분합니다.
+    const kernelBootPs =
+      "$e = Get-WinEvent -LogName 'Microsoft-Windows-Kernel-Boot/Operational' " +
+      "-FilterXPath '*[System[EventID=27]]' -MaxEvents 1 " +
+      "-ErrorAction SilentlyContinue; " +
+      "if ($e) { $e.TimeCreated.ToUniversalTime().ToString('o') }";
+    const kernelBoot = tryExec(
+      `powershell -NoProfile -Command "${kernelBootPs}"`,
+    );
+    if (kernelBoot) return `win32-kernelboot:${kernelBoot}`;
+
+    // Kernel-Boot 로그가 비어 있거나 접근이 막혀 있으면 Event Log 서비스 시작
+    // 이벤트(6005)를 fallback으로 사용합니다.
+    const eventLogPs =
+      "$e = Get-WinEvent -LogName 'System' " +
+      "-FilterXPath '*[System[EventID=6005]]' -MaxEvents 1 " +
+      "-ErrorAction SilentlyContinue; " +
+      "if ($e) { $e.TimeCreated.ToUniversalTime().ToString('o') }";
+    const eventLog = tryExec(
+      `powershell -NoProfile -Command "${eventLogPs}"`,
+    );
+    if (eventLog) return `win32-eventlog:${eventLog}`;
+  }
+
+  // 플랫폼 특화 식별자를 얻지 못하면 부팅 시각으로 대체합니다.
+  const bootTime = getBootTime();
+  if (bootTime > 0) return `boottime:${bootTime}`;
+  return null;
+}
+
 /**
  * schedule 값에 따라 스플래시를 실행해야 하는지 판단합니다.
  * - "always": 항상 실행 (기본값)
  * - "daily": 하루에 한 번만 실행
- * - "boot": 컴퓨터 부팅 후 한 번만 실행
+ * - "boot": 컴퓨터 전원 사이클(종료 후 재부팅 또는 재시작)마다 한 번만 실행
  */
 export function shouldRunSplash(schedule: string): boolean {
   if (schedule === "always") return true;
@@ -129,10 +204,13 @@ export function shouldRunSplash(schedule: string): boolean {
   }
 
   if (schedule === "boot") {
-    const bootTime = getBootTime();
-    if (bootTime <= 0) {
-      return true;
+    const bootSignature = getBootSignature();
+    if (bootSignature) {
+      return data.lastBootSignature !== bootSignature;
     }
+    // 부팅 세션을 식별할 수 없으면 부팅 시각으로 비교합니다.
+    const bootTime = getBootTime();
+    if (bootTime <= 0) return true;
     return data.lastRun < bootTime;
   }
 
@@ -140,8 +218,13 @@ export function shouldRunSplash(schedule: string): boolean {
 }
 
 /**
- * 스플래시 실행 시각을 기록합니다.
+ * 스플래시 실행 시각과 현재 부팅 세션을 기록합니다.
  */
 export function recordSplashRun(): void {
-  saveScheduleData({ lastRun: Date.now() });
+  const bootSignature = getBootSignature();
+  const previous = loadScheduleData();
+  saveScheduleData({
+    lastRun: Date.now(),
+    lastBootSignature: bootSignature ?? previous.lastBootSignature,
+  });
 }
