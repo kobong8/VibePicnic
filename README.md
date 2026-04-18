@@ -13,6 +13,19 @@ A CLI animation tool with developer aesthetics for your terminal. It transforms 
 
 ---
 
+## 📚 Table of Contents
+
+- [Environment Setup](#️-environment-setup)
+- [Installation & Usage](#-installation--usage-1)
+- [Uninstallation](#️-uninstallation)
+- [Preview](#-preview)
+- [Themes & Scenes](#-themes--scenes)
+- [Options & Controls](#️-options--controls)
+- [Persistent Configuration](#️-persistent-configuration)
+- [Auto Season Detection](#-auto-season-detection)
+- [Random Theme Mode](#-random-theme-mode)
+- [Requirements & License](#-requirements--license)
+
 ## ⚙️ Environment Setup
 
 - Recommended terminal background: black
