@@ -33,18 +33,29 @@ A CLI animation tool with developer aesthetics for your terminal. It transforms 
 
 ## 🚀 Installation & Usage
 
+### Install via npm (Recommended)
+
+Once the package is published to npm, you can install it globally with a single command:
+
+```bash
+npm install -g vibe-picnic
+
+# Then run from anywhere
+vibe-picnic
+vibe-picnic --season moonlake
+vp --season campfire    # shorthand command
+vp --season fireworks   # realistic night fireworks
+```
+
 ### Local Build & Run
 ```bash
 git clone https://github.com/kobong8/VibePicnic.git
 cd VibePicnic
 npm install
-npm run build
-npm start
-# or
 npm run dev
 ```
 
-### Register as a Global Command (use `vibe-picnic` anywhere)
+### Register as a Command for Local Builds
 ```bash
 npm run build
 npm link
@@ -85,7 +96,7 @@ First, check the registered package name:
 npm ls -g --depth=0
 ```
 
-Then uninstall it:
+Then uninstall it (works for both `npm install -g` and `npm link` installations):
 ```bash
 npm uninstall -g vibe-picnic
 ```

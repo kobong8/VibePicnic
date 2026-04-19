@@ -33,18 +33,29 @@
 
 ## 🚀 설치 및 실행
 
+### npm으로 설치 (권장)
+
+npm에 패키지가 배포된 이후에는, 아래 명령어 한 줄로 전역 설치할 수 있습니다.
+
+```bash
+npm install -g vibe-picnic
+
+# 이후 어디서든 실행 가능
+vibe-picnic
+vibe-picnic --season moonlake
+vp --season campfire    # 단축 명령어
+vp --season fireworks   # 현실적인 야간 폭죽 장면
+```
+
 ### 로컬 빌드 및 실행
 ```bash
 git clone https://github.com/kobong8/VibePicnic.git
 cd VibePicnic
 npm install
-npm run build
-npm start
-# 혹은
 npm run dev
 ```
 
-### 글로벌 명령어로 등록 (어디서든 `vibe-picnic` 사용)
+### 로컬 빌드 시 명령어로 등록
 ```bash
 npm run build
 npm link
@@ -85,7 +96,7 @@ vp --season fireworks   # 현실적인 야간 폭죽 장면
 npm ls -g --depth=0
 ```
 
-확인한 패키지명으로 제거합니다.
+확인한 패키지명으로 제거합니다. (`npm install -g`로 설치했든 `npm link`로 등록했든 동일하게 동작합니다.)
 ```bash
 npm uninstall -g vibe-picnic
 ```
