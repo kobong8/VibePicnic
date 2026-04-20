@@ -25,6 +25,7 @@ A CLI animation tool with developer aesthetics for your terminal. It transforms 
 - [Auto Season Detection](#-auto-season-detection)
 - [Random Theme Mode](#-random-theme-mode)
 - [Requirements & License](#-requirements--license)
+- [Special Thanks](#-special-thanks)
 
 ## ⚙️ Environment Setup
 
@@ -283,3 +284,10 @@ vibe-picnic --splash --season random
 - **Node.js:** >= 14.0.0
 - **Dependencies:** None (Zero-dependency)
 - **License:** MIT
+
+---
+
+## 🙏 Special Thanks
+
+- I would like to thank Minwoo Kim and Elgar for their great help throughout the development process.
+- Lastly, I would like to thank my wife for always supporting my hobby of coding.
