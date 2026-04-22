@@ -6,15 +6,112 @@ import { shouldRunSplash, recordSplashRun } from "../schedule";
 
 const args = process.argv.slice(2);
 const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
-// schedule 기능은 현재 비활성화 (추후 추가 예정)
-// const VALID_SCHEDULES = ["always", "daily", "boot"];
 
-// ── vibe-picnic config 서브커맨드 ──
-if (args[0] === "config") {
-  const sub = args[1];
+// Detect language early — default English, --lang ko switches to Korean
+const langIdx = args.indexOf("--lang");
+const lang = langIdx !== -1 && args[langIdx + 1] === "ko" ? "ko" : "en";
 
-  if (!sub || sub === "--help") {
-    console.log(`
+const T = {
+  en: {
+    configHelp: `
+🔧 Vibe Picnic - Config management
+
+Usage:
+  vibe-picnic config show              Show current settings
+  vibe-picnic config set <key> <value> Change a setting
+  vibe-picnic config reset             Reset settings (delete file)
+  vibe-picnic config path              Show config file path
+
+Available keys:
+  season    Theme: ${VALID_SEASONS.join(", ")}
+  density   Particle density (1-50)
+  speed     Speed multiplier (0.1-5.0)
+  wind      Wind strength (-5.0~5.0)
+  ascii     ASCII mode (true/false)
+  noColor   Disable colors (true/false)
+  noGround  Disable ground accumulation (true/false)
+  splash    Splash mode (true/false)
+  fireworks Fireworks effect (true/false)
+  message   Splash message
+
+Examples:
+  vibe-picnic config set season campfire    Set default theme to campfire
+  vibe-picnic config set density 30         Set particle density to 30
+  vibe-picnic config set ascii true         Enable ASCII mode
+  vibe-picnic config show                   Show current settings
+  vibe-picnic config reset                  Reset settings
+`,
+    configPath: (p: string) => `\n📂 Config file: ${p}\n`,
+    configCustomMarker: "  ✏️  = user-defined value, others are defaults\n",
+    configReset: (p: string) => `✅ Settings reset. (${p} deleted)`,
+    configNoFile: (p: string) => `ℹ️  No config file found. (${p})`,
+    configSaved: (k: string, v: string) => `✅ ${k} = ${v}`,
+    errUnknownConfig: (sub: string) => `Error: Unknown config command '${sub}'`,
+    errUnknownConfigHint: "Run vibe-picnic config --help for usage",
+    errSetUsage: "Error: vibe-picnic config set <key> <value>",
+    errUnknownKey: (k: string, keys: string) => `Error: Unknown key '${k}'\nAvailable: ${keys}`,
+    errScheduleReadonly: "Error: 'schedule' cannot be changed here. (coming soon)",
+    errUnknownSeason: (v: string) => `Error: Unknown theme '${v}'\nAvailable: ${VALID_SEASONS.join(", ")}`,
+    errDensity: "Error: density must be a number between 1 and 50",
+    errSpeed: "Error: speed must be a number between 0.1 and 5.0",
+    errWind: "Error: wind must be a number between -5.0 and 5.0",
+    errBool: (k: string) => `Error: ${k} must be true or false`,
+    mainHelp: `
+🌸 Vibe Picnic - Seasonal ASCII animation for your terminal
+
+Usage:
+  vibe-picnic [options]
+  vibe-picnic config [show|set|reset|path]
+
+Options:
+  --season <name>     Theme: ${VALID_SEASONS.join(", ")} (default: auto)
+  --density <n>       Particle density 1-50 (default: 15)
+  --speed <n>         Speed multiplier 0.1-5.0 (default: 1.0)
+  --wind <n>          Wind strength -5.0~5.0 (default: 0.5)
+  --splash            Splash mode (press any key to exit)
+  --message <text>    Custom message shown in splash screen
+  --ascii             ASCII characters only
+  --no-color          Disable colors
+  --no-ground         Disable ground accumulation
+  --fireworks         Enable fireworks effect
+  --lang <en|ko>      Language for help text (default: en)
+  -h, --help          Show this help
+
+Config:
+  vibe-picnic config show              Show current settings
+  vibe-picnic config set <key> <value> Change a setting
+  vibe-picnic config reset             Reset settings
+  vibe-picnic config path              Show config file path
+
+Controls (normal mode):
+  ← →               Adjust wind direction/strength
+  ↑ ↓               Adjust particle density
+  1-7               Switch theme (1:spring 2:summer 3:autumn 4:winter 5:moonlake 6:campfire 7:fireworks)
+  r                 Reset ground
+  q / ESC           Quit
+
+Themes:
+  spring     🌸 Cherry blossoms falling
+  summer     🌧️  Rain falling
+  autumn     🍂 Autumn leaves falling
+  winter     ❄️  Snow falling
+  moonlake   🌕 Moonlit lakeside
+  campfire  🔥 Campfire
+  fireworks 🎆 Fireworks festival
+  auto       Auto-detect season from current month
+  random     Random theme each run
+
+Examples:
+  vibe-picnic                                     Auto-detect season
+  vibe-picnic --season campfire                   Campfire mode
+  vibe-picnic config set season moonlake          Set default theme to moonlake
+  vibe-picnic config show                         Show settings
+  vibe-picnic --lang ko --help                    Show help in Korean
+`,
+    errUnknownSeasonMain: (v: string) => `Error: Unknown season '${v}'. Use: ${VALID_SEASONS.join(", ")}`,
+  },
+  ko: {
+    configHelp: `
 🔧 Vibe Picnic - 설정 관리
 
 Usage:
@@ -34,125 +131,30 @@ Usage:
   splash    스플래시 모드 (true/false)
   fireworks 폭죽 효과 (true/false)
   message   스플래시 메시지
+
 Examples:
   vibe-picnic config set season campfire    기본 테마를 모닥불로 변경
-  vibe-picnic config set density 30          파티클 밀도를 30으로 변경
-  vibe-picnic config set ascii true          ASCII 모드 활성화
-  vibe-picnic config show                    현재 설정 확인
-  vibe-picnic config reset                   설정 초기화
-`);
-    process.exit(0);
-  }
-
-  if (sub === "path") {
-    console.log(getConfigPath());
-    process.exit(0);
-  }
-
-  if (sub === "show") {
-    const saved = loadConfig();
-    const defaults = getDefaults();
-    const merged = mergeWithDefaults(saved);
-    const configPath = getConfigPath();
-
-    console.log(`\n📂 설정 파일: ${configPath}\n`);
-
-    const keys = Object.keys(defaults) as (keyof Config)[];
-    const maxKeyLen = Math.max(...keys.map(k => k.length));
-
-    for (const key of keys) {
-      const val = merged[key];
-      const isCustom = key in saved;
-      const marker = isCustom ? "✏️ " : "   ";
-      const padded = key.padEnd(maxKeyLen);
-      console.log(`  ${marker}${padded}  ${JSON.stringify(val)}`);
-    }
-
-    console.log(`\n  ✏️  = 사용자가 설정한 값, 나머지는 기본값\n`);
-    process.exit(0);
-  }
-
-  if (sub === "reset") {
-    const fs = require("fs");
-    const configPath = getConfigPath();
-    try {
-      fs.unlinkSync(configPath);
-      console.log(`✅ 설정이 초기화되었습니다. (${configPath} 삭제됨)`);
-    } catch {
-      console.log(`ℹ️  설정 파일이 없습니다. (${configPath})`);
-    }
-    process.exit(0);
-  }
-
-  if (sub === "set") {
-    const key = args[2];
-    const value = args[3];
-
-    if (!key || value === undefined) {
-      console.error("Error: vibe-picnic config set <key> <value>");
-      process.exit(1);
-    }
-
-    const defaults = getDefaults();
-    if (!(key in defaults)) {
-      console.error(`Error: 알 수 없는 설정 키 '${key}'`);
-      console.error(`사용 가능: ${Object.keys(defaults).join(", ")}`);
-      process.exit(1);
-    }
-
-    // 값 파싱 및 검증
-    let parsed: string | number | boolean = value;
-    const k = key as keyof Config;
-
-    if (k === "schedule") {
-      console.error("Error: schedule 설정은 현재 변경할 수 없습니다. (추후 지원 예정)");
-      process.exit(1);
-    } else if (k === "season") {
-      if (!VALID_SEASONS.includes(value)) {
-        console.error(`Error: 알 수 없는 테마 '${value}'`);
-        console.error(`사용 가능: ${VALID_SEASONS.join(", ")}`);
-        process.exit(1);
-      }
-    } else if (k === "density") {
-      parsed = parseInt(value, 10);
-      if (isNaN(parsed as number) || (parsed as number) < 1 || (parsed as number) > 50) {
-        console.error("Error: density는 1-50 사이의 숫자");
-        process.exit(1);
-      }
-    } else if (k === "speed") {
-      parsed = parseFloat(value);
-      if (isNaN(parsed as number) || (parsed as number) < 0.1 || (parsed as number) > 5.0) {
-        console.error("Error: speed는 0.1-5.0 사이의 숫자");
-        process.exit(1);
-      }
-    } else if (k === "wind") {
-      parsed = parseFloat(value);
-      if (isNaN(parsed as number) || (parsed as number) < -5.0 || (parsed as number) > 5.0) {
-        console.error("Error: wind는 -5.0~5.0 사이의 숫자");
-        process.exit(1);
-      }
-    } else if (k === "ascii" || k === "noColor" || k === "noGround" || k === "splash" || k === "fireworks") {
-      if (value !== "true" && value !== "false") {
-        console.error(`Error: ${key}는 true 또는 false`);
-        process.exit(1);
-      }
-      parsed = value === "true";
-    }
-    // message는 문자열 그대로
-
-    saveConfig({ [key]: parsed });
-    console.log(`✅ ${key} = ${JSON.stringify(parsed)}`);
-    process.exit(0);
-  }
-
-  console.error(`Error: 알 수 없는 config 명령 '${sub}'`);
-  console.error("vibe-picnic config --help 로 도움말 확인");
-  process.exit(1);
-}
-
-// ── help ──
-if (args.includes("--help") || args.includes("-h")) {
-  console.log(`
+  vibe-picnic config set density 30         파티클 밀도를 30으로 변경
+  vibe-picnic config set ascii true         ASCII 모드 활성화
+  vibe-picnic config show                   현재 설정 확인
+  vibe-picnic config reset                  설정 초기화
+`,
+    configPath: (p: string) => `\n📂 설정 파일: ${p}\n`,
+    configCustomMarker: "  ✏️  = 사용자가 설정한 값, 나머지는 기본값\n",
+    configReset: (p: string) => `✅ 설정이 초기화되었습니다. (${p} 삭제됨)`,
+    configNoFile: (p: string) => `ℹ️  설정 파일이 없습니다. (${p})`,
+    configSaved: (k: string, v: string) => `✅ ${k} = ${v}`,
+    errUnknownConfig: (sub: string) => `Error: 알 수 없는 config 명령 '${sub}'`,
+    errUnknownConfigHint: "vibe-picnic config --help 로 도움말 확인",
+    errSetUsage: "Error: vibe-picnic config set <key> <value>",
+    errUnknownKey: (k: string, keys: string) => `Error: 알 수 없는 설정 키 '${k}'\n사용 가능: ${keys}`,
+    errScheduleReadonly: "Error: schedule 설정은 현재 변경할 수 없습니다. (추후 지원 예정)",
+    errUnknownSeason: (v: string) => `Error: 알 수 없는 테마 '${v}'\n사용 가능: ${VALID_SEASONS.join(", ")}`,
+    errDensity: "Error: density는 1-50 사이의 숫자",
+    errSpeed: "Error: speed는 0.1-5.0 사이의 숫자",
+    errWind: "Error: wind는 -5.0~5.0 사이의 숫자",
+    errBool: (k: string) => `Error: ${k}는 true 또는 false`,
+    mainHelp: `
 🌸 Vibe Picnic - 터미널에 계절이 내리는 CLI 애니메이션
 
 Usage:
@@ -170,6 +172,7 @@ Options:
   --no-color          색상 비활성화
   --no-ground         바닥 쌓임 비활성화
   --fireworks         폭죽 효과 활성화
+  --lang <en|ko>      도움말 언어 선택 (기본: en)
   -h, --help          도움말
 
 Config:
@@ -201,7 +204,128 @@ Examples:
   vibe-picnic --season campfire                  모닥불
   vibe-picnic config set season moonlake          기본 테마를 달빛호수로
   vibe-picnic config show                         설정 확인
-`);
+  vibe-picnic --lang en --help                    영어 도움말 보기
+`,
+    errUnknownSeasonMain: (v: string) => `Error: Unknown season '${v}'. Use: ${VALID_SEASONS.join(", ")}`,
+  },
+} as const;
+
+const t = T[lang];
+
+// ── vibe-picnic config 서브커맨드 ──
+if (args[0] === "config") {
+  const sub = args[1];
+
+  if (!sub || sub === "--help") {
+    console.log(t.configHelp);
+    process.exit(0);
+  }
+
+  if (sub === "path") {
+    console.log(getConfigPath());
+    process.exit(0);
+  }
+
+  if (sub === "show") {
+    const saved = loadConfig();
+    const defaults = getDefaults();
+    const merged = mergeWithDefaults(saved);
+    const configPath = getConfigPath();
+
+    console.log(t.configPath(configPath));
+
+    const keys = Object.keys(defaults) as (keyof Config)[];
+    const maxKeyLen = Math.max(...keys.map(k => k.length));
+
+    for (const key of keys) {
+      const val = merged[key];
+      const isCustom = key in saved;
+      const marker = isCustom ? "✏️ " : "   ";
+      const padded = key.padEnd(maxKeyLen);
+      console.log(`  ${marker}${padded}  ${JSON.stringify(val)}`);
+    }
+
+    console.log("\n" + t.configCustomMarker);
+    process.exit(0);
+  }
+
+  if (sub === "reset") {
+    const fs = require("fs");
+    const configPath = getConfigPath();
+    try {
+      fs.unlinkSync(configPath);
+      console.log(t.configReset(configPath));
+    } catch {
+      console.log(t.configNoFile(configPath));
+    }
+    process.exit(0);
+  }
+
+  if (sub === "set") {
+    const key = args[2];
+    const value = args[3];
+
+    if (!key || value === undefined) {
+      console.error(t.errSetUsage);
+      process.exit(1);
+    }
+
+    const defaults = getDefaults();
+    if (!(key in defaults)) {
+      console.error(t.errUnknownKey(key, Object.keys(defaults).join(", ")));
+      process.exit(1);
+    }
+
+    let parsed: string | number | boolean = value;
+    const k = key as keyof Config;
+
+    if (k === "schedule") {
+      console.error(t.errScheduleReadonly);
+      process.exit(1);
+    } else if (k === "season") {
+      if (!VALID_SEASONS.includes(value)) {
+        console.error(t.errUnknownSeason(value));
+        process.exit(1);
+      }
+    } else if (k === "density") {
+      parsed = parseInt(value, 10);
+      if (isNaN(parsed as number) || (parsed as number) < 1 || (parsed as number) > 50) {
+        console.error(t.errDensity);
+        process.exit(1);
+      }
+    } else if (k === "speed") {
+      parsed = parseFloat(value);
+      if (isNaN(parsed as number) || (parsed as number) < 0.1 || (parsed as number) > 5.0) {
+        console.error(t.errSpeed);
+        process.exit(1);
+      }
+    } else if (k === "wind") {
+      parsed = parseFloat(value);
+      if (isNaN(parsed as number) || (parsed as number) < -5.0 || (parsed as number) > 5.0) {
+        console.error(t.errWind);
+        process.exit(1);
+      }
+    } else if (k === "ascii" || k === "noColor" || k === "noGround" || k === "splash" || k === "fireworks") {
+      if (value !== "true" && value !== "false") {
+        console.error(t.errBool(key));
+        process.exit(1);
+      }
+      parsed = value === "true";
+    }
+
+    saveConfig({ [key]: parsed });
+    console.log(t.configSaved(key, JSON.stringify(parsed)));
+    process.exit(0);
+  }
+
+  console.error(t.errUnknownConfig(sub));
+  console.error(t.errUnknownConfigHint);
+  process.exit(1);
+}
+
+// ── help ──
+if (args.includes("--help") || args.includes("-h")) {
+  console.log(t.mainHelp);
   process.exit(0);
 }
 
@@ -219,7 +343,6 @@ function hasFlag(name: string): boolean {
   return args.includes(name);
 }
 
-// CLI 인자가 있으면 우선, 없으면 설정 파일 값, 없으면 기본값
 const options = {
   season: getArg("--season", defaults.season),
   density: args.includes("--density") ? parseInt(getArg("--density", "15"), 10) : defaults.density,
@@ -231,11 +354,11 @@ const options = {
   splash: hasFlag("--splash") || defaults.splash,
   message: getArg("--message", defaults.message),
   fireworks: hasFlag("--fireworks") || defaults.fireworks,
-  schedule: "always", // schedule 기능 비활성화 (추후 추가 예정)
+  schedule: "always",
 };
 
 if (!VALID_SEASONS.includes(options.season)) {
-  console.error(`Error: Unknown season '${options.season}'. Use: ${VALID_SEASONS.join(", ")}`);
+  console.error(t.errUnknownSeasonMain(options.season));
   process.exit(1);
 }
 
