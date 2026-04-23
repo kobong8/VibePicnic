@@ -1,6 +1,6 @@
 {
   "name": "vibe-picnic",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "🌕 터미널에 개발자 감성을 담은 CLI 애니메이션",
   "main": "dist/index.js",
   "bin": {
