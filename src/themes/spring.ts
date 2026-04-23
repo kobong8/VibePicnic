@@ -18,7 +18,7 @@ const COLORS = [
 
 const spring: Theme = {
   name: "spring",
-  label: "🌸 봄 - 벚꽃",
+  label: "🌸 Spring - Cherry Blossom",
   fps: 25,
 
   createParticle(width: number, startY: number, ascii: boolean): Particle {
@@ -61,7 +61,7 @@ const spring: Theme = {
   },
 
   getTitle(): string {
-    return " 🌸 Vibe Picnic - 봄 ";
+    return " 🌸 Vibe Picnic - Spring ";
   },
 };
 

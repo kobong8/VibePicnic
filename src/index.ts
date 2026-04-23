@@ -359,7 +359,7 @@ export function run(options: RunOptions): void {
         fireworks: "🎆",
       };
       console.log(
-        `\n${labels[activeTheme.name] || "✨"} 안녕히 가세요! - Vibe Picnic\n`,
+        `\n${labels[activeTheme.name] || "✨"} Goodbye! - Vibe Picnic\n`,
       );
     }
     process.exit(0);

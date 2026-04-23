@@ -18,7 +18,7 @@ const COLORS = [
 
 const winter: Theme = {
   name: "winter",
-  label: "❄️ 겨울 - 눈",
+  label: "❄️ Winter - Snow",
   fps: 18,
 
   createParticle(width: number, startY: number, ascii: boolean): Particle {
@@ -61,7 +61,7 @@ const winter: Theme = {
   },
 
   getTitle(): string {
-    return " ❄️ Vibe Picnic - 겨울 ";
+    return " ❄️ Vibe Picnic - Winter ";
   },
 };
 
