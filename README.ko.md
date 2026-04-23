@@ -1,6 +1,6 @@
 🇰🇷 한국어 | 🇺🇸 [English](./README.md)
 
-# 🌕 Vibe Picnic
+# 🔥 Vibe Picnic
 
 터미널에 개발자 감성을 담은 CLI 애니메이션 도구입니다. 터미널 분위기를 전환해주는 아트 도구로, 설정에 따라서 아스키 아트 효과와 특별한 장면들을 제공합니다.
 
@@ -9,7 +9,7 @@
 🌕 호숫가 달빛   🔥 모닥불   🎆 폭죽놀이
 ```
 
-![moonlake](images/moonlake.gif)
+![campfire](images/campfire.gif)
 
 ---
 

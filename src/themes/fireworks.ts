@@ -84,7 +84,7 @@ const fireworksTheme: Theme = {
   },
 
   getTitle(): string {
-    return "🎆 Night Fireworks";
+    return "🎆 Vibe Picnic - Night Fireworks";
   },
 };
 

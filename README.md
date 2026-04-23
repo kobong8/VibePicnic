@@ -1,6 +1,6 @@
 🇰🇷 [한국어](./README.ko.md) | 🇺🇸 English
 
-# 🌕 Vibe Picnic
+# 🔥 Vibe Picnic
 
 A CLI animation tool with developer aesthetics for your terminal. It transforms the mood of your terminal with ASCII art effects and special scenes based on your configuration.
 
@@ -9,7 +9,7 @@ A CLI animation tool with developer aesthetics for your terminal. It transforms 
 🌕 Moonlit Lake                🔥 Campfire                🎆 Fireworks
 ```
 
-![moonlake](images/moonlake.gif)
+![campfire](images/campfire.gif)
 
 ---
 
