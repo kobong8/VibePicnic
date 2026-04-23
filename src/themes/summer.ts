@@ -18,7 +18,7 @@ const SPLASH_COLOR = renderer.fgRgb(150, 200, 255);
 
 const summer: Theme = {
   name: "summer",
-  label: "🌧️ 여름 - 비",
+  label: "🌧️ Summer - Rain",
   fps: 30,
 
   createParticle(width: number, startY: number, ascii: boolean): Particle {
@@ -78,7 +78,7 @@ const summer: Theme = {
   },
 
   getTitle(): string {
-    return " 🌧️ Vibe Picnic - 여름 ";
+    return " 🌧️ Vibe Picnic - Summer ";
   },
 };
 

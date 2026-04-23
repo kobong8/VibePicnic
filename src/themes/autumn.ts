@@ -20,7 +20,7 @@ const COLORS = [
 
 const autumn: Theme = {
   name: "autumn",
-  label: "🍂 가을 - 낙엽",
+  label: "🍂 Autumn - Falling Leaves",
   fps: 20,
 
   createParticle(width: number, startY: number, ascii: boolean): Particle {
@@ -76,7 +76,7 @@ const autumn: Theme = {
   },
 
   getTitle(): string {
-    return " 🍂 Vibe Picnic - 가을 ";
+    return " 🍂 Vibe Picnic - Autumn ";
   },
 };
 

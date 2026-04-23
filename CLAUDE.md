@@ -52,5 +52,14 @@ There are no tests or linting configured in this project.
 - The project is zero-dependency — only uses Node.js built-ins (`fs`, `path`, `os`, `process`). TypeScript is a dev dependency only.
 - All terminal rendering uses raw ANSI escape sequences, no libraries.
 - Themes use `renderer.set(x, y, char, color)` directly — the renderer is imported as a global singleton, not passed as a parameter.
-- UI text and CLI help messages are in Korean.
+- CLI help messages are bilingual. All user-facing strings live in the `T` object at the top of `src/bin/vibe-picnic.ts` with `en` and `ko` keys. Default language is English; `--lang ko` switches to Korean.
 - The `dist/` directory is committed to the repo for npm distribution.
+
+## Help Text & README Sync Rule
+
+**Whenever you change any help text or CLI options in `src/bin/vibe-picnic.ts`:**
+
+1. Update the `T.en` and `T.ko` entries together — both languages must stay in sync.
+2. Update `README.md` to reflect the change. The README has an English section and a Korean section (marked with `<!-- EN -->` and `<!-- KO -->` comments). Update both.
+
+Never change one without the other.

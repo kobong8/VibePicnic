@@ -142,7 +142,7 @@ function drawMoon(
 
 const moonlake: Theme = {
   name: "moonlake",
-  label: "🌕 호숫가 달빛",
+  label: "🌕 Moon Lake",
   fps: 18,
 
   createParticle(width: number, startY: number, ascii: boolean): Particle {
@@ -387,7 +387,7 @@ const moonlake: Theme = {
   },
 
   getTitle(): string {
-    return " 🌕 Vibe Picnic - 호숫가 달빛 ";
+    return " 🌕 Vibe Picnic - Moon Lake ";
   },
 };
 

@@ -16,7 +16,7 @@ function fireHash(x: number, y: number): number {
 
 const campfire: Theme = {
   name: "campfire",
-  label: "🔥 모닥불",
+  label: "🔥 Campfire",
   fps: 20,
 
   createParticle(width: number, _startY: number, ascii: boolean): Particle {
@@ -286,7 +286,7 @@ const campfire: Theme = {
   },
 
   getTitle(): string {
-    return " 🔥 Vibe Picnic - 모닥불 ";
+    return " 🔥 Vibe Picnic - Campfire ";
   },
 };
 
