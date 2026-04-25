@@ -57,7 +57,7 @@ Examples:
     errWind: "Error: wind must be a number between -5.0 and 5.0",
     errBool: (k: string) => `Error: ${k} must be true or false`,
     mainHelp: `
-🌸 Vibe Picnic - Seasonal ASCII animation for your terminal
+🔥 Vibe Picnic - A CLI animation tool that brings developer vibes to your terminal
 
 Usage:
   vibe-picnic [options]
@@ -155,7 +155,7 @@ Examples:
     errWind: "Error: wind는 -5.0~5.0 사이의 숫자",
     errBool: (k: string) => `Error: ${k}는 true 또는 false`,
     mainHelp: `
-🌸 Vibe Picnic - 터미널에 계절이 내리는 CLI 애니메이션
+🔥 Vibe Picnic - 터미널에 개발자 감성을 담은 CLI 애니메이션 도구입니다.
 
 Usage:
   vibe-picnic [options]
