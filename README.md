@@ -43,9 +43,9 @@ npm install -g vibe-picnic
 
 # Then run from anywhere
 vibe-picnic
-vibe-picnic --season moonlake
-vp --season campfire    # shorthand command
-vp --season fireworks   # realistic night fireworks
+vibe-picnic --theme moonlake
+vp --theme campfire    # shorthand command
+vp --theme fireworks   # realistic night fireworks
 ```
 
 ### Local Build & Run
@@ -63,10 +63,16 @@ npm link
 
 # Then run from anywhere
 vibe-picnic
-vibe-picnic --season moonlake
-vp --season campfire    # shorthand command
-vp --season fireworks   # realistic night fireworks
+vibe-picnic --theme moonlake
+vp --theme campfire    # shorthand command
+vp --theme fireworks   # realistic night fireworks
 ```
+
+> 💡 The settings shown above (theme, density, wind, etc.) can be changed in two ways:
+> 1. **In-app Settings Panel** — press `i` while the animation is running and edit values live (recommended).
+> 2. **CLI flags** — pass them on the command line as shown, handy for one-off launches or shell startup scripts.
+>
+> Both paths control the same options. See the [Run Examples](#run-examples) section below for more.
 
 ### ✨ Terminal Splash on Startup
 
@@ -191,10 +197,61 @@ rm ~/.vibe-picnic.json           # settings
 
 ## 🛠️ Options & Controls
 
+The fastest way to configure Vibe Picnic is the **Settings Panel** — open it with `i` while the animation is running and tweak everything live. CLI options and keyboard shortcuts below cover the same controls for power users and scripting.
+
+### Settings Panel (`i`) · Recommended
+Press `i` at any time to open an interactive settings panel in the top-right corner. The animation keeps running underneath and value changes are applied **live** so you can preview the effect before saving.
+
+```text
+─ Settings ──────────────
+ ▶ Theme:    autumn
+   Density:  15
+   Wind:     +0.5
+   Speed:    1.0
+   ASCII:    off
+   Ground:   on
+
+   Particles: 76
+ ↑↓ move  ←→ change
+ s save   q close
+─────────────────────────
+```
+
+| Key | Action |
+|:---:|---|
+| `↑` `↓` | Move the cursor between rows |
+| `←` `→` | Change the highlighted value |
+| `s` | Save current values to `~/.vibe-picnic.json` and close |
+| `q` / `i` / `ESC` | Close the panel without saving |
+
+Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`. Cycling through the `Theme` row also includes **`random`** as a value — landing on it picks a fresh random theme each time you cycle to it, and saving with `s` stores `theme: random` so every future launch starts on a new theme. The live particle count is shown read-only at the bottom of the panel.
+
+### Run Examples
+```bash
+# Just run it — current season auto-detected, then press i to configure
+vibe-picnic
+
+# Jump straight into a specific theme
+vibe-picnic --theme moonlake
+vibe-picnic --theme campfire
+vp --theme fireworks                 # shorthand command
+
+# Tune visuals on launch (everything below also works in the panel)
+vibe-picnic --theme autumn --density 30 --wind -1.5
+vibe-picnic --theme winter --speed 0.6 --no-ground
+
+# Splash mode — show one frame, exit on any key
+vibe-picnic --splash
+vibe-picnic --splash --message "Welcome back!"
+
+# ASCII-only fallback (no emoji), great for legacy terminals
+vibe-picnic --ascii --no-color
+```
+
 ### CLI Options
 | Option | Description | Default |
 |---|---|:---:|
-| `--season <name>` | Select a theme (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `fireworks`, `auto`, `random`) | `auto` |
+| `--theme <name>` | Select a theme (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `fireworks`, `auto`, `random`) | `auto` |
 | `--density <n>` | Particle density (1–50) | `15` |
 | `--speed <n>` | Animation speed multiplier (0.1–5.0) | `1.0` |
 | `--wind <n>` | Wind strength and direction (-5.0 to 5.0) | `0.5` |
@@ -207,24 +264,15 @@ rm ~/.vibe-picnic.json           # settings
 ### Real-Time Keyboard Controls
 | Key | Action |
 |:---:|---|
+| `i` | **Toggle the settings panel (recommended)** |
 | `1` ~ `7` | Instantly switch themes |
 | `↑` `↓` | Adjust particle density |
 | `←` `→` | Adjust wind direction and strength |
-| `i` | Toggle the in-app settings panel |
 | `r` | Reset accumulated ground particles |
 | `q` / `ESC` | Quit the program |
 
-#### Settings Panel (`i`)
-Press `i` while the animation is running to open an in-place settings panel. Changes are applied live, so you can preview the effect before saving.
-
-| Key | Action |
-|:---:|---|
-| `↑` `↓` | Move the cursor between rows |
-| `←` `→` | Change the highlighted value |
-| `s` | Save current values to `~/.vibe-picnic.json` and close |
-| `q` / `i` / `ESC` | Close the panel without saving |
-
-Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`.
+### Minimal HUD
+The animation runs full-screen with no persistent on-screen text. A subtle `i:settings  q:quit` hint appears at the bottom-right for the first 5 seconds, then blinks while fading out over the next 5 seconds and disappears entirely after 10 seconds — so once you know the shortcuts, the screen is clean. Press `i` any time to bring back the panel.
 
 ---
 
@@ -237,7 +285,7 @@ Save your default settings permanently so you don't have to type options every t
 vibe-picnic config show
 
 # Set the default theme to campfire
-vibe-picnic config set season campfire
+vibe-picnic config set theme campfire
 
 # Change particle density
 vibe-picnic config set density 30
@@ -260,7 +308,7 @@ vibe-picnic config path    # e.g. ~/.vibe-picnic.json
 
 ## 📅 Auto Season Detection
 
-When using `--season auto` (the default), a theme is selected based on the system's current month:
+When using `--theme auto` (the default), a theme is selected based on the system's current month:
 
 | Month | Selected Theme |
 |:---:|:---:|
@@ -273,21 +321,24 @@ When using `--season auto` (the default), a theme is selected based on the syste
 
 ## 🎲 Random Theme Mode
 
-With `--season random`, a random theme is chosen from all 7 options each time you run the program.
+With `theme = random`, one of the 7 themes is chosen at random every time the program starts. Three ways to enable it, all equivalent:
 
 ```bash
-# Random for a single run
-vibe-picnic --season random
+# 1. CLI flag for a single run
+vibe-picnic --theme random
 
-# Set random as the default
-vibe-picnic config set season random
+# 2. Persist as the default in the config file
+vibe-picnic config set theme random
+
+# 3. Inside the running animation: press i to open the Settings Panel,
+#    cycle the Theme row with ←→ until it shows "random", then press s to save.
 ```
 
-Combined with the terminal splash, you'll get a different theme every time your terminal opens:
+Combined with the terminal splash, your terminal opens with a different theme each time:
 
 ```bash
 # Add to ~/.zshrc or ~/.bashrc
-vibe-picnic --splash --season random
+vibe-picnic --splash --theme random
 ```
 
 ---

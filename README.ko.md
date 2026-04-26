@@ -43,9 +43,9 @@ npm install -g vibe-picnic
 
 # 이후 어디서든 실행 가능
 vibe-picnic
-vibe-picnic --season moonlake
-vp --season campfire    # 단축 명령어
-vp --season fireworks   # 현실적인 야간 폭죽 장면
+vibe-picnic --theme moonlake
+vp --theme campfire    # 단축 명령어
+vp --theme fireworks   # 현실적인 야간 폭죽 장면
 ```
 
 ### 로컬 빌드 및 실행
@@ -63,10 +63,16 @@ npm link
 
 # 이후 어디서든 실행 가능
 vibe-picnic
-vibe-picnic --season moonlake
-vp --season campfire    # 단축 명령어
-vp --season fireworks   # 현실적인 야간 폭죽 장면
+vibe-picnic --theme moonlake
+vp --theme campfire    # 단축 명령어
+vp --theme fireworks   # 현실적인 야간 폭죽 장면
 ```
+
+> 💡 위에 나오는 설정값(테마, 밀도, 바람 등)은 두 가지 방식으로 바꿀 수 있어요:
+> 1. **인앱 설정 패널** — 애니메이션 도중 `i` 키를 눌러 실시간으로 값 조정 (추천).
+> 2. **CLI 플래그** — 위 예시처럼 명령행에서 직접 전달. 일회성 실행이나 쉘 시작 스크립트에 유용.
+>
+> 두 방법 모두 같은 옵션을 제어합니다. 자세한 사용법은 아래 [실행 예시](#실행-예시) 섹션을 참고하세요.
 
 ### ✨ 터미널 시작 스플래시 설정
 
@@ -191,10 +197,61 @@ rm ~/.vibe-picnic.json           # 설정
 
 ## 🛠️ 옵션 및 조작
 
+Vibe Picnic을 가장 쉽게 조정하는 방법은 **설정 패널**입니다. 애니메이션 실행 중 `i` 키만 누르면 모든 값을 실시간으로 바꿀 수 있어요. 아래의 CLI 옵션과 단축키는 같은 기능을 자동화·스크립팅하고 싶을 때 쓰는 보조 수단입니다.
+
+### 설정 패널 (`i`) · 추천
+애니메이션 도중 언제든 `i` 키를 누르면 우측 상단에 인터랙티브 설정 패널이 열립니다. 패널이 떠 있는 동안에도 애니메이션은 뒤에서 계속 재생되며, 값 변경은 **실시간**으로 적용되어 저장 전에 효과를 미리 확인할 수 있습니다.
+
+```text
+─ Settings ──────────────
+ ▶ Theme:    autumn
+   Density:  15
+   Wind:     +0.5
+   Speed:    1.0
+   ASCII:    off
+   Ground:   on
+
+   Particles: 76
+ ↑↓ move  ←→ change
+ s save   q close
+─────────────────────────
+```
+
+| 키 | 동작 설명 |
+|:---:|---|
+| `↑` `↓` | 항목 사이로 커서 이동 |
+| `←` `→` | 선택된 항목의 값 변경 |
+| `s` | 현재 값을 `~/.vibe-picnic.json`에 저장 후 닫기 |
+| `q` / `i` / `ESC` | 저장 없이 패널 닫기 |
+
+조정 가능한 항목: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`. `Theme` 항목을 ←→로 순회할 때 **`random`** 값도 포함되어 있어, random에 도달할 때마다 즉석에서 새 랜덤 테마가 선택됩니다. 이 상태에서 `s`로 저장하면 `theme: random`으로 기록되어 다음 실행부터 매번 다른 테마로 시작합니다. 현재 파티클 개수는 패널 하단에 읽기 전용으로 표시됩니다.
+
+### 실행 예시
+```bash
+# 그냥 실행 — 현재 계절을 자동 감지하고, i 키로 세팅
+vibe-picnic
+
+# 특정 테마로 바로 진입
+vibe-picnic --theme moonlake
+vibe-picnic --theme campfire
+vp --theme fireworks                 # 단축 명령어
+
+# 실행과 동시에 시각 설정 (모두 패널에서도 동일하게 가능)
+vibe-picnic --theme autumn --density 30 --wind -1.5
+vibe-picnic --theme winter --speed 0.6 --no-ground
+
+# 스플래시 모드 — 한 화면 표시 후 아무 키나 누르면 종료
+vibe-picnic --splash
+vibe-picnic --splash --message "Welcome back!"
+
+# ASCII 전용 모드 (이모지 없음, 구형 터미널 호환)
+vibe-picnic --ascii --no-color
+```
+
 ### CLI 옵션
 | 옵션 | 설명 | 기본값 |
 |---|---|:---:|
-| `--season <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `fireworks`, `auto`, `random`) | `auto` |
+| `--theme <name>` | 테마 선택 (`spring`, `summer`, `autumn`, `winter`, `moonlake`, `campfire`, `fireworks`, `auto`, `random`) | `auto` |
 | `--density <n>` | 파티클 밀도 (1-50) | `15` |
 | `--speed <n>` | 애니메이션 속도 배율 (0.1-5.0) | `1.0` |
 | `--wind <n>` | 바람의 세기와 방향 (-5.0 ~ 5.0) | `0.5` |
@@ -207,24 +264,15 @@ rm ~/.vibe-picnic.json           # 설정
 ### 실시간 조작 키
 | 키 | 동작 설명 |
 |:---:|---|
+| `i` | **설정 패널 토글 (추천)** |
 | `1` ~ `7` | 즉시 테마 전환 |
 | `↑` `↓` | 파티클 밀도 조절 |
 | `←` `→` | 바람의 방향 및 세기 조절 |
-| `i` | 인앱 설정 패널 토글 |
 | `r` | 쌓인 바닥 리셋 |
 | `q` / `ESC` | 프로그램 종료 |
 
-#### 설정 패널 (`i`)
-애니메이션 실행 중 `i` 키를 누르면 화면 오른쪽 상단에 인터랙티브 설정 패널이 열립니다. 값 변경은 실시간으로 적용되어, 저장 전에 효과를 미리 확인할 수 있습니다.
-
-| 키 | 동작 설명 |
-|:---:|---|
-| `↑` `↓` | 항목 사이로 커서 이동 |
-| `←` `→` | 선택된 항목의 값 변경 |
-| `s` | 현재 값을 `~/.vibe-picnic.json`에 저장 후 닫기 |
-| `q` / `i` / `ESC` | 저장 없이 패널 닫기 |
-
-조정 가능한 항목: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`
+### 미니멀 HUD
+애니메이션은 화면 가득 풀스크린으로 재생되며, 화면에 상시 표시되는 텍스트는 없습니다. 실행 직후 5초간 우측 하단에 흐릿한 `i:settings  q:quit` 힌트가 떴다가, 이후 5초 동안 깜빡이며 점점 사라지고 10초가 지나면 완전히 사라집니다 — 단축키를 익힌 뒤에는 깨끗한 화면을 즐길 수 있어요. 언제든 `i` 키를 눌러 패널을 다시 불러올 수 있습니다.
 
 ---
 
@@ -237,7 +285,7 @@ rm ~/.vibe-picnic.json           # 설정
 vibe-picnic config show
 
 # 예시 : 기본 테마를 모닥불로 변경
-vibe-picnic config set season campfire
+vibe-picnic config set theme campfire
 
 # 파티클 밀도 변경
 vibe-picnic config set density 30
@@ -260,7 +308,7 @@ vibe-picnic config path    # 예: ~/.vibe-picnic.json
 
 ## 📅 자동 계절 감지
 
-`--season auto` (기본값) 사용 시, 시스템 월(Month) 정보를 바탕으로 테마가 선택됩니다.
+`--theme auto` (기본값) 사용 시, 시스템 월(Month) 정보를 바탕으로 테마가 선택됩니다.
 
 | 월 | 선택 테마 |
 |:---:|:---:|
@@ -273,21 +321,24 @@ vibe-picnic config path    # 예: ~/.vibe-picnic.json
 
 ## 🎲 랜덤 테마
 
-`--season random` 사용 시, 실행할 때마다 7가지 테마 중 하나가 무작위로 선택됩니다.
+`theme = random` 으로 설정하면 실행할 때마다 7가지 테마 중 하나가 무작위로 선택됩니다. 다음 세 가지 방법 모두 동일하게 동작합니다.
 
 ```bash
-# 한 번만 랜덤
-vibe-picnic --season random
+# 1. CLI 플래그로 한 번만 랜덤
+vibe-picnic --theme random
 
-# 기본 설정을 랜덤으로
-vibe-picnic config set season random
+# 2. 설정 파일에 기본값으로 저장
+vibe-picnic config set theme random
+
+# 3. 애니메이션 실행 중에 i로 설정 패널을 열고,
+#    Theme 항목을 ←→로 순회해서 "random" 상태로 둔 뒤 s로 저장.
 ```
 
-터미널 시작 스플래시와 함께 사용하면 매번 다른 테마로 터미널이 열립니다.
+터미널 시작 스플래시와 함께 사용하면 터미널을 열 때마다 다른 테마가 재생됩니다.
 
 ```bash
 # ~/.zshrc 또는 ~/.bashrc 에 추가
-vibe-picnic --splash --season random
+vibe-picnic --splash --theme random
 ```
 
 ---

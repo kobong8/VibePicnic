@@ -22,7 +22,7 @@ export const themes: Record<string, Theme> = {
 };
 
 export interface RunOptions {
-  season?: string;
+  theme?: string;
   density?: number;
   speed?: number;
   wind?: number;
@@ -49,7 +49,7 @@ export function pickRandomTheme(): string {
 
 export function run(options: RunOptions): void {
   const {
-    season = "auto",
+    theme: themeOpt = "auto",
     density = 15,
     wind: initWind = 0.5,
     noColor = false,
@@ -59,17 +59,18 @@ export function run(options: RunOptions): void {
   let speed = options.speed ?? 1.0;
   let ascii = options.ascii ?? false;
   let noGround = options.noGround ?? false;
+  let selectedTheme = themeOpt;
 
   const themeName =
-    season === "auto"
+    themeOpt === "auto"
       ? detectSeason()
-      : season === "random"
+      : themeOpt === "random"
         ? pickRandomTheme()
-        : season;
+        : themeOpt;
   const theme = themes[themeName];
   if (!theme) {
     console.error(
-      `Unknown season: ${season}. Use: spring, summer, autumn, winter, moonlake, campfire, auto, random`,
+      `Unknown theme: ${themeOpt}. Use: spring, summer, autumn, winter, moonlake, campfire, fireworks, auto, random`,
     );
     process.exit(1);
   }
@@ -84,7 +85,7 @@ export function run(options: RunOptions): void {
 
   const panelItems = ["theme", "density", "wind", "speed", "ascii", "ground"] as const;
   type PanelItem = (typeof panelItems)[number];
-  const themeOrder = ["spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
+  const themeOrder = ["spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks", "random"];
   let panelOpen = false;
   let panelCursor = 0;
 
@@ -113,7 +114,7 @@ export function run(options: RunOptions): void {
       }
       if (key === "s" || key === "S") {
         saveConfig({
-          season: activeTheme.name,
+          theme: selectedTheme === "random" ? "random" : activeTheme.name,
           density: currentDensity,
           wind: Math.round(wind * 10) / 10,
           speed: Math.round(speed * 10) / 10,
@@ -157,9 +158,18 @@ export function run(options: RunOptions): void {
 
   function adjustPanelItem(item: PanelItem, delta: number): void {
     if (item === "theme") {
-      const idx = themeOrder.indexOf(activeTheme.name);
+      const currentValue = selectedTheme === "random" ? "random" : activeTheme.name;
+      const startIdx = themeOrder.indexOf(currentValue);
+      const idx = startIdx === -1 ? 0 : startIdx;
       const next = (idx + delta + themeOrder.length) % themeOrder.length;
-      switchTheme(themeOrder[next]);
+      const nextValue = themeOrder[next];
+      if (nextValue === "random") {
+        selectedTheme = "random";
+        switchTheme(pickRandomTheme());
+      } else {
+        selectedTheme = nextValue;
+        switchTheme(nextValue);
+      }
     } else if (item === "density") {
       currentDensity = Math.max(1, Math.min(50, currentDensity + delta));
     } else if (item === "wind") {
@@ -174,7 +184,7 @@ export function run(options: RunOptions): void {
   }
 
   function getPanelValue(item: PanelItem): string {
-    if (item === "theme") return activeTheme.name;
+    if (item === "theme") return selectedTheme === "random" ? "random" : activeTheme.name;
     if (item === "density") return String(currentDensity);
     if (item === "wind") return (wind >= 0 ? "+" : "") + wind.toFixed(1);
     if (item === "speed") return speed.toFixed(1);
@@ -394,8 +404,8 @@ export function run(options: RunOptions): void {
     const w = renderer.width;
     const h = renderer.height;
     const elapsed = Date.now() - startTime;
-    const fadeStart = 10000;
-    const fadeEnd = 20000;
+    const fadeStart = 5000;
+    const fadeEnd = 10000;
 
     if (elapsed >= fadeEnd) return;
 
@@ -420,7 +430,7 @@ export function run(options: RunOptions): void {
     const w = renderer.width;
     const h = renderer.height;
     const panelWidth = 26;
-    const panelHeight = 11;
+    const panelHeight = 12;
     if (w < panelWidth + 2 || h < panelHeight + 2) return;
 
     const x0 = Math.max(0, w - panelWidth - 2);
@@ -438,9 +448,7 @@ export function run(options: RunOptions): void {
     }
 
     const titlePrefix = "─ Settings ";
-    const countLabel = `· ${system.count()}p `;
-    const fillCount = Math.max(1, panelWidth - titlePrefix.length - countLabel.length - 1);
-    drawLine(y0, titlePrefix + "─".repeat(fillCount) + countLabel + "─", dim);
+    drawLine(y0, titlePrefix + "─".repeat(Math.max(0, panelWidth - titlePrefix.length)), dim);
 
     const labels: Record<PanelItem, string> = {
       theme: "Theme:",
@@ -460,9 +468,10 @@ export function run(options: RunOptions): void {
     }
 
     drawLine(y0 + 1 + panelItems.length, "", fg);
-    drawLine(y0 + 2 + panelItems.length, " ↑↓ move  ←→ change", dim);
-    drawLine(y0 + 3 + panelItems.length, " s save   q close", dim);
-    drawLine(y0 + 4 + panelItems.length, "─".repeat(panelWidth), dim);
+    drawLine(y0 + 2 + panelItems.length, `   Particles: ${system.count()}`, dim);
+    drawLine(y0 + 3 + panelItems.length, " ↑↓ move  ←→ change", dim);
+    drawLine(y0 + 4 + panelItems.length, " s save   q close", dim);
+    drawLine(y0 + 5 + panelItems.length, "─".repeat(panelWidth), dim);
   }
 
   function cleanup(): void {

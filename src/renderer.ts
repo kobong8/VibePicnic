@@ -1,5 +1,21 @@
 const ESC = "\x1b[";
 
+function isWideChar(ch: string): boolean {
+  if (!ch) return false;
+  const cp = ch.codePointAt(0);
+  if (cp === undefined) return false;
+  return (
+    (cp >= 0x1100 && cp <= 0x115f) ||
+    (cp >= 0x2e80 && cp <= 0x303e) ||
+    (cp >= 0x3041 && cp <= 0x9fff) ||
+    (cp >= 0xac00 && cp <= 0xd7a3) ||
+    (cp >= 0xf900 && cp <= 0xfaff) ||
+    (cp >= 0xfe30 && cp <= 0xfe4f) ||
+    (cp >= 0xff00 && cp <= 0xff60) ||
+    (cp >= 0x1f000 && cp <= 0x1faff)
+  );
+}
+
 export interface Renderer {
   width: number;
   height: number;
@@ -60,13 +76,22 @@ const renderer: Renderer = {
     for (let y = 0; y < this.height; y++) {
       out += `${ESC}${y + 1};1H`;
       let prevColor: string | null = null;
-      for (let x = 0; x < this.width; x++) {
+      let x = 0;
+      while (x < this.width) {
+        const ch = this.buffer[y][x];
         const color = this.colorBuffer[y][x];
+        const wide = isWideChar(ch);
         if (color !== prevColor) {
           out += color || `${ESC}0m`;
           prevColor = color;
         }
-        out += this.buffer[y][x];
+        if (wide && x + 1 >= this.width) {
+          out += " ";
+          x += 1;
+        } else {
+          out += ch;
+          x += wide ? 2 : 1;
+        }
       }
       out += `${ESC}0m`;
     }
