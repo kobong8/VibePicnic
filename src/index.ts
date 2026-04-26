@@ -394,8 +394,8 @@ export function run(options: RunOptions): void {
     const w = renderer.width;
     const h = renderer.height;
     const elapsed = Date.now() - startTime;
-    const fadeStart = 10000;
-    const fadeEnd = 20000;
+    const fadeStart = 5000;
+    const fadeEnd = 10000;
 
     if (elapsed >= fadeEnd) return;
 
