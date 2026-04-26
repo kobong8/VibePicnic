@@ -80,6 +80,7 @@ export function run(options: RunOptions): void {
   let currentDensity = density;
   let tick = 0;
   let running = true;
+  const startTime = Date.now();
 
   const panelItems = ["theme", "density", "wind", "speed", "ascii", "ground"] as const;
   type PanelItem = (typeof panelItems)[number];
@@ -388,27 +389,30 @@ export function run(options: RunOptions): void {
   }
 
   function drawUI(): void {
+    if (panelOpen) return;
+
     const w = renderer.width;
     const h = renderer.height;
-    const titleColor = noColor
-      ? ""
-      : renderer.fgRgb(200, 200, 200) + renderer.bold();
-    const hintColor = noColor
-      ? ""
-      : renderer.dim() + renderer.fgRgb(140, 140, 140);
+    const elapsed = Date.now() - startTime;
+    const fadeStart = 10000;
+    const fadeEnd = 20000;
 
-    const title = activeTheme.getTitle();
-    const tx = Math.max(0, Math.floor((w - title.length) / 2));
-    for (let i = 0; i < title.length && tx + i < w; i++) {
-      renderer.set(tx + i, 0, title[i], titleColor);
+    if (elapsed >= fadeEnd) return;
+
+    let alpha = 1;
+    if (elapsed >= fadeStart) {
+      alpha = 1 - (elapsed - fadeStart) / (fadeEnd - fadeStart);
+      const blinkOn = Math.floor(elapsed / 400) % 2 === 0;
+      if (!blinkOn) return;
     }
 
-    if (!panelOpen) {
-      const hint = " i:settings  q:quit ";
-      const hx = Math.max(0, w - hint.length - 1);
-      for (let i = 0; i < hint.length && hx + i < w; i++) {
-        renderer.set(hx + i, h - 1, hint[i], hintColor);
-      }
+    const brightness = Math.round(140 * alpha);
+    const hintColor = noColor ? "" : renderer.fgRgb(brightness, brightness, brightness);
+
+    const hint = " i:settings  q:quit ";
+    const hx = Math.max(0, w - hint.length - 1);
+    for (let i = 0; i < hint.length && hx + i < w; i++) {
+      renderer.set(hx + i, h - 1, hint[i], hintColor);
     }
   }
 
