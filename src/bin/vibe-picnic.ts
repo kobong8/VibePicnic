@@ -96,8 +96,8 @@ Themes:
   autumn     🍂 Autumn leaves falling
   winter     ❄️  Snow falling
   moonlake   🌕 Moonlit lakeside
-  campfire  🔥 Campfire
-  fireworks 🎆 Fireworks festival
+  campfire   🔥 Campfire
+  fireworks  🎆 Fireworks festival
   auto       Auto-detect season from current month
   random     Random theme each run
 
@@ -194,14 +194,14 @@ Themes:
   autumn     🍂 낙엽이 떨어짐
   winter     ❄️  눈이 내림
   moonlake   🌕 호숫가 달빛
-  campfire  🔥 모닥불
-  fireworks 🎆 폭죽 축제
+  campfire   🔥 모닥불
+  fireworks  🎆 폭죽 축제
   auto       현재 월에 맞는 계절 자동 선택
   random     실행할 때마다 랜덤 테마 선택
 
 Examples:
   vibe-picnic                                     자동 계절 감지
-  vibe-picnic --season campfire                  모닥불
+  vibe-picnic --season campfire                   모닥불
   vibe-picnic config set season moonlake          기본 테마를 달빛호수로
   vibe-picnic config show                         설정 확인
   vibe-picnic --lang en --help                    영어 도움말 보기
