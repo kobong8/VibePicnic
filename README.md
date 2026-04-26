@@ -210,8 +210,21 @@ rm ~/.vibe-picnic.json           # settings
 | `1` ~ `7` | Instantly switch themes |
 | `↑` `↓` | Adjust particle density |
 | `←` `→` | Adjust wind direction and strength |
+| `i` | Toggle the in-app settings panel |
 | `r` | Reset accumulated ground particles |
 | `q` / `ESC` | Quit the program |
+
+#### Settings Panel (`i`)
+Press `i` while the animation is running to open an in-place settings panel. Changes are applied live, so you can preview the effect before saving.
+
+| Key | Action |
+|:---:|---|
+| `↑` `↓` | Move the cursor between rows |
+| `←` `→` | Change the highlighted value |
+| `s` | Save current values to `~/.vibe-picnic.json` and close |
+| `q` / `i` / `ESC` | Close the panel without saving |
+
+Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`.
 
 ---
 
