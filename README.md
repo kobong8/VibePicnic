@@ -215,7 +215,7 @@ rm ~/.vibe-picnic.json           # settings
 | `q` / `ESC` | Quit the program |
 
 #### Settings Panel (`i`)
-Press `i` while the animation is running to open an in-place settings panel. Changes are applied live, so you can preview the effect before saving.
+Press `i` while the animation is running to open an in-place settings panel in the top-right corner. The animation keeps running underneath, and value changes are applied live so you can preview the effect before saving.
 
 | Key | Action |
 |:---:|---|
@@ -224,7 +224,10 @@ Press `i` while the animation is running to open an in-place settings panel. Cha
 | `s` | Save current values to `~/.vibe-picnic.json` and close |
 | `q` / `i` / `ESC` | Close the panel without saving |
 
-Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`.
+Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`. The panel header also shows the live particle count (e.g. `─ Settings ······· · 76p ─`).
+
+#### Minimal HUD
+The animation runs full-screen with no persistent on-screen text. A subtle `i:settings  q:quit` hint appears at the bottom-right for the first 5 seconds, then blinks while fading out over the next 5 seconds and disappears entirely after 10 seconds — so once you know the shortcuts, the screen is clean. Press `i` any time to bring back the panel.
 
 ---
 
