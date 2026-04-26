@@ -68,6 +68,12 @@ vp --season campfire    # shorthand command
 vp --season fireworks   # realistic night fireworks
 ```
 
+> 💡 The settings shown above (theme, density, wind, etc.) can be changed in two ways:
+> 1. **In-app Settings Panel** — press `i` while the animation is running and edit values live (recommended).
+> 2. **CLI flags** — pass them on the command line as shown, handy for one-off launches or shell startup scripts.
+>
+> Both paths control the same options. See the [Run Examples](#run-examples) section below for more.
+
 ### ✨ Terminal Splash on Startup
 
 You can automatically enjoy a atmospheric animation every time you open your terminal. Press any key to immediately start your shell.
@@ -191,6 +197,42 @@ rm ~/.vibe-picnic.json           # settings
 
 ## 🛠️ Options & Controls
 
+The fastest way to configure Vibe Picnic is the **Settings Panel** — open it with `i` while the animation is running and tweak everything live. CLI options and keyboard shortcuts below cover the same controls for power users and scripting.
+
+### Settings Panel (`i`) · Recommended
+Press `i` at any time to open an interactive settings panel in the top-right corner. The animation keeps running underneath, value changes are applied **live** so you can preview the effect, and the panel header shows the current particle count (e.g. `─ Settings ······· · 76p ─`).
+
+| Key | Action |
+|:---:|---|
+| `↑` `↓` | Move the cursor between rows |
+| `←` `→` | Change the highlighted value |
+| `s` | Save current values to `~/.vibe-picnic.json` and close |
+| `q` / `i` / `ESC` | Close the panel without saving |
+
+Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`.
+
+### Run Examples
+```bash
+# Just run it — current season auto-detected, then press i to configure
+vibe-picnic
+
+# Jump straight into a specific theme
+vibe-picnic --season moonlake
+vibe-picnic --season campfire
+vp --season fireworks                 # shorthand command
+
+# Tune visuals on launch (everything below also works in the panel)
+vibe-picnic --season autumn --density 30 --wind -1.5
+vibe-picnic --season winter --speed 0.6 --no-ground
+
+# Splash mode — show one frame, exit on any key
+vibe-picnic --splash
+vibe-picnic --splash --message "Welcome back!"
+
+# ASCII-only fallback (no emoji), great for legacy terminals
+vibe-picnic --ascii --no-color
+```
+
 ### CLI Options
 | Option | Description | Default |
 |---|---|:---:|
@@ -207,26 +249,14 @@ rm ~/.vibe-picnic.json           # settings
 ### Real-Time Keyboard Controls
 | Key | Action |
 |:---:|---|
+| `i` | **Toggle the settings panel (recommended)** |
 | `1` ~ `7` | Instantly switch themes |
 | `↑` `↓` | Adjust particle density |
 | `←` `→` | Adjust wind direction and strength |
-| `i` | Toggle the in-app settings panel |
 | `r` | Reset accumulated ground particles |
 | `q` / `ESC` | Quit the program |
 
-#### Settings Panel (`i`)
-Press `i` while the animation is running to open an in-place settings panel in the top-right corner. The animation keeps running underneath, and value changes are applied live so you can preview the effect before saving.
-
-| Key | Action |
-|:---:|---|
-| `↑` `↓` | Move the cursor between rows |
-| `←` `→` | Change the highlighted value |
-| `s` | Save current values to `~/.vibe-picnic.json` and close |
-| `q` / `i` / `ESC` | Close the panel without saving |
-
-Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`. The panel header also shows the live particle count (e.g. `─ Settings ······· · 76p ─`).
-
-#### Minimal HUD
+### Minimal HUD
 The animation runs full-screen with no persistent on-screen text. A subtle `i:settings  q:quit` hint appears at the bottom-right for the first 5 seconds, then blinks while fading out over the next 5 seconds and disappears entirely after 10 seconds — so once you know the shortcuts, the screen is clean. Press `i` any time to bring back the panel.
 
 ---
