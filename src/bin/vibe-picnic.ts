@@ -87,6 +87,7 @@ Controls (normal mode):
   ← →               Adjust wind direction/strength
   ↑ ↓               Adjust particle density
   1-7               Switch theme (1:spring 2:summer 3:autumn 4:winter 5:moonlake 6:campfire 7:fireworks)
+  i                 Toggle settings panel (↑↓ move, ←→ change, s save, q close)
   r                 Reset ground
   q / ESC           Quit
 
@@ -185,6 +186,7 @@ Controls (일반 모드):
   ← →               바람 방향/세기 조절
   ↑ ↓               파티클 밀도 조절
   1-7               테마 전환 (1:봄 2:여름 3:가을 4:겨울 5:달빛호수 6:모닥불 7:폭죽)
+  i                 설정 패널 토글 (↑↓ 이동, ←→ 값 변경, s 저장, q 닫기)
   r                 바닥 리셋
   q / ESC           종료
 

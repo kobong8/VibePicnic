@@ -2,6 +2,7 @@ import renderer from "./renderer";
 import { ParticleSystem } from "./particle";
 import { Theme, GroundMap } from "./themes/types";
 import { FireworkManager } from "./fireworks";
+import { saveConfig } from "./config";
 import spring from "./themes/spring";
 import summer from "./themes/summer";
 import autumn from "./themes/autumn";
@@ -50,14 +51,14 @@ export function run(options: RunOptions): void {
   const {
     season = "auto",
     density = 15,
-    speed = 1.0,
     wind: initWind = 0.5,
-    ascii = false,
     noColor = false,
-    noGround = false,
     splash = false,
     message = "",
   } = options;
+  let speed = options.speed ?? 1.0;
+  let ascii = options.ascii ?? false;
+  let noGround = options.noGround ?? false;
 
   const themeName =
     season === "auto"
@@ -79,6 +80,13 @@ export function run(options: RunOptions): void {
   let currentDensity = density;
   let tick = 0;
   let running = true;
+  const startTime = Date.now();
+
+  const panelItems = ["theme", "density", "wind", "speed", "ascii", "ground"] as const;
+  type PanelItem = (typeof panelItems)[number];
+  const themeOrder = ["spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
+  let panelOpen = false;
+  let panelCursor = 0;
 
   if (process.stdin.isTTY) {
     process.stdin.setRawMode(true);
@@ -94,8 +102,41 @@ export function run(options: RunOptions): void {
       return;
     }
 
+    if (panelOpen) {
+      if (key === "\x03") {
+        running = false;
+        return;
+      }
+      if (key === "i" || key === "I" || key === "q" || key === "Q" || key === "\x1b") {
+        panelOpen = false;
+        return;
+      }
+      if (key === "s" || key === "S") {
+        saveConfig({
+          season: activeTheme.name,
+          density: currentDensity,
+          wind: Math.round(wind * 10) / 10,
+          speed: Math.round(speed * 10) / 10,
+          ascii,
+          noGround,
+        });
+        panelOpen = false;
+        return;
+      }
+      if (key === "\x1b[A") panelCursor = (panelCursor - 1 + panelItems.length) % panelItems.length;
+      if (key === "\x1b[B") panelCursor = (panelCursor + 1) % panelItems.length;
+      if (key === "\x1b[D") adjustPanelItem(panelItems[panelCursor], -1);
+      if (key === "\x1b[C") adjustPanelItem(panelItems[panelCursor], +1);
+      return;
+    }
+
     if (key === "q" || key === "Q" || key === "\x1b" || key === "\x03") {
       running = false;
+      return;
+    }
+    if (key === "i" || key === "I") {
+      panelOpen = true;
+      panelCursor = 0;
       return;
     }
     if (key === "\x1b[D") wind = Math.max(-5, wind - 0.3);
@@ -113,6 +154,34 @@ export function run(options: RunOptions): void {
     if (key === "6") switchTheme("campfire");
     if (key === "7") switchTheme("fireworks");
   });
+
+  function adjustPanelItem(item: PanelItem, delta: number): void {
+    if (item === "theme") {
+      const idx = themeOrder.indexOf(activeTheme.name);
+      const next = (idx + delta + themeOrder.length) % themeOrder.length;
+      switchTheme(themeOrder[next]);
+    } else if (item === "density") {
+      currentDensity = Math.max(1, Math.min(50, currentDensity + delta));
+    } else if (item === "wind") {
+      wind = Math.max(-5, Math.min(5, wind + delta * 0.3));
+    } else if (item === "speed") {
+      speed = Math.max(0.1, Math.min(5, speed + delta * 0.1));
+    } else if (item === "ascii") {
+      ascii = !ascii;
+    } else if (item === "ground") {
+      noGround = !noGround;
+    }
+  }
+
+  function getPanelValue(item: PanelItem): string {
+    if (item === "theme") return activeTheme.name;
+    if (item === "density") return String(currentDensity);
+    if (item === "wind") return (wind >= 0 ? "+" : "") + wind.toFixed(1);
+    if (item === "speed") return speed.toFixed(1);
+    if (item === "ascii") return ascii ? "on" : "off";
+    if (item === "ground") return noGround ? "off" : "on";
+    return "";
+  }
 
   let activeTheme = theme;
 
@@ -225,6 +294,7 @@ export function run(options: RunOptions): void {
       drawSplashUI();
     } else {
       drawUI();
+      if (panelOpen) drawSettingsPanel();
     }
 
     renderer.flush();
@@ -319,26 +389,80 @@ export function run(options: RunOptions): void {
   }
 
   function drawUI(): void {
+    if (panelOpen) return;
+
     const w = renderer.width;
     const h = renderer.height;
-    const titleColor = noColor
-      ? ""
-      : renderer.fgRgb(200, 200, 200) + renderer.bold();
-    const infoColor = noColor
-      ? ""
-      : renderer.dim() + renderer.fgRgb(140, 140, 140);
+    const elapsed = Date.now() - startTime;
+    const fadeStart = 10000;
+    const fadeEnd = 20000;
 
-    const title = activeTheme.getTitle();
-    const tx = Math.max(0, Math.floor((w - title.length) / 2));
-    for (let i = 0; i < title.length && tx + i < w; i++) {
-      renderer.set(tx + i, 0, title[i], titleColor);
+    if (elapsed >= fadeEnd) return;
+
+    let alpha = 1;
+    if (elapsed >= fadeStart) {
+      alpha = 1 - (elapsed - fadeStart) / (fadeEnd - fadeStart);
+      const blinkOn = Math.floor(elapsed / 400) % 2 === 0;
+      if (!blinkOn) return;
     }
 
-    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-7:theme | arrows:ctrl | q:quit `;
-    const ix = Math.max(0, Math.floor((w - info.length) / 2));
-    for (let i = 0; i < info.length && ix + i < w; i++) {
-      renderer.set(ix + i, h - 1, info[i], infoColor);
+    const brightness = Math.round(140 * alpha);
+    const hintColor = noColor ? "" : renderer.fgRgb(brightness, brightness, brightness);
+
+    const hint = " i:settings  q:quit ";
+    const hx = Math.max(0, w - hint.length - 1);
+    for (let i = 0; i < hint.length && hx + i < w; i++) {
+      renderer.set(hx + i, h - 1, hint[i], hintColor);
     }
+  }
+
+  function drawSettingsPanel(): void {
+    const w = renderer.width;
+    const h = renderer.height;
+    const panelWidth = 26;
+    const panelHeight = 11;
+    if (w < panelWidth + 2 || h < panelHeight + 2) return;
+
+    const x0 = Math.max(0, w - panelWidth - 2);
+    const y0 = 1;
+
+    const fg = noColor ? "" : renderer.fgRgb(220, 220, 220);
+    const dim = noColor ? "" : renderer.dim() + renderer.fgRgb(160, 160, 160);
+    const cursorColor = noColor ? "" : renderer.bold() + renderer.fgRgb(255, 220, 100);
+
+    function drawLine(yi: number, text: string, color: string): void {
+      const padded = text.length >= panelWidth ? text.slice(0, panelWidth) : text + " ".repeat(panelWidth - text.length);
+      for (let i = 0; i < panelWidth; i++) {
+        renderer.set(x0 + i, yi, padded[i] || " ", color);
+      }
+    }
+
+    const titlePrefix = "─ Settings ";
+    const countLabel = `· ${system.count()}p `;
+    const fillCount = Math.max(1, panelWidth - titlePrefix.length - countLabel.length - 1);
+    drawLine(y0, titlePrefix + "─".repeat(fillCount) + countLabel + "─", dim);
+
+    const labels: Record<PanelItem, string> = {
+      theme: "Theme:",
+      density: "Density:",
+      wind: "Wind:",
+      speed: "Speed:",
+      ascii: "ASCII:",
+      ground: "Ground:",
+    };
+
+    for (let i = 0; i < panelItems.length; i++) {
+      const item = panelItems[i];
+      const isCursor = i === panelCursor;
+      const cursorChar = isCursor ? "▶" : " ";
+      const text = ` ${cursorChar} ${labels[item].padEnd(10)}${getPanelValue(item)}`;
+      drawLine(y0 + 1 + i, text, isCursor ? cursorColor : fg);
+    }
+
+    drawLine(y0 + 1 + panelItems.length, "", fg);
+    drawLine(y0 + 2 + panelItems.length, " ↑↓ move  ←→ change", dim);
+    drawLine(y0 + 3 + panelItems.length, " s save   q close", dim);
+    drawLine(y0 + 4 + panelItems.length, "─".repeat(panelWidth), dim);
   }
 
   function cleanup(): void {
