@@ -5,7 +5,7 @@ import { loadConfig, saveConfig, getConfigPath, getDefaults, mergeWithDefaults, 
 import { shouldRunSplash, recordSplashRun } from "../schedule";
 
 const args = process.argv.slice(2);
-const VALID_SEASONS = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
+const VALID_THEMES = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
 
 // Detect language early — default English, --lang ko switches to Korean
 const langIdx = args.indexOf("--lang");
@@ -23,7 +23,7 @@ Usage:
   vibe-picnic config path              Show config file path
 
 Available keys:
-  season    Theme: ${VALID_SEASONS.join(", ")}
+  theme     Theme: ${VALID_THEMES.join(", ")}
   density   Particle density (1-50)
   speed     Speed multiplier (0.1-5.0)
   wind      Wind strength (-5.0~5.0)
@@ -35,7 +35,8 @@ Available keys:
   message   Splash message
 
 Examples:
-  vibe-picnic config set season campfire    Set default theme to campfire
+  vibe-picnic config set theme campfire     Set default theme to campfire
+  vibe-picnic config set theme random       Pick a random theme each run
   vibe-picnic config set density 30         Set particle density to 30
   vibe-picnic config set ascii true         Enable ASCII mode
   vibe-picnic config show                   Show current settings
@@ -51,7 +52,7 @@ Examples:
     errSetUsage: "Error: vibe-picnic config set <key> <value>",
     errUnknownKey: (k: string, keys: string) => `Error: Unknown key '${k}'\nAvailable: ${keys}`,
     errScheduleReadonly: "Error: 'schedule' cannot be changed here. (coming soon)",
-    errUnknownSeason: (v: string) => `Error: Unknown theme '${v}'\nAvailable: ${VALID_SEASONS.join(", ")}`,
+    errUnknownTheme: (v: string) => `Error: Unknown theme '${v}'\nAvailable: ${VALID_THEMES.join(", ")}`,
     errDensity: "Error: density must be a number between 1 and 50",
     errSpeed: "Error: speed must be a number between 0.1 and 5.0",
     errWind: "Error: wind must be a number between -5.0 and 5.0",
@@ -64,7 +65,7 @@ Usage:
   vibe-picnic config [show|set|reset|path]
 
 Options:
-  --season <name>     Theme: ${VALID_SEASONS.join(", ")} (default: auto)
+  --theme <name>      Theme: ${VALID_THEMES.join(", ")} (default: auto)
   --density <n>       Particle density 1-50 (default: 15)
   --speed <n>         Speed multiplier 0.1-5.0 (default: 1.0)
   --wind <n>          Wind strength -5.0~5.0 (default: 0.5)
@@ -76,6 +77,8 @@ Options:
   --fireworks         Enable fireworks effect
   --lang <en|ko>      Language for help text (default: en)
   -h, --help          Show this help
+
+Note: --season is accepted as a legacy alias of --theme.
 
 Config:
   vibe-picnic config show              Show current settings
@@ -100,16 +103,17 @@ Themes:
   campfire   🔥 Campfire
   fireworks  🎆 Fireworks festival
   auto       Auto-detect season from current month
-  random     Random theme each run
+  random     Random theme each run (also selectable inside the settings panel)
 
 Examples:
   vibe-picnic                                     Auto-detect season
-  vibe-picnic --season campfire                   Campfire mode
-  vibe-picnic config set season moonlake          Set default theme to moonlake
+  vibe-picnic --theme campfire                    Campfire mode
+  vibe-picnic --theme random                      Random theme on launch
+  vibe-picnic config set theme moonlake           Set default theme to moonlake
   vibe-picnic config show                         Show settings
   vibe-picnic --lang ko --help                    Show help in Korean
 `,
-    errUnknownSeasonMain: (v: string) => `Error: Unknown season '${v}'. Use: ${VALID_SEASONS.join(", ")}`,
+    errUnknownThemeMain: (v: string) => `Error: Unknown theme '${v}'. Use: ${VALID_THEMES.join(", ")}`,
   },
   ko: {
     configHelp: `
@@ -122,7 +126,7 @@ Usage:
   vibe-picnic config path              설정 파일 경로 출력
 
 설정 가능한 키:
-  season    테마: ${VALID_SEASONS.join(", ")}
+  theme     테마: ${VALID_THEMES.join(", ")}
   density   파티클 밀도 (1-50)
   speed     속도 배율 (0.1-5.0)
   wind      바람 세기 (-5.0~5.0)
@@ -134,7 +138,8 @@ Usage:
   message   스플래시 메시지
 
 Examples:
-  vibe-picnic config set season campfire    기본 테마를 모닥불로 변경
+  vibe-picnic config set theme campfire     기본 테마를 모닥불로 변경
+  vibe-picnic config set theme random       실행할 때마다 랜덤 테마로 시작
   vibe-picnic config set density 30         파티클 밀도를 30으로 변경
   vibe-picnic config set ascii true         ASCII 모드 활성화
   vibe-picnic config show                   현재 설정 확인
@@ -150,7 +155,7 @@ Examples:
     errSetUsage: "Error: vibe-picnic config set <key> <value>",
     errUnknownKey: (k: string, keys: string) => `Error: 알 수 없는 설정 키 '${k}'\n사용 가능: ${keys}`,
     errScheduleReadonly: "Error: schedule 설정은 현재 변경할 수 없습니다. (추후 지원 예정)",
-    errUnknownSeason: (v: string) => `Error: 알 수 없는 테마 '${v}'\n사용 가능: ${VALID_SEASONS.join(", ")}`,
+    errUnknownTheme: (v: string) => `Error: 알 수 없는 테마 '${v}'\n사용 가능: ${VALID_THEMES.join(", ")}`,
     errDensity: "Error: density는 1-50 사이의 숫자",
     errSpeed: "Error: speed는 0.1-5.0 사이의 숫자",
     errWind: "Error: wind는 -5.0~5.0 사이의 숫자",
@@ -163,7 +168,7 @@ Usage:
   vibe-picnic config [show|set|reset|path]
 
 Options:
-  --season <name>     테마 선택: ${VALID_SEASONS.join(", ")} (기본: auto)
+  --theme <name>      테마 선택: ${VALID_THEMES.join(", ")} (기본: auto)
   --density <n>       파티클 밀도 1-50 (기본: 15)
   --speed <n>         속도 배율 0.1-5.0 (기본: 1.0)
   --wind <n>          바람 세기 -5.0~5.0 (기본: 0.5)
@@ -175,6 +180,8 @@ Options:
   --fireworks         폭죽 효과 활성화
   --lang <en|ko>      도움말 언어 선택 (기본: en)
   -h, --help          도움말
+
+참고: --season 은 --theme 의 레거시 별칭으로 계속 동작합니다.
 
 Config:
   vibe-picnic config show              현재 설정 보기
@@ -199,16 +206,17 @@ Themes:
   campfire   🔥 모닥불
   fireworks  🎆 폭죽 축제
   auto       현재 월에 맞는 계절 자동 선택
-  random     실행할 때마다 랜덤 테마 선택
+  random     실행할 때마다 랜덤 테마 선택 (설정 패널에서도 선택 가능)
 
 Examples:
   vibe-picnic                                     자동 계절 감지
-  vibe-picnic --season campfire                   모닥불
-  vibe-picnic config set season moonlake          기본 테마를 달빛호수로
+  vibe-picnic --theme campfire                    모닥불
+  vibe-picnic --theme random                      실행 시 랜덤 테마
+  vibe-picnic config set theme moonlake           기본 테마를 달빛호수로
   vibe-picnic config show                         설정 확인
   vibe-picnic --lang en --help                    영어 도움말 보기
 `,
-    errUnknownSeasonMain: (v: string) => `Error: Unknown season '${v}'. Use: ${VALID_SEASONS.join(", ")}`,
+    errUnknownThemeMain: (v: string) => `Error: 알 수 없는 테마 '${v}'. 사용 가능: ${VALID_THEMES.join(", ")}`,
   },
 } as const;
 
@@ -284,9 +292,9 @@ if (args[0] === "config") {
     if (k === "schedule") {
       console.error(t.errScheduleReadonly);
       process.exit(1);
-    } else if (k === "season") {
-      if (!VALID_SEASONS.includes(value)) {
-        console.error(t.errUnknownSeason(value));
+    } else if (k === "theme") {
+      if (!VALID_THEMES.includes(value)) {
+        console.error(t.errUnknownTheme(value));
         process.exit(1);
       }
     } else if (k === "density") {
@@ -345,8 +353,15 @@ function hasFlag(name: string): boolean {
   return args.includes(name);
 }
 
+// --theme is canonical; --season is accepted as a legacy alias
+const themeFlag = args.includes("--theme")
+  ? getArg("--theme", defaults.theme)
+  : args.includes("--season")
+    ? getArg("--season", defaults.theme)
+    : defaults.theme;
+
 const options = {
-  season: getArg("--season", defaults.season),
+  theme: themeFlag,
   density: args.includes("--density") ? parseInt(getArg("--density", "15"), 10) : defaults.density,
   speed: args.includes("--speed") ? parseFloat(getArg("--speed", "1.0")) : defaults.speed,
   wind: args.includes("--wind") ? parseFloat(getArg("--wind", "0.5")) : defaults.wind,
@@ -359,8 +374,8 @@ const options = {
   schedule: "always",
 };
 
-if (!VALID_SEASONS.includes(options.season)) {
-  console.error(t.errUnknownSeasonMain(options.season));
+if (!VALID_THEMES.includes(options.theme)) {
+  console.error(t.errUnknownThemeMain(options.theme));
   process.exit(1);
 }
 
@@ -370,16 +385,14 @@ if (options.splash) {
   }
   recordSplashRun();
   run(options);
-} else if (options.season === "auto") {
+} else if (options.theme === "auto") {
   const detected = detectSeason();
   const label = themes[detected].label;
   console.log(`${label} (auto-detected)`);
   setTimeout(() => run(options), 800);
-} else if (options.season === "random") {
-  const picked = pickRandomTheme();
-  const label = themes[picked].label;
-  console.log(`${label} (random)`);
-  setTimeout(() => run({ ...options, season: picked }), 800);
+} else if (options.theme === "random") {
+  console.log("🎲 Random theme...");
+  setTimeout(() => run(options), 800);
 } else {
   run(options);
 }

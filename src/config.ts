@@ -3,7 +3,7 @@ import * as path from "path";
 import * as os from "os";
 
 export interface Config {
-  season: string;
+  theme: string;
   density: number;
   speed: number;
   wind: number;
@@ -19,7 +19,7 @@ export interface Config {
 const CONFIG_PATH = path.join(os.homedir(), ".vibe-picnic.json");
 
 const DEFAULTS: Config = {
-  season: "auto",
+  theme: "auto",
   density: 15,
   speed: 1.0,
   wind: 0.5,
@@ -37,9 +37,14 @@ export function loadConfig(): Partial<Config> {
     if (fs.existsSync(CONFIG_PATH)) {
       const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
       const parsed = JSON.parse(raw);
-      // Legacy support: map 'fireplace' to 'campfire'
-      if (parsed.season === "fireplace") {
-        parsed.season = "campfire";
+      // Legacy: 'season' key was renamed to 'theme'
+      if (parsed.season && !parsed.theme) {
+        parsed.theme = parsed.season;
+      }
+      delete parsed.season;
+      // Legacy: 'fireplace' theme was renamed to 'campfire'
+      if (parsed.theme === "fireplace") {
+        parsed.theme = "campfire";
       }
       return parsed;
     }
