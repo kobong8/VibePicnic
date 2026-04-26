@@ -393,7 +393,7 @@ export function run(options: RunOptions): void {
     const titleColor = noColor
       ? ""
       : renderer.fgRgb(200, 200, 200) + renderer.bold();
-    const infoColor = noColor
+    const hintColor = noColor
       ? ""
       : renderer.dim() + renderer.fgRgb(140, 140, 140);
 
@@ -403,10 +403,12 @@ export function run(options: RunOptions): void {
       renderer.set(tx + i, 0, title[i], titleColor);
     }
 
-    const info = ` ${system.count()} particles | wind:${wind >= 0 ? "+" : ""}${wind.toFixed(1)} | 1-7:theme | arrows:ctrl | i:settings | q:quit `;
-    const ix = Math.max(0, Math.floor((w - info.length) / 2));
-    for (let i = 0; i < info.length && ix + i < w; i++) {
-      renderer.set(ix + i, h - 1, info[i], infoColor);
+    if (!panelOpen) {
+      const hint = " i:settings  q:quit ";
+      const hx = Math.max(0, w - hint.length - 1);
+      for (let i = 0; i < hint.length && hx + i < w; i++) {
+        renderer.set(hx + i, h - 1, hint[i], hintColor);
+      }
     }
   }
 
@@ -431,8 +433,10 @@ export function run(options: RunOptions): void {
       }
     }
 
-    const title = "─ Settings ";
-    drawLine(y0, title + "─".repeat(Math.max(0, panelWidth - title.length)), dim);
+    const titlePrefix = "─ Settings ";
+    const countLabel = `· ${system.count()}p `;
+    const fillCount = Math.max(1, panelWidth - titlePrefix.length - countLabel.length - 1);
+    drawLine(y0, titlePrefix + "─".repeat(fillCount) + countLabel + "─", dim);
 
     const labels: Record<PanelItem, string> = {
       theme: "Theme:",
