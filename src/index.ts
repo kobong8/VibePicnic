@@ -2,7 +2,7 @@ import renderer from "./renderer";
 import { ParticleSystem } from "./particle";
 import { Theme, GroundMap } from "./themes/types";
 import { FireworkManager } from "./fireworks";
-import { saveConfig } from "./config";
+import { saveConfig, getDefaults } from "./config";
 import spring from "./themes/spring";
 import summer from "./themes/summer";
 import autumn from "./themes/autumn";
@@ -122,6 +122,17 @@ export function run(options: RunOptions): void {
           noGround,
         });
         panelOpen = false;
+        return;
+      }
+      if (key === "r" || key === "R") {
+        const defaults = getDefaults();
+        currentDensity = defaults.density;
+        wind = defaults.wind;
+        speed = defaults.speed;
+        ascii = defaults.ascii;
+        noGround = defaults.noGround;
+        selectedTheme = "auto";
+        switchTheme(detectSeason());
         return;
       }
       if (key === "\x1b[A") panelCursor = (panelCursor - 1 + panelItems.length) % panelItems.length;
@@ -470,7 +481,7 @@ export function run(options: RunOptions): void {
     drawLine(y0 + 1 + panelItems.length, "", fg);
     drawLine(y0 + 2 + panelItems.length, `   Particles: ${system.count()}`, dim);
     drawLine(y0 + 3 + panelItems.length, " ↑↓ move  ←→ change", dim);
-    drawLine(y0 + 4 + panelItems.length, " s save   q close", dim);
+    drawLine(y0 + 4 + panelItems.length, " s save  r reset  q close", dim);
     drawLine(y0 + 5 + panelItems.length, "─".repeat(panelWidth), dim);
   }
 
