@@ -213,7 +213,7 @@ Press `i` at any time to open an interactive settings panel in the top-right cor
 
    Particles: 76
  ↑↓ move  ←→ change
- s save   q close
+ s save  r reset  q close
 ─────────────────────────
 ```
 
@@ -222,6 +222,7 @@ Press `i` at any time to open an interactive settings panel in the top-right cor
 | `↑` `↓` | Move the cursor between rows |
 | `←` `→` | Change the highlighted value |
 | `s` | Save current values to `~/.vibe-picnic.json` and close |
+| `r` | Reset all settings to defaults |
 | `q` / `i` / `ESC` | Close the panel without saving |
 
 Editable rows: `Theme`, `Density`, `Wind`, `Speed`, `ASCII`, `Ground`. Cycling through the `Theme` row also includes **`random`** as a value — landing on it picks a fresh random theme each time you cycle to it, and saving with `s` stores `theme: random` so every future launch starts on a new theme. The live particle count is shown read-only at the bottom of the panel.
