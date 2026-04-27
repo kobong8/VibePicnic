@@ -42,7 +42,9 @@ export class Firework {
     this.x = Math.random() * width;
     this.y = height;
     this.targetY = Math.random() * (height * 0.35) + height * 0.12;
-    this.speedY = -1.15 - Math.random() * 0.45;
+    const riseNeeded = height - this.targetY;
+    const minSpeed = Math.sqrt(2 * 0.015 * riseNeeded) + 0.1;
+    this.speedY = -(minSpeed + Math.random() * 0.25);
     this.type = Math.floor(Math.random() * 3) as FireworkType;
     this.char = asciiRocketChar();
     
@@ -73,7 +75,7 @@ export class Firework {
     this.speedY += 0.015;
     this.y += this.speedY;
     this.emitTrail(system);
-    if (this.y <= this.targetY) {
+    if (this.y <= this.targetY || this.speedY >= 0) {
       this.explode(system);
       this.exploded = true;
       return false;
