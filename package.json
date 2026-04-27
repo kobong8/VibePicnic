@@ -1,6 +1,6 @@
 {
   "name": "vibe-picnic",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "🔥 A CLI animation tool that brings developer vibes to your terminal",
   "main": "dist/index.js",
   "bin": {
