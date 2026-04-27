@@ -131,8 +131,6 @@ export function run(options: RunOptions): void {
         speed = defaults.speed;
         ascii = defaults.ascii;
         noGround = defaults.noGround;
-        selectedTheme = "auto";
-        switchTheme(detectSeason());
         return;
       }
       if (key === "\x1b[A") panelCursor = (panelCursor - 1 + panelItems.length) % panelItems.length;
