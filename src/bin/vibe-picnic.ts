@@ -6,6 +6,12 @@ import { shouldRunSplash, recordSplashRun } from "../schedule";
 
 const args = process.argv.slice(2);
 const VALID_THEMES = ["auto", "random", "spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks"];
+const { version } = require("../../package.json");
+
+if (args.includes("--version") || args.includes("-v")) {
+  console.log(`vibe-picnic ${version}`);
+  process.exit(0);
+}
 
 // Detect language early — default English, --lang ko switches to Korean
 const langIdx = args.indexOf("--lang");
@@ -76,6 +82,7 @@ Options:
   --no-ground         Disable ground accumulation
   --fireworks         Enable fireworks effect
   --lang <en|ko>      Language for help text (default: en)
+  -v, --version       Show version
   -h, --help          Show this help
 
 Note: --season is accepted as a legacy alias of --theme.
@@ -179,6 +186,7 @@ Options:
   --no-ground         바닥 쌓임 비활성화
   --fireworks         폭죽 효과 활성화
   --lang <en|ko>      도움말 언어 선택 (기본: en)
+  -v, --version       버전 정보 출력
   -h, --help          도움말
 
 참고: --season 은 --theme 의 레거시 별칭으로 계속 동작합니다.
