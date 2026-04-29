@@ -80,6 +80,7 @@ export function run(options: RunOptions): void {
   let wind = initWind;
   let currentDensity = density;
   let tick = 0;
+  let physicsAccum = 0;
   let running = true;
   const startTime = Date.now();
 
@@ -249,40 +250,52 @@ export function run(options: RunOptions): void {
       );
     }
 
-    const spawnCount = activeTheme.spawnRate(currentDensity);
-    for (let i = 0; i < spawnCount; i++) {
-      if (system.count() < currentDensity * 4) {
-        system.add(activeTheme.createParticle(renderer.width, -1, ascii));
-      }
-    }
-
-    const adjustedWind = wind * speed;
+    // Render at theme.fps; scale physics by `speed` so UI (settings panel)
+    // stays responsive regardless of the animation speed setting.
+    physicsAccum += speed;
+    const maxStepsPerFrame = 8;
+    let steps = 0;
     const getGroundY = noGround
       ? undefined
       : (x: number): number => {
           const dh = activeTheme.groundDisplayH(groundMap[x] || 0);
           return dh > 0 ? renderer.height - 1 - dh : renderer.height - 1;
         };
-    const landed = system.update(
-      tick,
-      adjustedWind,
-      renderer.width,
-      renderer.height,
-      getGroundY,
-    );
+    while (physicsAccum >= 1 && steps < maxStepsPerFrame) {
+      physicsAccum -= 1;
+      steps++;
 
-    if (!noGround) {
-      for (const p of landed) {
-        const ix = Math.floor(p.x);
-        if (ix >= 0 && ix < renderer.width) {
-          groundMap[ix] = (groundMap[ix] || 0) + 1;
+      const spawnCount = activeTheme.spawnRate(currentDensity);
+      for (let i = 0; i < spawnCount; i++) {
+        if (system.count() < currentDensity * 4) {
+          system.add(activeTheme.createParticle(renderer.width, -1, ascii));
         }
       }
-    }
 
-    if (activeTheme.onLanded) {
-      activeTheme.onLanded(landed, system, renderer.height);
+      const landed = system.update(
+        tick,
+        wind,
+        renderer.width,
+        renderer.height,
+        getGroundY,
+      );
+
+      if (!noGround) {
+        for (const p of landed) {
+          const ix = Math.floor(p.x);
+          if (ix >= 0 && ix < renderer.width) {
+            groundMap[ix] = (groundMap[ix] || 0) + 1;
+          }
+        }
+      }
+
+      if (activeTheme.onLanded) {
+        activeTheme.onLanded(landed, system, renderer.height);
+      }
+
+      tick++;
     }
+    if (physicsAccum > maxStepsPerFrame) physicsAccum = 0;
 
     for (const p of system.particles) {
       let color = noColor ? "" : p.color;
@@ -317,9 +330,8 @@ export function run(options: RunOptions): void {
     }
 
     renderer.flush();
-    tick++;
 
-    const interval = Math.floor(1000 / (activeTheme.fps * speed));
+    const interval = Math.floor(1000 / activeTheme.fps);
     setTimeout(frame, interval);
   }
 

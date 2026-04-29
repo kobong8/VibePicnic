@@ -146,7 +146,7 @@ rm ~/.vibe-picnic.json           # 설정
 
 #### 🌸 봄 (spring)
 
-![spring](images/spring.gif)
+![spring](https://github.com/kobong8/VibePicnic/releases/tag/assets/spring.gif)
 
 #### 🌧️ 여름 (summer)
 
