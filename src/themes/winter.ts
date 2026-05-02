@@ -51,8 +51,8 @@ const winter: Theme = {
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
       if (h > 0) {
-        const gy = height - 2;
-        if (gy > 0 && gy < height - 1) {
+        const gy = height - 1;
+        if (gy > 0) {
           const ch = palette[(x * 9) % palette.length];
           renderer.set(x, gy, ch, topColor);
         }

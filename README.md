@@ -9,14 +9,14 @@ A CLI animation tool with developer aesthetics for your terminal. It transforms 
 🌕 Moonlit Lake                🔥 Campfire                🎆 Fireworks
 ```
 
-![campfire](images/campfire.gif)
+![campfire](https://github.com/kobong8/VibePicnic/releases/download/assets/campfire.gif)
 
 ---
 
 ## 📚 Table of Contents
 
 - [Environment Setup](#️-environment-setup)
-- [Installation & Usage](#-installation--usage-1)
+- [Installation & Usage](#-installation--usage)
 - [Uninstallation](#️-uninstallation)
 - [Preview](#-preview)
 - [Themes & Scenes](#-themes--scenes)
@@ -46,6 +46,24 @@ vibe-picnic
 vibe-picnic --theme moonlake
 vp --theme campfire    # shorthand command
 vp --theme fireworks   # realistic night fireworks
+```
+
+### Update to the Latest Version
+
+When a new version is released on npm, update with:
+
+```bash
+# Check the currently installed version
+vibe-picnic --version
+
+# View the latest version available on npm
+npm view vibe-picnic version
+
+# Update to the latest version
+npm update -g vibe-picnic
+
+# Or reinstall the latest version explicitly
+npm install -g vibe-picnic@latest
 ```
 
 ### Local Build & Run
@@ -146,31 +164,31 @@ rm ~/.vibe-picnic.json           # settings
 
 #### 🌸 Spring
 
-![spring](images/spring.gif)
+![spring](https://github.com/kobong8/VibePicnic/releases/download/assets/spring.gif)
 
 #### 🌧️ Summer
 
-![summer](images/summer.gif)
+![summer](https://github.com/kobong8/VibePicnic/releases/download/assets/summer.gif)
 
 #### 🍂 Autumn
 
-![autumn](images/autumn.gif)
+![autumn](https://github.com/kobong8/VibePicnic/releases/download/assets/autumn.gif)
 
 #### ❄️ Winter
 
-![winter](images/winter.gif)
+![winter](https://github.com/kobong8/VibePicnic/releases/download/assets/winter.gif)
 
 #### 🌕 Moonlit Lake
 
-![moonlake](images/moonlake.gif)
+![moonlake](https://github.com/kobong8/VibePicnic/releases/download/assets/moonlake.gif)
 
 #### 🔥 Campfire
 
-![campfire](images/campfire.gif)
+![campfire](https://github.com/kobong8/VibePicnic/releases/download/assets/campfire.gif)
 
 #### 🎆 Fireworks
 
-![fireworks](images/fireworks.gif)
+![fireworks](https://github.com/kobong8/VibePicnic/releases/download/assets/fireworks.gif)
 
 ---
 

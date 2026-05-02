@@ -269,7 +269,7 @@ const moonlake: Theme = {
     const WAVE_CHARS = ["~", "≈", "∽", "∼", "〜"];
     const WAVE_ASCII = ["~", "~", "-", "~", "-"];
 
-    for (let y = horizonY + 1; y < height - 1; y++) {
+    for (let y = horizonY + 1; y < height; y++) {
       const lakeDepth = (y - horizonY) / (height - 1 - horizonY);
       for (let x = 0; x < width; x++) {
         const distFromCenter = Math.abs(x - moonCenterX);
@@ -350,7 +350,7 @@ const moonlake: Theme = {
     }
 
     // === Star reflections on lake ===
-    for (let y = horizonY + 2; y < height - 2; y++) {
+    for (let y = horizonY + 2; y < height - 1; y++) {
       for (let x = 0; x < width; x++) {
         const distFromCenter = Math.abs(x - moonCenterX);
         const lakeDepth = (y - horizonY) / (height - 1 - horizonY);

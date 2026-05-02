@@ -56,7 +56,7 @@ const summer: Theme = {
 
   renderGround(groundMap: GroundMap, height: number, width: number): void {
     const color = renderer.fgRgb(60, 100, 160);
-    const gy = height - 2;
+    const gy = height - 1;
     if (gy <= 0) return;
     for (let x = 0; x < width; x++) {
       const h = groundMap[x] || 0;
@@ -70,7 +70,7 @@ const summer: Theme = {
   onLanded(landed: Particle[], system: ParticleSystem, height: number): void {
     for (const p of landed) {
       if (Math.random() < 0.3) {
-        const splash = this.createParticle(0, height - 2, false);
+        const splash = this.createParticle(0, height - 1, false);
         splash.x = p.x + (Math.random() - 0.5) * 2;
         system.add(splash);
       }
