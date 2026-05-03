@@ -89,7 +89,7 @@ const campfire: Theme = {
     const fireLeft = Math.floor((width - fireWidth) / 2);
     const fireRight = fireLeft + fireWidth;
     const logMidX = Math.floor(width / 2);
-    const groundY = height - 2;
+    const groundY = height - 1;
 
     // === 장작 (Logs) ===
     const logBaseY = groundY - 1;

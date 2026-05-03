@@ -373,7 +373,7 @@ export function run(options: RunOptions): void {
 
     const prompt = "Press any key to continue...";
     const px = Math.max(0, w - prompt.length - 2);
-    const py = h - 1;
+    const py = h - 2;
 
     // Clear the line for the prompt to prevent background artifacts
     for (let i = 0; i < prompt.length && px + i < w; i++) {
@@ -443,7 +443,7 @@ export function run(options: RunOptions): void {
     const hint = " i:settings  q:quit ";
     const hx = Math.max(0, w - hint.length - 1);
     for (let i = 0; i < hint.length && hx + i < w; i++) {
-      renderer.set(hx + i, h - 1, hint[i], hintColor);
+      renderer.set(hx + i, h - 2, hint[i], hintColor);
     }
   }
 

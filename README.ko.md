@@ -9,7 +9,7 @@
 🌕 호숫가 달빛   🔥 모닥불   🎆 폭죽놀이
 ```
 
-![campfire](images/campfire.gif)
+![campfire](https://github.com/kobong8/VibePicnic/releases/download/assets/campfire.gif)
 
 ---
 
@@ -46,6 +46,24 @@ vibe-picnic
 vibe-picnic --theme moonlake
 vp --theme campfire    # 단축 명령어
 vp --theme fireworks   # 현실적인 야간 폭죽 장면
+```
+
+### 최신 버전으로 업데이트
+
+npm에 새 버전이 배포되면 아래 명령어로 업데이트할 수 있습니다.
+
+```bash
+# 현재 설치된 버전 확인
+vibe-picnic --version
+
+# npm에 올라온 최신 버전 확인
+npm view vibe-picnic version
+
+# 최신 버전으로 업데이트
+npm update -g vibe-picnic
+
+# 또는 최신 버전을 명시적으로 재설치
+npm install -g vibe-picnic@latest
 ```
 
 ### 로컬 빌드 및 실행
@@ -146,31 +164,31 @@ rm ~/.vibe-picnic.json           # 설정
 
 #### 🌸 봄 (spring)
 
-![spring](https://github.com/kobong8/VibePicnic/releases/tag/assets/spring.gif)
+![spring](https://github.com/kobong8/VibePicnic/releases/download/assets/spring.gif)
 
 #### 🌧️ 여름 (summer)
 
-![summer](images/summer.gif)
+![summer](https://github.com/kobong8/VibePicnic/releases/download/assets/summer.gif)
 
 #### 🍂 가을 (autumn)
 
-![autumn](images/autumn.gif)
+![autumn](https://github.com/kobong8/VibePicnic/releases/download/assets/autumn.gif)
 
 #### ❄️ 겨울 (winter)
 
-![winter](images/winter.gif)
+![winter](https://github.com/kobong8/VibePicnic/releases/download/assets/winter.gif)
 
 #### 🌕 달빛 호숫가 (moonlake)
 
-![moonlake](images/moonlake.gif)
+![moonlake](https://github.com/kobong8/VibePicnic/releases/download/assets/moonlake.gif)
 
 #### 🔥 모닥불 (campfire)
 
-![campfire](images/campfire.gif)
+![campfire](https://github.com/kobong8/VibePicnic/releases/download/assets/campfire.gif)
 
 #### 🎆 폭죽놀이 (fireworks)
 
-![fireworks](images/fireworks.gif)
+![fireworks](https://github.com/kobong8/VibePicnic/releases/download/assets/fireworks.gif)
 
 ---
 
