@@ -230,15 +230,15 @@ Press `i` at any time to open an interactive settings panel in the top-right cor
    Ground:   on
 
    Particles: 76
- ↑↓ move  ←→ change
+ ↑↓/kj move  ←→/hl change
  s save  r reset  q close
 ─────────────────────────
 ```
 
 | Key | Action |
 |:---:|---|
-| `↑` `↓` | Move the cursor between rows |
-| `←` `→` | Change the highlighted value |
+| `↑` `↓` / `k` `j` | Move the cursor between rows |
+| `←` `→` / `h` `l` | Change the highlighted value |
 | `s` | Save current values to `~/.vibe-picnic.json` and close |
 | `r` | Reset all settings to defaults |
 | `q` / `i` / `ESC` | Close the panel without saving |

@@ -156,11 +156,14 @@ export function run(options: RunOptions): void {
         noGround = defaults.noGround;
         return;
       }
-      if (key === "\x1b[A")
+      if (key === "\x1b[A" || key === "k" || key === "K")
         panelCursor = (panelCursor - 1 + panelItems.length) % panelItems.length;
-      if (key === "\x1b[B") panelCursor = (panelCursor + 1) % panelItems.length;
-      if (key === "\x1b[D") adjustPanelItem(panelItems[panelCursor], -1);
-      if (key === "\x1b[C") adjustPanelItem(panelItems[panelCursor], +1);
+      if (key === "\x1b[B" || key === "j" || key === "J")
+        panelCursor = (panelCursor + 1) % panelItems.length;
+      if (key === "\x1b[D" || key === "h" || key === "H")
+        adjustPanelItem(panelItems[panelCursor], -1);
+      if (key === "\x1b[C" || key === "l" || key === "L")
+        adjustPanelItem(panelItems[panelCursor], +1);
       return;
     }
 
@@ -431,24 +434,24 @@ export function run(options: RunOptions): void {
     }
   }
 
-  function getGreeting(seasonName: string): string {
+  function getGreeting(themeName: string): string {
     const hour = new Date().getHours();
     let timeGreet: string;
     if (hour >= 5 && hour < 12) timeGreet = "Good Morning";
     else if (hour >= 12 && hour < 18) timeGreet = "Good Afternoon";
     else timeGreet = "Good Evening";
 
-    const seasonGreet: Record<string, string> = {
+    const themeGreet: Record<string, string> = {
       spring: "🌸 Spring in the air",
       summer: "🌧️ Rainy summer days",
       autumn: "🍂 Autumn in a gentle breeze",
       winter: "❄️ A quiet winter wonderland",
       moonlake: "🌕 Beneath the full moon",
       campfire: "🔥 Cozy moments by the fire",
-      fireworks: "🎆 Fireworks Night",
+      fireworks: "🎆 A sky full of fireworks",
     };
 
-    return `${timeGreet}  -  ${seasonGreet[seasonName] || ""}`;
+    return `${timeGreet}  -  ${themeGreet[themeName] || ""}`;
   }
 
   function drawUI(): void {
@@ -537,7 +540,7 @@ export function run(options: RunOptions): void {
       `   Particles: ${system.count()}`,
       dim,
     );
-    drawLine(y0 + 3 + panelItems.length, " ↑↓ move  ←→ change", dim);
+    drawLine(y0 + 3 + panelItems.length, " ↑↓/kj move  ←→/hl change", dim);
     drawLine(y0 + 4 + panelItems.length, " s save  r reset  q close", dim);
     drawLine(y0 + 5 + panelItems.length, "─".repeat(panelWidth), dim);
   }
