@@ -84,9 +84,25 @@ export function run(options: RunOptions): void {
   let running = true;
   const startTime = Date.now();
 
-  const panelItems = ["theme", "density", "wind", "speed", "ascii", "ground"] as const;
+  const panelItems = [
+    "theme",
+    "density",
+    "wind",
+    "speed",
+    "ascii",
+    "ground",
+  ] as const;
   type PanelItem = (typeof panelItems)[number];
-  const themeOrder = ["spring", "summer", "autumn", "winter", "moonlake", "campfire", "fireworks", "random"];
+  const themeOrder = [
+    "spring",
+    "summer",
+    "autumn",
+    "winter",
+    "moonlake",
+    "campfire",
+    "fireworks",
+    "random",
+  ];
   let panelOpen = false;
   let panelCursor = 0;
 
@@ -109,7 +125,13 @@ export function run(options: RunOptions): void {
         running = false;
         return;
       }
-      if (key === "i" || key === "I" || key === "q" || key === "Q" || key === "\x1b") {
+      if (
+        key === "i" ||
+        key === "I" ||
+        key === "q" ||
+        key === "Q" ||
+        key === "\x1b"
+      ) {
         panelOpen = false;
         return;
       }
@@ -134,7 +156,8 @@ export function run(options: RunOptions): void {
         noGround = defaults.noGround;
         return;
       }
-      if (key === "\x1b[A") panelCursor = (panelCursor - 1 + panelItems.length) % panelItems.length;
+      if (key === "\x1b[A")
+        panelCursor = (panelCursor - 1 + panelItems.length) % panelItems.length;
       if (key === "\x1b[B") panelCursor = (panelCursor + 1) % panelItems.length;
       if (key === "\x1b[D") adjustPanelItem(panelItems[panelCursor], -1);
       if (key === "\x1b[C") adjustPanelItem(panelItems[panelCursor], +1);
@@ -168,7 +191,8 @@ export function run(options: RunOptions): void {
 
   function adjustPanelItem(item: PanelItem, delta: number): void {
     if (item === "theme") {
-      const currentValue = selectedTheme === "random" ? "random" : activeTheme.name;
+      const currentValue =
+        selectedTheme === "random" ? "random" : activeTheme.name;
       const startIdx = themeOrder.indexOf(currentValue);
       const idx = startIdx === -1 ? 0 : startIdx;
       const next = (idx + delta + themeOrder.length) % themeOrder.length;
@@ -194,7 +218,8 @@ export function run(options: RunOptions): void {
   }
 
   function getPanelValue(item: PanelItem): string {
-    if (item === "theme") return selectedTheme === "random" ? "random" : activeTheme.name;
+    if (item === "theme")
+      return selectedTheme === "random" ? "random" : activeTheme.name;
     if (item === "density") return String(currentDensity);
     if (item === "wind") return (wind >= 0 ? "+" : "") + wind.toFixed(1);
     if (item === "speed") return speed.toFixed(1);
@@ -404,14 +429,6 @@ export function run(options: RunOptions): void {
     for (let i = 0; i < prompt.length && px + i < w; i++) {
       renderer.set(px + i, py, prompt[i], promptColor);
     }
-
-    // fotter 미사용
-    // const footer = "vibe-picnic";
-    // const fx = Math.max(0, Math.floor((w - footer.length) / 2));
-    // const footerColor = noColor ? "" : renderer.dim() + renderer.fgRgb(100, 100, 120);
-    // for (let i = 0; i < footer.length && fx + i < w; i++) {
-    //   renderer.set(fx + i, h - 1, footer[i], footerColor);
-    // }
   }
 
   function getGreeting(seasonName: string): string {
@@ -422,11 +439,11 @@ export function run(options: RunOptions): void {
     else timeGreet = "Good Evening";
 
     const seasonGreet: Record<string, string> = {
-      spring: "🌸 Spring has come",
-      summer: "🌧️ Summer rain",
-      autumn: "🍂 Autumn breeze",
-      winter: "❄️ Winter wonderland",
-      moonlake: "🌕 Full Moon, Full Heart",
+      spring: "🌸 Spring in the air",
+      summer: "🌧️ Rainy summer days",
+      autumn: "🍂 Autumn in a gentle breeze",
+      winter: "❄️ A quiet winter wonderland",
+      moonlake: "🌕 Beneath the full moon",
       campfire: "🔥 Cozy moments by the fire",
       fireworks: "🎆 Fireworks Night",
     };
@@ -453,7 +470,9 @@ export function run(options: RunOptions): void {
     }
 
     const brightness = Math.round(140 * alpha);
-    const hintColor = noColor ? "" : renderer.fgRgb(brightness, brightness, brightness);
+    const hintColor = noColor
+      ? ""
+      : renderer.fgRgb(brightness, brightness, brightness);
 
     const hint = " i:settings  q:quit ";
     const hx = Math.max(0, w - hint.length - 1);
@@ -474,17 +493,26 @@ export function run(options: RunOptions): void {
 
     const fg = noColor ? "" : renderer.fgRgb(220, 220, 220);
     const dim = noColor ? "" : renderer.dim() + renderer.fgRgb(160, 160, 160);
-    const cursorColor = noColor ? "" : renderer.bold() + renderer.fgRgb(255, 220, 100);
+    const cursorColor = noColor
+      ? ""
+      : renderer.bold() + renderer.fgRgb(255, 220, 100);
 
     function drawLine(yi: number, text: string, color: string): void {
-      const padded = text.length >= panelWidth ? text.slice(0, panelWidth) : text + " ".repeat(panelWidth - text.length);
+      const padded =
+        text.length >= panelWidth
+          ? text.slice(0, panelWidth)
+          : text + " ".repeat(panelWidth - text.length);
       for (let i = 0; i < panelWidth; i++) {
         renderer.set(x0 + i, yi, padded[i] || " ", color);
       }
     }
 
     const titlePrefix = "─ Settings ";
-    drawLine(y0, titlePrefix + "─".repeat(Math.max(0, panelWidth - titlePrefix.length)), dim);
+    drawLine(
+      y0,
+      titlePrefix + "─".repeat(Math.max(0, panelWidth - titlePrefix.length)),
+      dim,
+    );
 
     const labels: Record<PanelItem, string> = {
       theme: "Theme:",
@@ -504,7 +532,11 @@ export function run(options: RunOptions): void {
     }
 
     drawLine(y0 + 1 + panelItems.length, "", fg);
-    drawLine(y0 + 2 + panelItems.length, `   Particles: ${system.count()}`, dim);
+    drawLine(
+      y0 + 2 + panelItems.length,
+      `   Particles: ${system.count()}`,
+      dim,
+    );
     drawLine(y0 + 3 + panelItems.length, " ↑↓ move  ←→ change", dim);
     drawLine(y0 + 4 + panelItems.length, " s save  r reset  q close", dim);
     drawLine(y0 + 5 + panelItems.length, "─".repeat(panelWidth), dim);
