@@ -375,19 +375,34 @@ export function run(options: RunOptions): void {
     const px = Math.max(0, w - prompt.length - 2);
     const py = h - 2;
 
+    const elapsed = Date.now() - startTime;
+    const fadeStart = 5000;
+    const fadeEnd = 10000;
+
+    if (elapsed >= fadeEnd) return;
+
+    let alpha = 1;
+    if (elapsed >= fadeStart) {
+      alpha = 1 - (elapsed - fadeStart) / (fadeEnd - fadeStart);
+      const blinkOn = Math.floor(elapsed / 400) % 2 === 0;
+      if (!blinkOn) return;
+    }
+
     // Clear the line for the prompt to prevent background artifacts
     for (let i = 0; i < prompt.length && px + i < w; i++) {
       renderer.set(px + i, py, " ", "");
     }
 
-    const blink = Math.floor(tick / 15) % 2 === 0;
-    if (blink) {
-      const promptColor = noColor
-        ? ""
-        : renderer.bold() + renderer.fgRgb(220, 220, 240);
-      for (let i = 0; i < prompt.length && px + i < w; i++) {
-        renderer.set(px + i, py, prompt[i], promptColor);
-      }
+    const promptColor = noColor
+      ? ""
+      : renderer.bold() +
+        renderer.fgRgb(
+          Math.round(220 * alpha),
+          Math.round(220 * alpha),
+          Math.round(240 * alpha),
+        );
+    for (let i = 0; i < prompt.length && px + i < w; i++) {
+      renderer.set(px + i, py, prompt[i], promptColor);
     }
 
     // fotter 미사용
